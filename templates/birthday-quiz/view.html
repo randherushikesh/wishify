@@ -170,7 +170,7 @@
     }
 
     try {
-      var res = await fetch('http://localhost:5000/api/pages/' + slug);
+      var res = await fetch('https://wishify.onrender.com/api/pages/' + slug);
       var result = await res.json();
 
       if (!result.success) {

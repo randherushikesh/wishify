@@ -49,7 +49,7 @@
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/pages/' + slug);
+      const response = await fetch('https://wishify.onrender.com/api/pages/' + slug);
       const result = await response.json();
 
       if (!result.success) {

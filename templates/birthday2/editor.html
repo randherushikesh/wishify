@@ -294,7 +294,7 @@
   }
 };
     try {
-      const res = await fetch('http://localhost:5000/api/pages', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      const res = await fetch('https://wishify.onrender.com/api/pages', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
       const result = await res.json();
       if (result.success) {
         var link = window.location.origin + '/templates/birthday2/view.html?slug=' + result.slug;
