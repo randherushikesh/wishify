@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday Rushikesh! 🎂</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="birthday1.css">
+   
+  
+</head>
+<body>
+
+  <!-- Background blobs -->
+  <div class="bg-blob blob1"></div>
+  <div class="bg-blob blob2"></div>
+  <div class="bg-blob blob3"></div>
+
+  <!-- Animated confetti -->
+  <div class="confetti-layer" id="confetti"></div>
+
+  <div class="card">
+    <div class="stripe"></div>
+
+    <div class="card-body">
+
+      <div class="tag-pill">✨ &nbsp; Special Day &nbsp; ✨</div>
+
+      <h1 class="main-title">
+        Happy Birthday,<br>
+        <span class="name">Rushikesh!</span> 🎂
+      </h1>
+      <p class="subtitle">June 15 · A day to celebrate YOU</p>
+
+      <div class="divider">
+        <div class="div-line"></div>
+        <span class="div-icon">🎉</span>
+        <div class="div-line"></div>
+      </div>
+
+      <!-- Photo box -->
+      <div class="photo-placeholder">
+        <div class="photo-icon">📸</div>
+        <p class="photo-main-label">Photo Goes Here</p>
+        <p class="photo-sub-label">Your favourite memory will shine right here</p>
+      </div>
+
+      <!-- Message -->
+      <div class="message-card">
+        <span class="open-quote">"</span>
+        <p class="message-text">
+          Rushikesh, every single day you remind us what it means to truly live — with passion, with laughter, and with a heart so big it makes the whole world feel warmer. On your birthday, we want you to know how deeply loved and appreciated you are. May this year bring you every dream you've been chasing, every adventure you've been craving, and countless moments that take your breath away. You absolutely deserve it all. Here's to YOU! 🌟
+        </p>
+      </div>
+
+      <!-- From -->
+      <div class="from-section">
+        <div class="from-avatar">P</div>
+        <div class="from-meta">
+          <div class="from-label">With all the love in the world, from</div>
+          <div class="from-name">Priya &amp; your amazing squad 💛</div>
+        </div>
+      </div>
+      <div><a href="birthday-editor.html" target="_blank">
+   <button class="styled-btn">Edit this page</button>
+</a></button></div>
+
+    </div>
+
+    <div class="card-footer">
+      <div class="footer-emojis">🎈🎂🎁🎊🎈</div>
+      <p class="footer-brand">Made with love · Wishify</p>
+    </div>
+  </div>
+
+  <script>
+    // Generate floating confetti pieces
+    const colors = ['#ff6b6b','#ffd700','#69db7c','#4dabf7','#cc5de8','#ff9f40','#f06595'];
+    const layer = document.getElementById('confetti');
+    for (let i = 0; i < 35; i++) {
+      const el = document.createElement('div');
+      el.className = 'cf';
+      const size = Math.random() * 8 + 4;
+      el.style.cssText = `
+        width:${size}px; height:${size * (Math.random() > 0.5 ? 1 : 2.5)}px;
+        background:${colors[Math.floor(Math.random() * colors.length)]};
+        left:${Math.random() * 100}%;
+        top:${Math.random() * -20}%;
+        animation-duration:${Math.random() * 6 + 5}s;
+        animation-delay:${Math.random() * 6}s;
+        border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+        opacity:${Math.random() * 0.5 + 0.3};
+      `;
+      layer.appendChild(el);
+    }
+  </script>
+</body>
+</html>

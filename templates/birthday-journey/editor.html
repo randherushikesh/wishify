@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishify — Birthday Journey Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    /* ────────────── RESET & BASE ────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0c0c14;
+      --surface: #16161f;
+      --surface2: #1e1e2b;
+      --surface3: #28283a;
+      --border: rgba(255,255,255,.07);
+      --text: #f0f0f8;
+      --muted: rgba(240,240,248,.45);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --shadow: 0 20px 60px rgba(0,0,0,.6);
+      --transition: all .3s cubic-bezier(.25,.46,.45,.94);
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 1. Ensure the card stacks elements properly */
+    /* 1. The Card Container */
+.gallery-card, .gallery-card-p {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #1a1a2e;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  height: auto !important;
+  min-height: min-content !important;
+}
+
+/* 2. The Image (When uploaded) */
+.gallery-img, .gallery-img-p {
+  width: 100% !important;
+  height: 180px !important;         /* Locks the height strictly */
+  min-height: 180px !important;     /* Prevents shrinking */
+  max-height: 180px !important;     /* Prevents expanding */
+  object-fit: contain !important;   /* Shows full image without crop */
+  background: rgba(0, 0, 0, 0.5) !important;
+  flex-shrink: 0 !important;        /* Forbids flexbox from altering the size */
+  display: block !important;
+}
+
+/* 3. The Placeholder (Before upload / Error) */
+.gallery-placeholder, .gallery-img-placeholder, .gallery-img-error {
+  width: 100% !important;
+  height: 180px !important;
+  min-height: 180px !important;
+  max-height: 180px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+}
+
+/* 4. The Caption Area */
+.gallery-caption, .gallery-caption-p {
+  padding: 1rem 1.2rem !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  flex-grow: 1 !important;          /* Tells text to fill remaining space */
+  min-height: 80px !important;      /* Guarantees the text is never hidden */
+  display: block !important;
+}
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .7rem 1.8rem;
+      background: rgba(22,22,31,.82);
+      backdrop-filter: blur(16px) saturate(1.2);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+    }
+    .topbar-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+    .topbar-logo span {
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .topbar-badge {
+      font-size: .6rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: .2rem .7rem;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      -webkit-text-fill-color: #1a0010;
+    }
+    .topbar-actions {
+      display: flex;
+      gap: .5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      font-family: 'Nunito', sans-serif;
+      font-size: .78rem;
+      font-weight: 800;
+      border: none;
+      padding: .45rem 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .btn-ghost {
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.12); transform: translateY(-1px); }
+    .btn-primary {
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      -webkit-text-fill-color: #1a0010;
+      box-shadow: 0 4px 20px rgba(244,200,66,.25);
+    }
+    .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 30px rgba(244,200,66,.35); }
+
+    /* ─── APP LAYOUT ─── */
+    .app {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      min-height: calc(100vh - 72px);
+      align-items: flex-start;
+    }
+
+    /* ─── LEFT PANEL (EDITOR) ─── */
+    .editor-panel {
+      flex: 0 0 400px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: calc(72px + 1.5rem);
+      max-height: calc(100vh - 72px - 3rem);
+    }
+    .editor-header {
+      padding: 1rem 1.4rem .6rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .editor-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -.01em;
+    }
+    .editor-header h2 span {
+      color: var(--muted);
+      font-weight: 400;
+      font-size: .75rem;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .section-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      flex-shrink: 0;
+      padding: 0 .4rem;
+      gap: .1rem;
+    }
+    .section-tabs::-webkit-scrollbar { height: 0; }
+    .stab {
+      flex-shrink: 0;
+      padding: .55rem 1rem;
+      font-size: .7rem;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--muted);
+      border-bottom: 2.5px solid transparent;
+      transition: var(--transition);
+      white-space: nowrap;
+      border-radius: 0;
+      background: none;
+      font-family: 'Nunito', sans-serif;
+    }
+    .stab.active { color: #f4c842; border-bottom-color: #f4c842; }
+    .stab:hover:not(.active) { color: var(--text); }
+
+    .editor-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.2rem 1.4rem 1.6rem;
+    }
+    .section-panel { display: none; animation: fadeUp .3s ease; }
+    .section-panel.active { display: block; }
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .field-group { margin-bottom: 1.1rem; }
+    .field-label {
+      font-size: .65rem;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: .35rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .field-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      padding: .6rem .85rem;
+      border-radius: var(--radius-sm);
+      outline: none;
+      resize: vertical;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field-input:focus {
+      border-color: #f4c842;
+      box-shadow: 0 0 0 4px rgba(244,200,66,.1);
+    }
+    .field-input::placeholder { color: rgba(255,255,255,.2); font-weight: 400; }
+    textarea.field-input { min-height: 64px; line-height: 1.6; }
+
+    .divider { height: 1px; background: var(--border); margin: 1.2rem 0; }
+
+    .color-row {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-top: .2rem;
+    }
+    .color-swatch {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2.5px solid transparent;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+    .color-swatch.active {
+      border-color: #fff;
+      transform: scale(1.12);
+      box-shadow: 0 0 20px rgba(255,255,255,.15);
+    }
+    .color-swatch:hover { transform: scale(1.05); }
+
+    .gallery-items {
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+      margin-bottom: .8rem;
+    }
+    .gallery-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: .9rem .9rem .7rem;
+      transition: var(--transition);
+    }
+    .gallery-item:hover { border-color: rgba(255,255,255,.12); }
+    .gallery-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .6rem;
+    }
+    .gallery-item-title {
+      font-size: .7rem;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: .03em;
+    }
+    .item-del {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.2);
+      cursor: pointer;
+      font-size: .9rem;
+      transition: var(--transition);
+      padding: .2rem .4rem;
+      border-radius: 6px;
+    }
+    .item-del:hover { color: #e8506a; background: rgba(232,80,106,.12); }
+
+    .photo-upload-card {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: .8rem;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: .5rem;
+      position: relative;
+      background: rgba(255,255,255,.02);
+    }
+    .photo-upload-card:hover {
+      border-color: #f4c842;
+      background: rgba(244,200,66,.05);
+    }
+    .photo-upload-card input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+    }
+    .photo-upload-icon { font-size: 1.4rem; margin-bottom: .2rem; }
+    .photo-upload-label { font-size: .7rem; color: var(--muted); font-weight: 700; }
+    .photo-preview-thumb {
+      width: 100%;
+      max-height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      margin-bottom: .2rem;
+    }
+
+    .add-item-btn {
+      width: 100%;
+      background: rgba(244,200,66,.08);
+      border: 1.5px dashed rgba(244,200,66,.25);
+      color: #f4c842;
+      font-family: 'Nunito', sans-serif;
+      font-size: .78rem;
+      font-weight: 800;
+      padding: .6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .add-item-btn:hover {
+      background: rgba(244,200,66,.15);
+      border-color: rgba(244,200,66,.4);
+    }
+
+    /* ─── RIGHT PANEL (PREVIEW) ─── */
+    .preview-panel {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .preview-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .7rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .preview-label {
+      font-size: .7rem;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .preview-label::before {
+      content: '●';
+      color: #4ade80;
+      font-size: .6rem;
+      animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+
+    .screen-nav-pills {
+      display: flex;
+      gap: .3rem;
+      flex-wrap: wrap;
+    }
+    .snav-pill {
+      font-size: .65rem;
+      font-weight: 800;
+      padding: .25rem .8rem;
+      border-radius: 30px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--surface2);
+      transition: var(--transition);
+      font-family: 'Nunito', sans-serif;
+    }
+    .snav-pill.active {
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      -webkit-text-fill-color: #1a0010;
+      border-color: transparent;
+      box-shadow: 0 4px 16px rgba(244,200,66,.25);
+    }
+    .snav-pill:hover:not(.active) { color: var(--text); border-color: rgba(255,255,255,.15); }
+
+    .preview-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.8rem;
+      background: radial-gradient(ellipse at 50% 0%, #1a1a2e, #0a0a12);
+      min-height: 480px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-card {
+      width: 100%;
+      max-width: 580px;
+      background: #141425;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04);
+      position: relative;
+      transition: var(--transition);
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pscreen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      padding: 1.8rem 2rem 2rem;
+      animation: fadeUp .35s ease;
+      min-height: 380px;
+    }
+    .pscreen.active { display: flex; }
+
+    /* ── WELCOME SCREEN ── */
+    #ps-welcome {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      background: linear-gradient(160deg, #1a0030, #0d0d1a, #0d0d1a);
+      border-radius: 28px;
+      overflow: hidden;
+      min-height: 380px;
+    }
+    .welcome-stars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--d,3s) infinite var(--del,0s);
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: .15; }
+      50% { opacity: 1; }
+    }
+    .welcome-emoji-big {
+      font-size: 3.8rem;
+      margin-bottom: .6rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .welcome-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: .4rem;
+      letter-spacing: -.02em;
+    }
+    .welcome-sub {
+      font-size: .85rem;
+      color: rgba(255,255,255,.55);
+      line-height: 1.7;
+      margin-bottom: 1.4rem;
+      max-width: 320px;
+    }
+    .welcome-btn {
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      border: none;
+      padding: .7rem 2.2rem;
+      border-radius: 50px;
+      font-size: .9rem;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(244,200,66,.3);
+      transition: var(--transition);
+    }
+    .welcome-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 0 12px 40px rgba(244,200,66,.4);
+    }
+
+    /* ── LOADING SCREEN ── */
+    #ps-loading {
+      background: linear-gradient(160deg, #0d0d1a, #1a1a2e);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 28px;
+      min-height: 380px;
+      padding: 1.8rem 2rem;
+    }
+    .road-label {
+      font-size: .75rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .road-track {
+      width: 100%;
+      max-width: 340px;
+      height: 56px;
+      background: #1e1e2e;
+      border-radius: var(--radius-sm);
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto .8rem;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .road-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, rgba(255,255,255,.1) 0 20px, transparent 20px 40px);
+      transform: translateY(-50%);
+    }
+    .road-car {
+      position: absolute;
+      top: 50%;
+      left: 10%;
+      transform: translateY(-50%);
+      font-size: 1.8rem;
+      animation: car-drive 2.8s ease-in-out infinite;
+    }
+    @keyframes car-drive {
+      0% { left: 6%; }
+      70% { left: 76%; }
+      100% { left: 6%; }
+    }
+    .road-trees {
+      display: flex;
+      justify-content: space-around;
+      font-size: 1.2rem;
+      max-width: 340px;
+      margin: 0 auto;
+    }
+    .loading-text {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-top: .8rem;
+      font-weight: 700;
+    }
+    .loading-dots::after {
+      content: '...';
+      animation: dots 1.2s steps(4,end) infinite;
+    }
+    @keyframes dots {
+      0% { content: '.'; }
+      33% { content: '..'; }
+      66% { content: '...'; }
+    }
+
+    /* ── GALLERY SCREEN ── */
+    #ps-gallery {
+      background: #0d0d1a;
+      border-radius: 28px;
+      padding: 0;
+      min-height: 380px;
+    }
+    .gallery-topbar-p {
+      padding: 1.2rem 1.6rem .4rem 1.6rem;
+      flex-shrink: 0;
+    }
+    .gallery-heading-p {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+    .gallery-sub-p {
+      font-size: .7rem;
+      color: var(--muted);
+      margin-top: .1rem;
+      font-weight: 600;
+    }
+    .gallery-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: .6rem 1.2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .8rem;
+      max-height: 280px;
+    }
+    .gallery-scroll::-webkit-scrollbar { width: 0; }
+    
+    .gallery-card-p:hover { border-color: rgba(255,255,255,.1); }
+    
+    .gallery-img-placeholder {
+      width: 100%;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      background: linear-gradient(135deg, rgba(244,200,66,.06), rgba(232,80,106,.06));
+    }
+    
+    .gallery-caption-tag {
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #f4c842;
+      margin-bottom: .1rem;
+    }
+    .gallery-caption-msg {
+      font-size: .8rem;
+      color: rgba(255,255,255,.7);
+      line-height: 1.5;
+      font-weight: 600;
+    }
+    .gallery-next-btn {
+      margin: .2rem 1.2rem 1.2rem;
+      width: calc(100% - 2.4rem);
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      border: none;
+      color: #1a0010;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: .82rem;
+      padding: .65rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+    .gallery-next-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 24px rgba(244,200,66,.25);
+    }
+
+    /* ── BIRTHDAY SCREEN ── */
+    #ps-birthday {
+      background: linear-gradient(160deg, #0d001a, #1a0030);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      min-height: 380px;
+      padding: 1.8rem 2rem;
+    }
+    .balloon-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .balloon {
+      position: absolute;
+      bottom: -80px;
+      font-size: 2rem;
+      animation: balloon-rise var(--dur,4s) var(--del,0s) ease-in infinite;
+      cursor: pointer;
+      pointer-events: all;
+      user-select: none;
+      transition: transform .15s;
+    }
+    .balloon:hover { transform: scale(1.1); }
+    @keyframes balloon-rise {
+      0% { bottom: -80px; opacity: 1; transform: translateX(0) rotate(0deg); }
+      80% { opacity: 1; }
+      100% { bottom: 110%; opacity: 0; transform: translateX(var(--sway,20px)) rotate(10deg); }
+    }
+    .balloon.popped { animation: none; display: none; }
+    .bday-content {
+      position: relative;
+      z-index: 2;
+    }
+    /* Update the container to position: relative */
+.bday-photo-wrap {
+  width: 130px; 
+  height: 130px; 
+  border-radius: 20px; 
+  overflow: hidden;
+  border: 3px solid rgba(244,200,66,.4);
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, rgba(244,200,66,.15), rgba(232,80,106,.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,.3);
+  position: relative; /* <-- Added this to anchor the image */
+}
+
+/* Force the image to absolute position so it completely fills the box */
+.bday-photo, .bday-photo-p {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  display: block;
+  position: absolute; /* <-- Forces image to ignore siblings and cover the whole box */
+  top: 0;
+  left: 0;
+  z-index: 10; /* <-- Ensures the photo sits on top of any leftover emojis or broken text */
+}
+    .bday-emoji {
+      font-size: 1.8rem;
+      margin-bottom: .2rem;
+    }
+    .bday-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      margin-bottom: .3rem;
+      letter-spacing: -.01em;
+    }
+    .bday-msg {
+      font-size: .82rem;
+      color: rgba(255,255,255,.65);
+      line-height: 1.7;
+      max-width: 280px;
+      margin: 0 auto .6rem;
+      font-weight: 600;
+    }
+    .bday-from {
+      font-weight: 900;
+      font-size: .85rem;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .bday-hint {
+      font-size: .6rem;
+      color: rgba(255,255,255,.2);
+      margin-top: .5rem;
+      letter-spacing: .04em;
+      font-weight: 700;
+    }
+    .brand-p {
+      font-size: .5rem;
+      color: rgba(255,255,255,.1);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-top: .6rem;
+      font-weight: 800;
+    }
+
+    /* ─── SHARE SECTION ─── */
+    .share-section {
+      background: linear-gradient(135deg, rgba(244,200,66,.08), rgba(232,80,106,.06));
+      border: 1.5px solid rgba(244,200,66,.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .share-section .section-label {
+      font-size: .65rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #f4c842;
+      margin-bottom: .6rem;
+    }
+    #generate-btn {
+      width: 100%;
+      padding: .8rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244,200,66,.2);
+      transition: transform .15s, box-shadow .15s;
+    }
+    #generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(244,200,66,.3);
+    }
+    .result-area {
+      display: none;
+      margin-top: .75rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .result-area.show { display: block; }
+    .result-url {
+      display: block;
+      padding: .6rem .8rem;
+      font-size: .7rem;
+      color: rgba(255,255,255,.5);
+      word-break: break-all;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .result-actions {
+      display: flex;
+    }
+    .result-btn {
+      flex: 1;
+      padding: .55rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.5);
+      cursor: pointer;
+    }
+    .result-btn:hover {
+      background: rgba(255,255,255,.06);
+      color: #fff;
+    }
+    .result-btn + .result-btn {
+      border-left: 1px solid rgba(255,255,255,.07);
+    }
+
+    /* ─── TOAST ─── */
+    .toast {
+      position: fixed;
+      bottom: 1.8rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a2d1a;
+      color: #7fff7f;
+      border: 1px solid rgba(127,255,127,.15);
+      padding: .7rem 1.6rem;
+      border-radius: 14px;
+      font-size: .82rem;
+      font-weight: 800;
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+      z-index: 9999;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 30px rgba(0,0,0,.5);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1200px) { .editor-panel { flex: 0 0 360px; } .preview-card { max-width: 500px; } }
+    @media (max-width: 992px) {
+      .app { flex-direction: column; padding: 1rem; gap: 1.2rem; }
+      .editor-panel { flex: 1 1 auto; width: 100%; position: static; max-height: none; }
+      .editor-body { max-height: 440px; }
+      .preview-panel { width: 100%; }
+      .preview-card { max-width: 100%; }
+      .preview-stage { padding: 1.2rem; min-height: 360px; }
+      .pscreen { padding: 1.4rem 1.2rem 1.6rem; min-height: 320px; }
+      #ps-welcome, #ps-loading, #ps-gallery, #ps-birthday { min-height: 320px; }
+      .welcome-title { font-size: 1.3rem; }
+      .bday-name { font-size: 1.2rem; }
+      .topbar { padding: .5rem 1rem; flex-wrap: wrap; gap: .4rem; }
+      .topbar-actions { gap: .3rem; }
+      .btn { font-size: .7rem; padding: .35rem .8rem; }
+      .topbar-logo { font-size: 1.1rem; }
+    }
+    @media (max-width: 480px) {
+      .app { padding: .6rem; gap: .8rem; }
+      .editor-panel { border-radius: var(--radius-sm); }
+      .editor-header { padding: .7rem 1rem .4rem 1rem; }
+      .editor-header h2 { font-size: .85rem; }
+      .editor-body { padding: .8rem 1rem 1.2rem; max-height: 360px; }
+      .section-tabs .stab { padding: .4rem .7rem; font-size: .62rem; }
+      .field-group { margin-bottom: .8rem; }
+      .field-input { font-size: .8rem; padding: .5rem .7rem; }
+      .preview-stage { padding: .6rem; min-height: 300px; }
+      .preview-card { border-radius: 20px; }
+      .pscreen { padding: 1rem 1rem 1.2rem; min-height: 280px; }
+      #ps-welcome, #ps-loading, #ps-gallery, #ps-birthday { min-height: 280px; }
+      .welcome-emoji-big { font-size: 2.8rem; }
+      .welcome-title { font-size: 1.1rem; }
+      .welcome-sub { font-size: .75rem; }
+      .welcome-btn { font-size: .8rem; padding: .6rem 1.6rem; }
+      .gallery-heading-p { font-size: 1rem; }
+      .bday-name { font-size: 1rem; }
+      .bday-msg { font-size: .75rem; }
+      .balloon { font-size: 1.5rem; }
+      .preview-topbar { padding: .5rem .8rem; }
+      .snav-pill { font-size: .58rem; padding: .2rem .6rem; }
+      .preview-label { font-size: .6rem; }
+      .gallery-next-btn { font-size: .7rem; padding: .5rem; }
+      .gallery-scroll { max-height: 200px; padding: .4rem .6rem .6rem; }
+      .gallery-topbar-p { padding: .8rem 1rem .2rem 1rem; }
+      .topbar-badge { font-size: .5rem; padding: .15rem .5rem; }
+      .color-swatch { width: 28px; height: 28px; }
+      .toast { font-size: .7rem; padding: .5rem 1.2rem; bottom: 1rem; }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ─── TOP BAR ─── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">Wish<span>ify</span></div>
+    <span class="topbar-badge">✨ Birthday Journey</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" onclick="copyData()">💾 Save Data</button>
+    <button class="btn btn-primary" onclick="openPreview()">👁 Full Preview</button>
+  </div>
+</header>
+
+<!-- ─── APP ─── -->
+<div class="app">
+
+  <!-- ── EDITOR ── -->
+  <div class="editor-panel">
+    <div class="editor-header">
+      <h2>✏️ Editor <span>· customize every detail</span></h2>
+    </div>
+    <div class="section-tabs">
+      <button class="stab active" data-tab="tab-welcome" onclick="switchTab(this,'tab-welcome')">🌟 Welcome</button>
+      <button class="stab" data-tab="tab-gallery" onclick="switchTab(this,'tab-gallery')">🖼 Gallery</button>
+      <button class="stab" data-tab="tab-birthday" onclick="switchTab(this,'tab-birthday')">🎂 Birthday</button>
+      <button class="stab" data-tab="tab-style" onclick="switchTab(this,'tab-style')">🎨 Style</button>
+    </div>
+
+    <div class="editor-body">
+
+      <!-- WELCOME -->
+      <div class="section-panel active" id="tab-welcome">
+        <div class="field-group">
+          <label class="field-label">🌟 Big Emoji</label>
+          <input class="field-input" id="welcomeEmoji" type="text" value="🎂" oninput="update()" maxlength="2" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">📝 Title</label>
+          <input class="field-input" id="welcomeTitle" type="text" value="Let's Begin the Journey!" oninput="update()" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">💬 Subtitle</label>
+          <textarea class="field-input" id="welcomeSub" oninput="update()">A little surprise is waiting for you… hop in! 🎉</textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">🔘 Button Text</label>
+          <input class="field-input" id="welcomeBtn" type="text" value="Yes, Let's Go! 🚀" oninput="update()" />
+        </div>
+      </div>
+
+      <!-- GALLERY -->
+      <div class="section-panel" id="tab-gallery">
+        <div class="field-group">
+          <label class="field-label">📌 Gallery Heading</label>
+          <input class="field-input" id="galleryHeading" type="text" value="Our Beautiful Memories 💫" oninput="update()" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">📎 Subtext</label>
+          <input class="field-input" id="gallerySub" type="text" value="A few moments that mean everything" oninput="update()" />
+        </div>
+
+        <div class="divider"></div>
+        <div style="font-size:.65rem;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem;">📸 Photos &amp; Captions</div>
+
+        <div class="gallery-items" id="gallery-items-editor">
+          <!-- injected by JS -->
+        </div>
+        <button class="add-item-btn" onclick="addGalleryItem()">＋ Add Photo</button>
+      </div>
+
+      <!-- BIRTHDAY -->
+      <div class="section-panel" id="tab-birthday">
+        <div class="field-group">
+          <label class="field-label">🎂 Name</label>
+          <input class="field-input" id="bdayName" type="text" value="Happy Birthday, Rushi! 🎊" oninput="update()" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">💌 Message</label>
+          <textarea class="field-input" id="bdayMsg" oninput="update()">You're one in a million and today is all about YOU! Wishing you all the love, laughter, and cake you can handle. 🥂</textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">✍️ From</label>
+          <input class="field-input" id="bdayFrom" type="text" value="Someone who cares ❤️" oninput="update()" />
+        </div>
+
+        <div class="divider"></div>
+        <div style="font-size:.65rem;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem;">📷 Birthday Photo</div>
+        <div class="photo-upload-card" onclick="triggerUpload('bday-photo-input')">
+          <img id="bday-photo-preview" class="photo-preview-thumb" style="display:none" alt="" />
+          <div id="bday-photo-placeholder">
+            <div class="photo-upload-icon">📸</div>
+            <div class="photo-upload-label">Click to upload photo</div>
+          </div>
+          <input type="file" id="bday-photo-input" accept="image/*" onchange="handlePhotoUpload(this,'bday-photo-preview','bday-photo-placeholder','bdayPhotoUrl')" />
+        </div>
+
+        <div class="divider"></div>
+        <div style="font-size:.65rem;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem;">🎈 Balloon Emojis</div>
+        <div class="field-group">
+          <label class="field-label">space-separated</label>
+          <input class="field-input" id="balloonEmojis" type="text" value="🎈 🎀 🎊 🎁 💛" oninput="update()" />
+        </div>
+      </div>
+
+      <!-- STYLE -->
+      <div class="section-panel" id="tab-style">
+        <div style="font-size:.65rem;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem;">🎨 Card Background</div>
+        <div class="color-row" id="bg-swatches">
+          <div class="color-swatch active" style="background:#1a0030" data-theme="purple" onclick="setTheme(this,'#1a0030','#0d0d1a')"></div>
+          <div class="color-swatch" style="background:#001a30" data-theme="blue" onclick="setTheme(this,'#001a30','#0d1420')"></div>
+          <div class="color-swatch" style="background:#1a1a00" data-theme="gold" onclick="setTheme(this,'#1a1a00','#0d0d00')"></div>
+          <div class="color-swatch" style="background:#001a12" data-theme="green" onclick="setTheme(this,'#001a12','#000d09')"></div>
+          <div class="color-swatch" style="background:#1a0010" data-theme="rose" onclick="setTheme(this,'#1a0010','#0d0008')"></div>
+        </div>
+
+        <div class="divider"></div>
+        <div style="font-size:.65rem;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem;">🌈 Accent Color</div>
+        <div class="color-row" id="accent-swatches">
+          <div class="color-swatch active" style="background:linear-gradient(135deg,#f4c842,#e8506a)" onclick="setAccent(this,'#f4c842','#e8506a')"></div>
+          <div class="color-swatch" style="background:linear-gradient(135deg,#60a5fa,#a78bfa)" onclick="setAccent(this,'#60a5fa','#a78bfa')"></div>
+          <div class="color-swatch" style="background:linear-gradient(135deg,#34d399,#06b6d4)" onclick="setAccent(this,'#34d399','#06b6d4')"></div>
+          <div class="color-swatch" style="background:linear-gradient(135deg,#fb923c,#f43f5e)" onclick="setAccent(this,'#fb923c','#f43f5e')"></div>
+          <div class="color-swatch" style="background:linear-gradient(135deg,#e879f9,#ec4899)" onclick="setAccent(this,'#e879f9','#ec4899')"></div>
+        </div>
+      </div>
+
+      <!-- SHARE SECTION (inside editor body) -->
+      <div class="share-section">
+        <div class="section-label">🔗 Share</div>
+        <button id="generate-btn">✨ Generate Shareable Link</button>
+        <div class="result-area" id="result-area">
+          <span class="result-url" id="result-link"></span>
+          <div class="result-actions">
+            <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+            <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /editor-body -->
+  </div><!-- /editor-panel -->
+
+  <!-- ── PREVIEW ── -->
+  <div class="preview-panel">
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <div class="screen-nav-pills">
+        <button class="snav-pill active" onclick="previewGo(0,this)">Welcome</button>
+        <button class="snav-pill" onclick="previewGo(1,this)">Loading</button>
+        <button class="snav-pill" onclick="previewGo(2,this)">Gallery</button>
+        <button class="snav-pill" onclick="previewGo(3,this)">Birthday</button>
+      </div>
+    </div>
+
+    <div class="preview-stage">
+      <div class="preview-card">
+
+        <!-- SCREEN 1: WELCOME -->
+        <div class="pscreen active" id="ps-welcome">
+          <div class="welcome-stars" id="welcome-stars"></div>
+          <div class="welcome-content" style="position:relative;z-index:1;">
+            <div class="welcome-emoji-big" id="p-welcomeEmoji">🎂</div>
+            <div class="welcome-title" id="p-welcomeTitle">Let's Begin the Journey!</div>
+            <p class="welcome-sub" id="p-welcomeSub">A little surprise is waiting for you… hop in! 🎉</p>
+            <button class="welcome-btn" id="p-welcomeBtn">Yes, Let's Go! 🚀</button>
+          </div>
+        </div>
+
+        <!-- SCREEN 2: LOADING -->
+        <div class="pscreen" id="ps-loading">
+          <div class="road-label">⏳ Getting your surprise ready</div>
+          <div class="road-scene">
+            <div class="road-track"><div class="road-line"></div><div class="road-car">🚗</div></div>
+            <div class="road-trees"><span>🌳</span><span>⭐</span><span>🌳</span><span>⭐</span><span>🌳</span></div>
+          </div>
+          <div class="loading-text">Loading your memories<span class="loading-dots"></span></div>
+        </div>
+
+        <!-- SCREEN 3: GALLERY -->
+        <div class="pscreen" id="ps-gallery">
+          <div class="gallery-topbar-p">
+            <div class="gallery-heading-p" id="p-galleryHeading">Our Beautiful Memories 💫</div>
+            <div class="gallery-sub-p" id="p-gallerySub">A few moments that mean everything</div>
+          </div>
+          <div class="gallery-scroll" id="p-gallery-scroll">
+            <!-- injected -->
+          </div>
+          <button class="gallery-next-btn" onclick="previewGo(3, document.querySelector('.snav-pill:last-child'))">🎂 Continue to Birthday</button>
+        </div>
+
+        <!-- SCREEN 4: BIRTHDAY -->
+        <div class="pscreen" id="ps-birthday">
+          <div class="balloon-container" id="p-balloons"></div>
+          <div class="bday-content">
+            <div class="bday-photo-wrap" id="p-bday-photo-wrap">
+              <span id="p-bday-photo-emoji">🎂</span>
+              <img id="p-bday-photo-img" class="bday-photo-p" style="display:none" alt="" />
+            </div>
+            <div class="bday-emoji">🎊</div>
+            <div class="bday-name" id="p-bdayName">Happy Birthday, Rushi! 🎊</div>
+            <p class="bday-msg" id="p-bdayMsg">You're one in a million and today is all about YOU!</p>
+            <p class="bday-from" id="p-bdayFrom">From ❤️ Someone who cares</p>
+            <p class="bday-hint">👆 Tap a balloon to pop it!</p>
+            <p class="brand-p">Made with love · Wishify</p>
+          </div>
+        </div>
+
+      </div><!-- /preview-card -->
+    </div><!-- /preview-stage -->
+  </div><!-- /preview-panel -->
+
+</div><!-- /app -->
+
+<!-- ─── TOAST ─── -->
+<div class="toast" id="toast">✅ Saved!</div>
+
+<script>
+  // ──────────────────────────────────────────────────────────────
+  //  STATE
+  // ──────────────────────────────────────────────────────────────
+
+  var state = {
+    welcomeEmoji: '🎂',
+    welcomeTitle: "Let's Begin the Journey!",
+    welcomeSub: "A little surprise is waiting for you… hop in! 🎉",
+    welcomeBtn: "Yes, Let's Go! 🚀",
+    galleryHeading: "Our Beautiful Memories 💫",
+    gallerySub: "A few moments that mean everything",
+    galleryItems: [
+      { tag: 'Memory #1', msg: "That smile that lit up the whole room 🌟", photoUrl: '' },
+      { tag: 'Memory #2', msg: "The day we laughed until our stomachs hurt 😂", photoUrl: '' },
+    ],
+    bdayName: "Happy Birthday, Rushi! 🎊",
+    bdayMsg: "You're one in a million and today is all about YOU! Wishing you all the love, laughter, and cake you can handle. 🥂",
+    bdayFrom: "Someone who cares ❤️",
+    bdayPhotoUrl: '',
+    balloonEmojis: "🎈 🎀 🎊 🎁 💛",
+    theme: { bg1: '#1a0030', bg2: '#0d0d1a' },
+    accent: { c1: '#f4c842', c2: '#e8506a' },
+  };
+
+  var currentPreviewScreen = 0;
+
+  // ──────────────────────────────────────────────────────────────
+  //  IMAGE COMPRESSION HELPER
+  // ──────────────────────────────────────────────────────────────
+
+  function compressImage(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ratio = Math.min(maxWidth / img.width, 1);
+          canvas.width = img.width * ratio;
+          canvas.height = img.height * ratio;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  INIT
+  // ──────────────────────────────────────────────────────────────
+
+  window.onload = function() {
+    renderGalleryEditor();
+    renderGalleryPreview();
+    spawnStars();
+    spawnBalloons();
+    applyAccent();
+    // Load saved state from localStorage if exists
+    var saved = localStorage.getItem('wishify_bday_journey');
+    if (saved) {
+      try {
+        var parsed = JSON.parse(saved);
+        // Merge with defaults but keep UI fields
+        Object.assign(state, parsed);
+        // Update input fields
+        document.getElementById('welcomeEmoji').value = state.welcomeEmoji;
+        document.getElementById('welcomeTitle').value = state.welcomeTitle;
+        document.getElementById('welcomeSub').value = state.welcomeSub;
+        document.getElementById('welcomeBtn').value = state.welcomeBtn;
+        document.getElementById('galleryHeading').value = state.galleryHeading;
+        document.getElementById('gallerySub').value = state.gallerySub;
+        document.getElementById('bdayName').value = state.bdayName;
+        document.getElementById('bdayMsg').value = state.bdayMsg;
+        document.getElementById('bdayFrom').value = state.bdayFrom;
+        document.getElementById('balloonEmojis').value = state.balloonEmojis;
+        // Gallery items already in state, re-render
+        renderGalleryEditor();
+        renderGalleryPreview();
+        // Photo preview
+        if (state.bdayPhotoUrl) {
+          var prev = document.getElementById('bday-photo-preview');
+          var ph = document.getElementById('bday-photo-placeholder');
+          prev.src = state.bdayPhotoUrl;
+          prev.style.display = 'block';
+          if (ph) ph.style.display = 'none';
+          // Update birthday preview
+          var img = document.getElementById('p-bday-photo-img');
+          var emoji = document.getElementById('p-bday-photo-emoji');
+          if (img) { img.src = state.bdayPhotoUrl; img.style.display = 'block'; }
+          if (emoji) emoji.style.display = 'none';
+        }
+        // Theme and accent
+        setThemeByColors(state.theme.bg1, state.theme.bg2);
+        setAccentByColors(state.accent.c1, state.accent.c2);
+        update();
+      } catch(e) {}
+    }
+  };
+
+  // ──────────────────────────────────────────────────────────────
+  //  STARS
+  // ──────────────────────────────────────────────────────────────
+
+  function spawnStars() {
+    var container = document.getElementById('welcome-stars');
+    if (!container) return;
+    container.innerHTML = '';
+    for (var i = 0; i < 35; i++) {
+      var s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 100 + '%';
+      s.style.setProperty('--d', (2 + Math.random() * 3) + 's');
+      s.style.setProperty('--del', (Math.random() * 3) + 's');
+      container.appendChild(s);
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  TABS
+  // ──────────────────────────────────────────────────────────────
+
+  function switchTab(el, tabId) {
+    document.querySelectorAll('.stab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.section-panel').forEach(function(p) { p.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  PREVIEW NAVIGATION
+  // ──────────────────────────────────────────────────────────────
+
+  function previewGo(idx, pill) {
+    document.querySelectorAll('.pscreen').forEach(function(s) { s.classList.remove('active'); });
+    var screens = ['ps-welcome', 'ps-loading', 'ps-gallery', 'ps-birthday'];
+    document.getElementById(screens[idx]).classList.add('active');
+    currentPreviewScreen = idx;
+
+    document.querySelectorAll('.snav-pill').forEach(function(p) { p.classList.remove('active'); });
+    if (pill) pill.classList.add('active');
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  UPDATE from inputs
+  // ──────────────────────────────────────────────────────────────
+
+  function update() {
+    state.welcomeEmoji = v('welcomeEmoji');
+    state.welcomeTitle = v('welcomeTitle');
+    state.welcomeSub = v('welcomeSub');
+    state.welcomeBtn = v('welcomeBtn');
+    state.galleryHeading = v('galleryHeading');
+    state.gallerySub = v('gallerySub');
+    state.bdayName = v('bdayName');
+    state.bdayMsg = v('bdayMsg');
+    state.bdayFrom = v('bdayFrom');
+    state.balloonEmojis = v('balloonEmojis');
+
+    setText('p-welcomeEmoji', state.welcomeEmoji);
+    setText('p-welcomeTitle', state.welcomeTitle);
+    setText('p-welcomeSub', state.welcomeSub);
+    setText('p-welcomeBtn', state.welcomeBtn);
+    setText('p-galleryHeading', state.galleryHeading);
+    setText('p-gallerySub', state.gallerySub);
+    setText('p-bdayName', state.bdayName);
+    setText('p-bdayMsg', state.bdayMsg);
+    setText('p-bdayFrom', 'From ❤️ ' + state.bdayFrom);
+
+    spawnBalloons();
+  }
+
+  function v(id) { return document.getElementById(id).value; }
+
+  function setText(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  GALLERY EDITOR
+  // ──────────────────────────────────────────────────────────────
+
+  function renderGalleryEditor() {
+    var container = document.getElementById('gallery-items-editor');
+    if (!container) return;
+    container.innerHTML = '';
+    state.galleryItems.forEach(function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'gallery-item';
+      div.innerHTML =
+        '<div class="gallery-item-header">' +
+        '<span class="gallery-item-title">📷 Photo ' + (idx + 1) + '</span>' +
+        '<button class="item-del" onclick="deleteGalleryItem(' + idx + ')">✕</button>' +
+        '</div>' +
+        '<div class="photo-upload-card" onclick="triggerUpload(\'gi-photo-' + idx + '\')">' +
+        (item.photoUrl ? '<img class="photo-preview-thumb" src="' + item.photoUrl + '" id="gi-preview-' +
+        idx + '"/>' :
+        '<div id="gi-preview-' + idx + '" style="display:none"></div>') +
+        '<div id="gi-placeholder-' + idx + '" style="' + (item.photoUrl ? 'display:none' : '') +
+        '"><div class="photo-upload-icon">📷</div><div class="photo-upload-label">Click to upload</div></div>' +
+        '<input type="file" id="gi-photo-' + idx + '" accept="image/*" onchange="handleGalleryPhoto(this,' +
+        idx + ')" style="display:none"/>' +
+        '</div>' +
+        '<input class="field-input" id="gi-tag-' + idx + '" type="text" value="' + escHtml(item.tag) +
+        '" placeholder="Caption label" oninput="updateGalleryItem(' + idx +
+        ')" style="margin-bottom:.4rem"/>' +
+        '<textarea class="field-input" id="gi-msg-' + idx + '" placeholder="Caption message..." oninput="updateGalleryItem(' +
+        idx + ')" style="min-height:48px">' + escHtml(item.msg) + '</textarea>';
+      container.appendChild(div);
+    });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function addGalleryItem() {
+    state.galleryItems.push({ tag: 'Memory #' + (state.galleryItems.length + 1), msg: '', photoUrl: '' });
+    renderGalleryEditor();
+    renderGalleryPreview();
+  }
+
+  function deleteGalleryItem(idx) {
+    state.galleryItems.splice(idx, 1);
+    renderGalleryEditor();
+    renderGalleryPreview();
+  }
+
+  function updateGalleryItem(idx) {
+    var tagEl = document.getElementById('gi-tag-' + idx);
+    var msgEl = document.getElementById('gi-msg-' + idx);
+    if (tagEl) state.galleryItems[idx].tag = tagEl.value;
+    if (msgEl) state.galleryItems[idx].msg = msgEl.value;
+    renderGalleryPreview();
+  }
+
+  // ─── UPDATED: handleGalleryPhoto with compression ───
+  async function handleGalleryPhoto(input, idx) {
+    if (!input.files || !input.files[0]) return;
+    try {
+      const compressed = await compressImage(input.files[0], 800, 0.7);
+      state.galleryItems[idx].photoUrl = compressed;
+      renderGalleryEditor();
+      renderGalleryPreview();
+      showToast('✅ Photo uploaded & compressed');
+    } catch (err) {
+      showToast('❌ Failed to process image');
+      console.error(err);
+    }
+  }
+
+  function renderGalleryPreview() {
+    var scroll = document.getElementById('p-gallery-scroll');
+    if (!scroll) return;
+    scroll.innerHTML = '';
+    state.galleryItems.forEach(function(item) {
+      var card = document.createElement('div');
+      card.className = 'gallery-card-p';
+      
+      // FIX: If there is no photo uploaded, do NOT render the camera box.
+      // Leave it completely empty so it becomes a neat text-only card.
+      var imgHtml = item.photoUrl ?
+        '<img class="gallery-img-p" src="' + item.photoUrl + '" alt=""/>' :
+        ''; 
+        
+      card.innerHTML = imgHtml +
+        '<div class="gallery-caption-p">' +
+        '<div class="gallery-caption-tag">' + escHtml(item.tag) + '</div>' +
+        '<div class="gallery-caption-msg">' + escHtml(item.msg) + '</div>' +
+        '</div>';
+      scroll.appendChild(card);
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  PHOTO UPLOAD (generic) – updated with compression
+  // ──────────────────────────────────────────────────────────────
+
+  function triggerUpload(id) {
+    document.getElementById(id).click();
+  }
+
+  async function handlePhotoUpload(input, previewId, placeholderId, stateKey) {
+    if (!input.files || !input.files[0]) return;
+    try {
+      const compressed = await compressImage(input.files[0], 800, 0.7);
+      state[stateKey] = compressed;
+
+      var prev = document.getElementById(previewId);
+      var ph = document.getElementById(placeholderId);
+      if (prev) {
+        prev.src = compressed;
+        prev.style.display = 'block';
+      }
+      if (ph) ph.style.display = 'none';
+
+      if (stateKey === 'bdayPhotoUrl') {
+        var img = document.getElementById('p-bday-photo-img');
+        var emoji = document.getElementById('p-bday-photo-emoji');
+        if (img) {
+          img.src = compressed;
+          img.style.display = 'block';
+        }
+        if (emoji) emoji.style.display = 'none';
+      }
+      showToast('✅ Photo uploaded & compressed');
+    } catch (err) {
+      showToast('❌ Failed to process image');
+      console.error(err);
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  BALLOONS
+  // ──────────────────────────────────────────────────────────────
+
+  function spawnBalloons() {
+    var container = document.getElementById('p-balloons');
+    if (!container) return;
+    container.innerHTML = '';
+    var emojis = state.balloonEmojis.split(/\s+/).filter(Boolean);
+    var count = Math.min(emojis.length * 2, 14);
+    var palette = emojis.length ? emojis : ['🎈'];
+    for (var i = 0; i < count; i++) {
+      var b = document.createElement('div');
+      b.className = 'balloon';
+      b.textContent = palette[i % palette.length];
+      b.style.left = (8 + Math.random() * 84) + '%';
+      b.style.setProperty('--dur', (3 + Math.random() * 3.5) + 's');
+      b.style.setProperty('--del', (Math.random() * 4) + 's');
+      b.style.setProperty('--sway', (Math.random() * 44 - 22) + 'px');
+      b.onclick = function() {
+        this.style.transform = 'scale(2.2)';
+        this.style.opacity = '0';
+        this.style.transition = 'transform .2s, opacity .2s';
+        var self = this;
+        setTimeout(function() { self.remove(); }, 280);
+      };
+      container.appendChild(b);
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  THEME & ACCENT
+  // ──────────────────────────────────────────────────────────────
+
+  function setTheme(el, bg1, bg2) {
+    document.querySelectorAll('#bg-swatches .color-swatch').forEach(function(s) { s.classList.remove('active'); });
+    el.classList.add('active');
+    state.theme = { bg1: bg1, bg2: bg2 };
+    applyTheme(bg1, bg2);
+  }
+
+  function applyTheme(bg1, bg2) {
+    var wel = document.querySelector('#ps-welcome');
+    var bday = document.getElementById('ps-birthday');
+    var load = document.getElementById('ps-loading');
+    if (wel) wel.style.background = 'linear-gradient(160deg,' + bg1 + ',' + bg2 + ',#0d0d1a)';
+    if (bday) bday.style.background = 'linear-gradient(160deg,' + bg1 + ',' + bg2 + ')';
+    if (load) load.style.background = 'linear-gradient(160deg,' + bg2 + ',#1a1a2e)';
+  }
+
+  function setThemeByColors(bg1, bg2) {
+    var swatches = document.querySelectorAll('#bg-swatches .color-swatch');
+    swatches.forEach(function(s) {
+      var style = window.getComputedStyle(s);
+      var bg = style.background || s.style.background;
+      if (bg && bg.includes(bg1)) {
+        s.classList.add('active');
+      } else {
+        s.classList.remove('active');
+      }
+    });
+    applyTheme(bg1, bg2);
+  }
+
+  function setAccent(el, c1, c2) {
+    document.querySelectorAll('#accent-swatches .color-swatch').forEach(function(s) { s.classList.remove('active'); });
+    el.classList.add('active');
+    state.accent = { c1: c1, c2: c2 };
+    applyAccent();
+  }
+
+  function setAccentByColors(c1, c2) {
+    var swatches = document.querySelectorAll('#accent-swatches .color-swatch');
+    swatches.forEach(function(s) {
+      var style = window.getComputedStyle(s);
+      var bg = style.background || s.style.background;
+      if (bg && bg.includes(c1)) {
+        s.classList.add('active');
+      } else {
+        s.classList.remove('active');
+      }
+    });
+    state.accent = { c1: c1, c2: c2 };
+    applyAccent();
+  }
+
+  function applyAccent() {
+    var c1 = state.accent.c1;
+    var c2 = state.accent.c2;
+    var grad = 'linear-gradient(135deg,' + c1 + ',' + c2 + ')';
+    
+    var btn = document.getElementById('p-welcomeBtn');
+    var next = document.querySelector('.gallery-next-btn');
+    var from = document.getElementById('p-bdayFrom');
+    
+    if (btn) btn.style.background = grad;
+    if (next) next.style.background = grad;
+    
+    // FIX: Keep the text clipping when updating the background
+    if (from) {
+      from.style.background = grad;
+      from.style.webkitBackgroundClip = 'text';
+      from.style.webkitTextFillColor = 'transparent';
+    }
+
+    // FIX: Make gallery tags flexible and match the accent color dynamically
+    var tags = document.querySelectorAll('.gallery-caption-tag');
+    tags.forEach(function(tag) {
+      tag.style.color = c1;
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  SAVE / EXPORT (localStorage)
+  // ──────────────────────────────────────────────────────────────
+
+  function copyData() {
+    update();
+    localStorage.setItem('wishify_bday_journey', JSON.stringify(state));
+    showToast('✅ Data saved to browser storage!');
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._hide);
+    t._hide = setTimeout(function() { t.classList.remove('show'); }, 2600);
+  }
+
+  function openPreview() {
+    copyData();
+    window.open('preview.html', '_blank');
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  GENERATE LINK (API)
+  // ──────────────────────────────────────────────────────────────
+
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    var btn = this;
+    btn.textContent = 'Generating...';
+
+    update();
+
+    var payload = {
+      template: 'birthday-journey',
+      data: {
+        welcomeEmoji: state.welcomeEmoji,
+        welcomeTitle: state.welcomeTitle,
+        welcomeSub: state.welcomeSub,
+        welcomeBtn: state.welcomeBtn,
+        galleryHeading: state.galleryHeading,
+        gallerySub: state.gallerySub,
+        galleryItems: state.galleryItems,
+        bdayName: state.bdayName,
+        bdayMsg: state.bdayMsg,
+        bdayFrom: state.bdayFrom,
+        bdayPhotoUrl: state.bdayPhotoUrl,
+        balloonEmojis: state.balloonEmojis,
+        theme: state.theme,
+        accent: state.accent
+      }
+    };
+
+    try {
+      var res = await fetch('http://localhost:5000/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      var result = await res.json();
+      if (result.success) {
+        var link = window.location.origin + '/templates/birthday-journey/view.html?slug=' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
+      } else {
+        btn.textContent = '✨ Generate Shareable Link';
+        showToast('❌ Failed to generate link.');
+      }
+    } catch(err) {
+      document.getElementById('result-link').textContent = '⚠️ Server not running.';
+      document.getElementById('result-area').classList.add('show');
+      btn.textContent = '✨ Generate Shareable Link';
+      showToast('❌ Server error. Is the API running?');
+    }
+  });
+
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    navigator.clipboard.writeText(link).then(function() {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!';
+      setTimeout(function(){ btn.textContent = '📋 Copy Link'; }, 2000);
+    });
+  }
+
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    var name = state.bdayName || 'Friend';
+    window.open('https://wa.me/?text=' + encodeURIComponent('🎂 A birthday journey for ' + name + '! ' + link), '_blank');
+  }
+</script>
+</body>
+</html>

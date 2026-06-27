@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishify — Birthday Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── RESET & BASE ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #13001f;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ───────────────────────────────────── */
+    .navbar {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px; padding: 0 1.5rem;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo  { font-size: 1.15rem; font-weight: 800; color: #fff; }
+    .nav-badge {
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: #f4c842;
+      background: rgba(244,200,66,.12);
+      border: 1px solid rgba(244,200,66,.25);
+      padding: .25rem .75rem; border-radius: 50px;
+    }
+    .nav-step  { font-size: .8rem; color: rgba(255,255,255,.4); }
+    .nav-step span { color: #fff; font-weight: 700; }
+
+    /* ── LAYOUT ───────────────────────────────────── */
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ── LEFT PANEL ───────────────────────────────── */
+    .left-panel {
+      background: #1a002b;
+      border-right: 1px solid rgba(255,255,255,.07);
+      padding: 1.2rem;
+      overflow-y: auto;
+      height: calc(100vh - 56px);
+      position: sticky; top: 56px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
+    }
+    .left-panel::-webkit-scrollbar { width: 4px; }
+    .left-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
+
+    .panel-section {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-label {
+      font-size: .7rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.5);
+      margin-bottom: .85rem;
+    }
+
+    .field { margin-bottom: .85rem; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block; font-size: .75rem; font-weight: 600;
+      color: rgba(255,255,255,.5); margin-bottom: .35rem;
+    }
+    .field input[type="text"],
+    .field input[type="date"],
+    .field textarea {
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem; font-weight: 600;
+      color: #fff;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: .65rem .85rem;
+      outline: none;
+      transition: border-color .2s, background .2s;
+      resize: none;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: rgba(244,200,66,.5);
+      background: rgba(255,255,255,.09);
+    }
+    .field textarea { height: 100px; line-height: 1.6; }
+    .field input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.4); }
+
+    /* ── UPLOAD ZONE ──────────────────────────────── */
+    .upload-zone {
+      display: flex; flex-direction: column; align-items: center;
+      gap: .4rem; padding: 1.2rem;
+      border: 2px dashed rgba(255,255,255,.15);
+      border-radius: 12px; cursor: pointer;
+      transition: border-color .2s, background .2s;
+      text-align: center; position: relative;
+    }
+    .upload-zone:hover { border-color: rgba(244,200,66,.5); background: rgba(244,200,66,.04); }
+    .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .up-icon  { font-size: 1.6rem; }
+    .up-title { font-size: .85rem; font-weight: 700; color: #fff; }
+    .up-sub   { font-size: .72rem; color: rgba(255,255,255,.4); }
+
+    /* ── COLOR ROW ────────────────────────────────── */
+    .color-row { display: flex; gap: .8rem; margin-bottom: .85rem; }
+    .color-pick-wrap { flex: 1; }
+    .color-pick-wrap label {
+      display: block; font-size: .7rem; font-weight: 600;
+      color: rgba(255,255,255,.4); margin-bottom: .35rem;
+    }
+    .color-swatch-btn {
+      display: flex; align-items: center; gap: .5rem;
+      background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 10px; padding: .5rem .7rem; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .color-swatch-btn:hover { border-color: rgba(244,200,66,.4); }
+    .color-swatch-btn input[type="color"] { display: none; }
+    .color-swatch {
+      width: 22px; height: 22px; border-radius: 5px;
+      border: 1.5px solid rgba(255,255,255,.2); flex-shrink: 0;
+    }
+    .color-swatch-label { font-size: .75rem; font-weight: 700; color: rgba(255,255,255,.6); }
+
+    .preset-chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .chip {
+      width: 34px; height: 34px; border-radius: 8px;
+      cursor: pointer; border: 2px solid transparent;
+      transition: transform .15s, border-color .15s;
+    }
+    .chip:hover { transform: scale(1.1); }
+    .chip.active { border-color: #f4c842; box-shadow: 0 0 0 2px rgba(244,200,66,.3); }
+
+    /* ── FONT PILLS ───────────────────────────────── */
+    .font-pills { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .font-pill {
+      padding: .38rem .85rem; border-radius: 50px;
+      font-size: .8rem; font-weight: 700; cursor: pointer;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.6);
+      transition: all .2s;
+    }
+    .font-pill:hover  { border-color: rgba(255,255,255,.25); color: #fff; }
+    .font-pill.active { background: rgba(244,200,66,.15); border-color: #f4c842; color: #f4c842; }
+
+    /* ── GENERATE LINK SECTION ────────────────────── */
+    .share-section {
+      background: linear-gradient(135deg, rgba(244,200,66,.1), rgba(232,80,106,.08));
+      border: 1.5px solid rgba(244,200,66,.25);
+      border-radius: 14px;
+      padding: 1.1rem 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .share-section .section-label { color: #f4c842; }
+
+    #generate-btn {
+      width: 100%;
+      padding: .85rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .95rem; font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      border: none; border-radius: 12px;
+      letter-spacing: .02em;
+      transition: transform .15s, opacity .15s, box-shadow .15s;
+      box-shadow: 0 4px 20px rgba(244,200,66,.25);
+    }
+    #generate-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(244,200,66,.35); }
+    #generate-btn:active { transform: translateY(0); }
+
+    /* Result area */
+    .result-area {
+      display: none;
+      margin-top: .9rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .result-area.show { display: block; }
+    .result-url {
+      display: block;
+      padding: .65rem .85rem;
+      font-size: .72rem; font-weight: 600;
+      color: rgba(255,255,255,.6);
+      word-break: break-all; line-height: 1.6;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .result-actions { display: flex; }
+    .result-btn {
+      flex: 1; padding: .6rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      border: none; cursor: pointer;
+      background: transparent; color: rgba(255,255,255,.6);
+      transition: background .2s, color .2s;
+      display: flex; align-items: center; justify-content: center; gap: .35rem;
+    }
+    .result-btn:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .result-btn + .result-btn { border-left: 1px solid rgba(255,255,255,.07); }
+    .result-btn.copied { color: #34d399; }
+
+    /* Coming-soon note */
+    .share-note {
+      font-size: .7rem; color: rgba(255,255,255,.3);
+      text-align: center; margin-top: .7rem; line-height: 1.5;
+    }
+    .share-note strong { color: rgba(255,255,255,.5); }
+
+    /* ── RIGHT PANEL ──────────────────────────────── */
+    .right-panel {
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .preview-topbar {
+      width: 100%; max-width: 620px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+    .preview-label {
+      font-size: .7rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.4);
+    }
+    .live-dot {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .72rem; font-weight: 700; color: #34d399;
+    }
+    .live-dot::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: #34d399; animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+    /* ── PREVIEW CARD ─────────────────────────────── */
+    #preview-card {
+      width: 100%; max-width: 620px;
+      border-radius: 24px;
+      background: linear-gradient(160deg, #1e003a 0%, #1a0030 100%);
+      overflow: hidden;
+      box-shadow: 0 24px 72px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.06);
+    }
+
+    .prev-rainbow {
+      height: 5px;
+      background: linear-gradient(90deg, #ff6b8a, #f4c842, #c084fc, #7efff5, #ff6b8a);
+      background-size: 200%;
+      animation: shimmer 3s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+    .prev-body { padding: 2rem 2rem 1.5rem; }
+
+    .prev-eyebrow {
+      text-align: center; font-size: .75rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.4); margin-bottom: .9rem;
+    }
+    .prev-emoji-row {
+      text-align: center; font-size: 1.8rem;
+      letter-spacing: .3rem; margin-bottom: 1rem;
+    }
+    .prev-heading {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+      text-align: center; line-height: 1.2; color: #fff;
+      margin-bottom: .5rem;
+    }
+    .preview-name-span {
+      background: linear-gradient(100deg, #f4c842, #ff6b8a);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .prev-date {
+      text-align: center; font-size: .82rem; font-weight: 600;
+      color: rgba(255,255,255,.4); margin-bottom: 1.2rem;
+    }
+    .prev-divider {
+      display: flex; align-items: center; gap: .7rem; margin-bottom: 1.4rem;
+    }
+    .prev-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,.12); }
+    .prev-divider span { font-size: 1rem; }
+
+    /* Photo box */
+    .prev-photo-box {
+      width: 150px; height: 150px; border-radius: 50%;
+      margin: 0 auto 1.4rem;
+      border: 3px dashed rgba(255,255,255,.2);
+      overflow: hidden; position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .prev-photo-box img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 50%;
+    }
+    .photo-placeholder-inner {
+      display: flex; flex-direction: column; align-items: center; gap: .3rem;
+      text-align: center;
+    }
+    .photo-placeholder-inner .ico  { font-size: 1.8rem; opacity: .4; }
+    .photo-placeholder-inner .lbl  { font-size: .65rem; color: rgba(255,255,255,.3); line-height: 1.4; }
+
+    /* Message card */
+    .prev-message-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px; padding: 1.2rem 1.4rem;
+      position: relative; margin-bottom: 1.4rem;
+    }
+    .prev-quote {
+      position: absolute; top: -.2rem; left: .8rem;
+      font-size: 3rem; line-height: 1; color: rgba(244,200,66,.3);
+      font-family: Georgia, serif;
+    }
+    .prev-message-card p {
+      font-size: .88rem; color: rgba(255,255,255,.75); line-height: 1.75;
+      position: relative; z-index: 1; padding-top: .5rem;
+    }
+
+    /* From row */
+    .prev-from {
+      display: flex; align-items: center; gap: .85rem;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: .85rem 1rem;
+    }
+    .prev-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      display: grid; place-items: center;
+      font-size: 1.1rem; font-weight: 800; color: #1a0010;
+      flex-shrink: 0;
+    }
+    .prev-from-lbl { font-size: .65rem; color: rgba(255,255,255,.35); margin-bottom: .15rem; }
+    .prev-from div:last-child { font-size: .88rem; font-weight: 700; color: #fff; }
+
+    .prev-footer {
+      background: rgba(0,0,0,.25);
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding: .9rem 1.5rem;
+      display: flex; flex-direction: column; align-items: center; gap: .3rem;
+    }
+    .prev-footer-emojis { font-size: 1.1rem; letter-spacing: .4rem; }
+    .prev-footer-brand  { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.2); }
+
+    /* ── RESPONSIVE ───────────────────────────────── */
+    @media (max-width: 860px) {
+      .editor-layout { grid-template-columns: 1fr; }
+      .left-panel { height: auto; position: static; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo">✨ Wishify</div>
+  <div class="nav-badge">Birthday Editor</div>
+  <div class="nav-step">Step <span>2</span> of 4</div>
+</nav>
+
+<div class="editor-layout">
+
+  <!-- ════════════ LEFT PANEL ════════════ -->
+  <aside class="left-panel">
+
+    <!-- Basic Info -->
+    <div class="panel-section">
+      <div class="section-label">🎂 Basic Info</div>
+      <div class="field">
+        <label>Birthday Person's Name</label>
+        <input type="text" id="name-input" placeholder="e.g. Rushikesh" value="Rushikesh"/>
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="date-input" value="2026-06-15"/>
+      </div>
+      <div class="field">
+        <label>From (Your Name)</label>
+        <input type="text" id="from-input" placeholder="e.g. Priya and friends" value="Priya and your amazing squad"/>
+      </div>
+    </div>
+
+    <!-- Message -->
+    <div class="panel-section">
+      <div class="section-label">💬 Message</div>
+      <div class="field">
+        <label>Personal Greeting</label>
+        <textarea id="message-input">Today we celebrate YOU — your laughter that lights up every room, your kindness that warms every heart, and the endless joy you bring into our lives. May this year be full of beautiful moments and big adventures!</textarea>
+      </div>
+    </div>
+
+    <!-- Photo Upload -->
+    <div class="panel-section">
+      <div class="section-label">📸 Photo</div>
+      <label class="upload-zone" id="upload-zone">
+        <input type="file" id="photo-input" accept="image/*"/>
+        <div class="up-icon">📁</div>
+        <div class="up-title">Click to upload a photo</div>
+        <div class="up-sub">JPG, PNG or WEBP — shows in preview instantly</div>
+      </label>
+    </div>
+
+    <!-- Background Color -->
+    <div class="panel-section">
+      <div class="section-label">🎨 Background</div>
+      <div class="color-row">
+        <div class="color-pick-wrap">
+          <label>Top Color</label>
+          <div class="color-swatch-btn" onclick="document.getElementById('bg-top').click()">
+            <input type="color" id="bg-top" value="#1e003a"/>
+            <div class="color-swatch" id="swatch-top" style="background:#1e003a"></div>
+            <span class="color-swatch-label">Pick</span>
+          </div>
+        </div>
+        <div class="color-pick-wrap">
+          <label>Bottom Color</label>
+          <div class="color-swatch-btn" onclick="document.getElementById('bg-bottom').click()">
+            <input type="color" id="bg-bottom" value="#1a0030"/>
+            <div class="color-swatch" id="swatch-bottom" style="background:#1a0030"></div>
+            <span class="color-swatch-label">Pick</span>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin:0 0 8px;">Quick Presets</div>
+      <div class="preset-chips" id="preset-chips">
+        <div class="chip active" style="background:linear-gradient(135deg,#1e003a,#1a0030)" data-top="#1e003a" data-bot="#1a0030" title="Purple Night"></div>
+        <div class="chip" style="background:linear-gradient(135deg,#0a2342,#001440)" data-top="#0a2342" data-bot="#001440" title="Ocean Blue"></div>
+        <div class="chip" style="background:linear-gradient(135deg,#1a0a00,#3d1500)" data-top="#1a0a00" data-bot="#3d1500" title="Warm Ember"></div>
+        <div class="chip" style="background:linear-gradient(135deg,#002200,#003d00)" data-top="#002200" data-bot="#003d00" title="Forest"></div>
+        <div class="chip" style="background:linear-gradient(135deg,#1a001a,#3d003d)" data-top="#1a001a" data-bot="#3d003d" title="Deep Rose"></div>
+        <div class="chip" style="background:linear-gradient(135deg,#0d0d0d,#282828)" data-top="#0d0d0d" data-bot="#282828" title="Midnight"></div>
+      </div>
+    </div>
+
+    <!-- Font -->
+    <div class="panel-section">
+      <div class="section-label">🔤 Heading Font</div>
+      <div class="font-pills">
+        <div class="font-pill active" data-font="'Pacifico', cursive">Pacifico</div>
+        <div class="font-pill" data-font="Georgia, serif">Georgia</div>
+        <div class="font-pill" data-font="'Nunito', sans-serif">Nunito</div>
+        <div class="font-pill" data-font="'Courier New', monospace">Courier</div>
+      </div>
+    </div>
+
+    <!-- ✅ GENERATE LINK — added here, after all customisation sections -->
+    <div class="share-section">
+      <div class="section-label">🔗 Share Your Wish</div>
+      <button id="generate-btn">✨ Generate Shareable Link</button>
+
+      <div class="result-area" id="result-area">
+        <span class="result-url" id="result-link"></span>
+        <div class="result-actions">
+          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        </div>
+      </div>
+
+      <p class="share-note">
+        <strong>Coming soon:</strong> This will generate a real public URL anyone can open — no account needed.
+      </p>
+    </div>
+
+  </aside>
+
+  <!-- ════════════ RIGHT PANEL ════════════ -->
+  <main class="right-panel">
+
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <span class="live-dot">Live</span>
+    </div>
+
+    <div id="preview-card">
+      <div class="prev-rainbow"></div>
+      <div class="prev-body">
+        <p class="prev-eyebrow">✨ &nbsp; Special Day &nbsp; ✨</p>
+        <div class="prev-emoji-row">🎂 🎈 🎉</div>
+        <h1 class="prev-heading" id="preview-heading">
+          Happy Birthday, <span class="preview-name-span" id="preview-name">Rushikesh</span>! 🎂
+        </h1>
+        <p class="prev-date" id="preview-date">June 15, 2026</p>
+        <div class="prev-divider">
+          <div class="prev-divider-line"></div>
+          <span>🎉</span>
+          <div class="prev-divider-line"></div>
+        </div>
+        <div class="prev-photo-box" id="preview-photo-box">
+          <div class="photo-placeholder-inner" id="photo-placeholder">
+            <span class="ico">📸</span>
+            <span class="lbl">Your photo appears here</span>
+          </div>
+        </div>
+        <div class="prev-message-card">
+          <span class="prev-quote">"</span>
+          <p id="preview-message">Today we celebrate YOU — your laughter that lights up every room, your kindness that warms every heart, and the endless joy you bring into our lives. May this year be full of beautiful moments and big adventures!</p>
+        </div>
+        <div class="prev-from">
+          <div class="prev-avatar" id="preview-avatar">P</div>
+          <div>
+            <div class="prev-from-lbl">With all the love, from</div>
+            <div id="preview-from">Priya and your amazing squad</div>
+          </div>
+        </div>
+      </div>
+      <div class="prev-footer">
+        <div class="prev-footer-emojis">🎈 🎂 🎁 🎊 🎈</div>
+        <p class="prev-footer-brand">Made with love · Wishify</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  /* 1. NAME */
+  document.getElementById('name-input').addEventListener('input', function () {
+    var val = this.value.trim() || 'Friend';
+    document.getElementById('preview-name').textContent = val;
+    document.getElementById('preview-avatar').textContent = val.charAt(0).toUpperCase();
+  });
+
+  /* 2. DATE */
+  document.getElementById('date-input').addEventListener('input', function () {
+    if (!this.value) return;
+    var d = new Date(this.value + 'T00:00:00');
+    var formatted = d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+    document.getElementById('preview-date').textContent = formatted;
+  });
+
+  /* 3. FROM */
+  document.getElementById('from-input').addEventListener('input', function () {
+    document.getElementById('preview-from').textContent = this.value || 'Someone special';
+  });
+
+  /* 4. MESSAGE */
+  document.getElementById('message-input').addEventListener('input', function () {
+    document.getElementById('preview-message').textContent = this.value;
+  });
+
+  /* 5. PHOTO */
+  /* 5. PHOTO */
+  document.getElementById('photo-input').addEventListener('change', function () {
+    var file = this.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      window.uploadedPhotoBase64 = e.target.result;
+      var box = document.getElementById('preview-photo-box');
+      // ...rest stays same
+      document.getElementById('photo-placeholder').style.display = 'none';
+      var old = box.querySelector('img');
+      if (old) old.remove();
+      var img = document.createElement('img');
+      img.src = e.target.result;
+      box.appendChild(img);
+      box.style.borderStyle = 'solid';
+      box.style.borderColor = 'rgba(255,215,0,0.5)';
+      var zone = document.getElementById('upload-zone');
+      zone.querySelector('.up-title').textContent = 'Photo uploaded!';
+      zone.querySelector('.up-sub').textContent = 'Click to change photo';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* 6. BACKGROUND */
+  function updateBg() {
+    var top = document.getElementById('bg-top').value;
+    var bot = document.getElementById('bg-bottom').value;
+    document.getElementById('preview-card').style.background = 'linear-gradient(160deg, ' + top + ' 0%, ' + bot + ' 100%)';
+    document.getElementById('swatch-top').style.background = top;
+    document.getElementById('swatch-bottom').style.background = bot;
+  }
+  document.getElementById('bg-top').addEventListener('input', updateBg);
+  document.getElementById('bg-bottom').addEventListener('input', updateBg);
+
+  /* 7. PRESETS */
+  document.querySelectorAll('#preset-chips .chip').forEach(function(chip) {
+    chip.addEventListener('click', function () {
+      document.querySelectorAll('#preset-chips .chip').forEach(function(c){ c.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById('bg-top').value = this.dataset.top;
+      document.getElementById('bg-bottom').value = this.dataset.bot;
+      updateBg();
+    });
+  });
+
+  /* 8. FONTS */
+  document.querySelectorAll('.font-pill').forEach(function(pill) {
+    pill.addEventListener('click', function () {
+      document.querySelectorAll('.font-pill').forEach(function(p){ p.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById('preview-heading').style.fontFamily = this.dataset.font;
+    });
+  });
+/* 9. GENERATE LINK (saves to database) */
+  document.getElementById('generate-btn').addEventListener('click', async function () {
+    var btn = this;
+    btn.textContent = 'Generating...';
+
+    var data = {
+  template: 'birthday-classic',
+  data: {
+    name: document.getElementById('name-input').value.trim() || 'Friend',
+    date: document.getElementById('date-input').value,
+    from: document.getElementById('from-input').value.trim(),
+    message: document.getElementById('message-input').value.trim(),
+    photoUrl: window.uploadedPhotoBase64 || '',
+    bgTop: document.getElementById('bg-top').value,
+    bgBottom: document.getElementById('bg-bottom').value,
+    font: document.querySelector('.font-pill.active').dataset.font
+  }
+};
+
+    try {
+      const response = await fetch('http://localhost:5000/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        const link = window.location.origin + '/templates/birthday1/view.html?slug=' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+      } else {
+        document.getElementById('result-link').textContent = 'Something went wrong';
+        btn.textContent = '✨ Generate Shareable Link';
+      }
+    } catch (err) {
+      document.getElementById('result-link').textContent = 'Server not running. Start your backend.';
+      btn.textContent = '✨ Generate Shareable Link';
+    }
+  });
+
+  /* 10. COPY LINK */
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    if (!link) return;
+    navigator.clipboard.writeText(link).then(function () {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!';
+      btn.classList.add('copied');
+      setTimeout(function () {
+        btn.textContent = '📋 Copy Link';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  /* 11. WHATSAPP SHARE */
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    var name = document.getElementById('name-input').value.trim() || 'Friend';
+    var msg = encodeURIComponent('🎂 I made a special birthday wish for ' + name + '! Check it out: ' + link);
+    window.open('https://wa.me/?text=' + msg, '_blank');
+  }
+</script>
+</script>
+</body>
+
+</html>

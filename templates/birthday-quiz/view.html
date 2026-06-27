@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A Special Birthday Quiz 🎂</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* MAIN CARD — phone sized on desktop, full width on mobile */
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #1a1a2e;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      border: 1px solid rgba(255,255,255,.08);
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      height: 8px;
+      background: linear-gradient(90deg, #f97316, #ec4899, #a855f7, #3b82f6);
+      background-size: 200%;
+      animation: shimmer 3s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+    /* SCREENS */
+    .screen { display: none; flex-direction: column; flex: 1; padding: 2rem 1.5rem; }
+    .screen.active { display: flex; }
+
+    /* INTRO SCREEN */
+    .intro-screen {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(160deg, #1a0030, #0d0d1a);
+    }
+    .intro-emoji { font-size: 4rem; margin-bottom: 1rem; animation: pop .5s ease; }
+    @keyframes pop { 0%{transform:scale(0)} 80%{transform:scale(1.15)} 100%{transform:scale(1)} }
+    .intro-name { font-size: 1.8rem; font-weight: 800; margin-bottom: .75rem; }
+    .intro-msg { color: rgba(255,255,255,.6); font-size: .95rem; line-height: 1.7; margin-bottom: 2rem; max-width: 300px; }
+    .start-btn {
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010; font-family: 'Nunito', sans-serif;
+      font-size: 1rem; font-weight: 800;
+      border: none; padding: .85rem 2.5rem;
+      border-radius: 50px; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(244,200,66,.3);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .start-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(244,200,66,.4); }
+
+    /* QUESTION SCREEN */
+    .question-screen { justify-content: space-between; }
+    .q-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .q-progress-text { font-size: .75rem; color: rgba(255,255,255,.4); font-weight: 700; }
+    .q-progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; margin-bottom: 1.2rem; overflow: hidden; }
+    .q-progress-fill { height: 100%; background: linear-gradient(90deg, #f4c842, #e8506a); border-radius: 2px; transition: width .4s ease; }
+
+    .q-photo { width: 100%; height: 180px; border-radius: 14px; object-fit: cover; margin-bottom: 1.2rem; display: block; }
+    .q-text { font-size: 1.05rem; font-weight: 800; line-height: 1.4; margin-bottom: 1.2rem; }
+
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; margin-bottom: 1.2rem; }
+    .option {
+      background: rgba(255,255,255,.07);
+      border: 1.5px solid rgba(255,255,255,.12);
+      border-radius: 12px; padding: .75rem .5rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .82rem; font-weight: 700;
+      text-align: center; cursor: pointer; color: #fff;
+      transition: background .15s, border-color .15s, transform .1s;
+    }
+    .option:hover { background: rgba(244,200,66,.12); border-color: rgba(244,200,66,.4); transform: scale(1.02); }
+    .option.selected { background: rgba(244,200,66,.2); border-color: #f4c842; color: #f4c842; }
+
+    .next-btn {
+      width: 100%; background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010; font-family: 'Nunito', sans-serif;
+      font-size: .95rem; font-weight: 800;
+      border: none; padding: .85rem;
+      border-radius: 14px; cursor: pointer;
+      opacity: .4; pointer-events: none;
+      transition: opacity .2s, transform .15s;
+      margin-top: auto;
+    }
+    .next-btn.enabled { opacity: 1; pointer-events: all; }
+    .next-btn.enabled:hover { transform: translateY(-2px); }
+
+    /* FINAL SCREEN */
+    .final-screen {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(160deg, #0d0d1a, #1a0030);
+      position: relative;
+      overflow: hidden;
+    }
+    .final-photo {
+      width: 120px; height: 120px;
+      border-radius: 50%; object-fit: cover;
+      border: 4px solid rgba(244,200,66,.5);
+      margin-bottom: 1.2rem;
+    }
+    .final-emoji { font-size: 3rem; margin-bottom: .75rem; }
+    .final-msg { font-size: .95rem; line-height: 1.75; color: rgba(255,255,255,.8); max-width: 300px; margin-bottom: 1rem; }
+    .final-from { color: #f4c842; font-weight: 800; font-size: .95rem; }
+    .brand { font-size: .65rem; color: rgba(255,255,255,.2); letter-spacing: .1em; text-transform: uppercase; margin-top: 1.5rem; }
+
+    /* CONFETTI */
+    .confetti-piece {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      animation: confetti-fall linear forwards;
+      pointer-events: none;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
+    }
+
+    /* ERROR */
+    .error-screen { align-items: center; justify-content: center; text-align: center; }
+    .error-screen p { color: rgba(255,255,255,.4); font-size: .9rem; }
+
+    @media (max-width: 480px) {
+      body { padding: 0; align-items: flex-start; }
+      .card { border-radius: 0; min-height: 100vh; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="top-bar"></div>
+  <div id="app-screens"></div>
+</div>
+
+<script>
+  var questions = [];
+  var currentQ = 0;
+  var pageData = null;
+
+  async function loadQuiz() {
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('slug');
+    var app = document.getElementById('app-screens');
+
+    if (!slug) {
+      app.innerHTML = '<div class="screen error-screen active"><p>No quiz found.</p></div>';
+      return;
+    }
+
+    try {
+      var res = await fetch('http://localhost:5000/api/pages/' + slug);
+      var result = await res.json();
+
+      if (!result.success) {
+        app.innerHTML = '<div class="screen error-screen active"><p>Quiz not found.</p></div>';
+        return;
+      }
+
+      pageData = result.page.data;
+      questions = pageData.questions || [];
+      showIntro();
+
+    } catch(err) {
+      app.innerHTML = '<div class="screen error-screen active"><p>Could not load quiz. Is the server running?</p></div>';
+    }
+  }
+
+  function showIntro() {
+    var app = document.getElementById('app-screens');
+    app.innerHTML =
+      '<div class="screen intro-screen active" id="screen-intro">' +
+        '<div class="intro-emoji">🎂</div>' +
+        '<div class="intro-name">Hey ' + (pageData.quizIntroName || 'Friend') + '!</div>' +
+        '<p class="intro-msg">' + (pageData.quizIntroMessage || '') + '</p>' +
+        '<button class="start-btn" onclick="startQuiz()">Let\'s Go! 🎉</button>' +
+      '</div>';
+  }
+
+  function startQuiz() {
+    currentQ = 0;
+    showQuestion();
+  }
+
+  function showQuestion() {
+    if (currentQ >= questions.length) {
+      showFinal();
+      return;
+    }
+
+    var q = questions[currentQ];
+    var total = questions.length;
+    var progressWidth = ((currentQ) / total * 100) + '%';
+
+    var photoHtml = q.photoUrl
+      ? '<img class="q-photo" src="' + q.photoUrl + '" alt="Question photo"/>'
+      : '';
+
+    var optionsHtml = '';
+    q.options.forEach(function(opt, idx) {
+      if (opt) {
+        optionsHtml += '<button class="option" onclick="selectOption(this)">' + opt + '</button>';
+      }
+    });
+
+    var app = document.getElementById('app-screens');
+    app.innerHTML =
+      '<div class="screen question-screen active">' +
+        '<div>' +
+          '<div class="q-header">' +
+            '<span class="q-progress-text">Question ' + (currentQ + 1) + ' of ' + total + '</span>' +
+          '</div>' +
+          '<div class="q-progress-bar"><div class="q-progress-fill" style="width:' + progressWidth + '"></div></div>' +
+          photoHtml +
+          '<p class="q-text">' + (q.questionText || '') + '</p>' +
+          '<div class="options">' + optionsHtml + '</div>' +
+        '</div>' +
+        '<button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button>' +
+      '</div>';
+  }
+
+  function selectOption(el) {
+    // deselect all
+    document.querySelectorAll('.option').forEach(function(o){ o.classList.remove('selected'); });
+    // select clicked
+    el.classList.add('selected');
+    // enable next button
+    var btn = document.getElementById('next-btn');
+    btn.classList.add('enabled');
+  }
+
+  function nextQuestion() {
+    currentQ++;
+    showQuestion();
+  }
+
+  function showFinal() {
+    var photoHtml = pageData.quizFinalPhotoUrl
+      ? '<img class="final-photo" src="' + pageData.quizFinalPhotoUrl + '" alt="Photo"/>'
+      : '';
+
+    var app = document.getElementById('app-screens');
+    app.innerHTML =
+      '<div class="screen final-screen active" id="screen-final">' +
+        '<div class="final-emoji">🎊</div>' +
+        photoHtml +
+        '<p class="final-msg">' + (pageData.quizFinalMessage || '') + '</p>' +
+        '<p class="final-from">From ❤️ ' + (pageData.quizFinalFrom || 'Someone Special') + '</p>' +
+        '<p class="brand">Made with love · Wishify</p>' +
+      '</div>';
+
+    // launch confetti
+    launchConfetti();
+  }
+
+  function launchConfetti() {
+    var colors = ['#f4c842','#e8506a','#a855f7','#3b82f6','#34d399','#fb923c'];
+    var card = document.getElementById('card');
+    for (var i = 0; i < 60; i++) {
+      (function(i) {
+        setTimeout(function() {
+          var piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          piece.style.left = Math.random() * 100 + '%';
+          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+          piece.style.animationDelay = '0s';
+          piece.style.width = (Math.random() * 8 + 5) + 'px';
+          piece.style.height = (Math.random() * 8 + 5) + 'px';
+          card.appendChild(piece);
+          setTimeout(function(){ piece.remove(); }, 3500);
+        }, i * 50);
+      })(i);
+    }
+  }
+
+  loadQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishify — Timeline Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo">✨ Wishify</div>
+  <div class="nav-badge">Timeline Editor</div>
+  <div class="nav-step">Birthday Template 2</div>
+</nav>
+
+<div class="editor-layout">
+
+  <!-- ════ LEFT PANEL ════ -->
+  <aside class="left-panel">
+
+    <!-- Intro -->
+    <div class="panel-section">
+      <div class="section-label">🎂 Intro Screen</div>
+      <div class="field">
+        <label>Recipient's Name</label>
+        <input type="text" id="recipient-name" placeholder="e.g. Rushikesh" value="Friend"/>
+      </div>
+    </div>
+
+    <!-- Memory 1 -->
+    <div class="panel-section">
+      <div class="section-label">📸 Memory 1</div>
+      <div class="field"><label>Year</label><input type="text" id="m1-year" value="2005"/></div>
+      <div class="field"><label>Title</label><input type="text" id="m1-title" value="The Day You Were Born"/></div>
+      <div class="field"><label>Caption</label><input type="text" id="m1-caption" value="The world got a little brighter that day."/></div>
+      <div class="field"><label>Photo</label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'p1','prev-p1')"/><span id="p1-label">📁 Click to upload</span></label>
+      </div>
+    </div>
+
+    <!-- Memory 2 -->
+    <div class="panel-section">
+      <div class="section-label">📸 Memory 2</div>
+      <div class="field"><label>Year</label><input type="text" id="m2-year" value="2012"/></div>
+      <div class="field"><label>Title</label><input type="text" id="m2-title" value="School Memories"/></div>
+      <div class="field"><label>Caption</label><input type="text" id="m2-caption" value="Those crazy school days we'll never forget."/></div>
+      <div class="field"><label>Photo</label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'p2','prev-p2')"/><span id="p2-label">📁 Click to upload</span></label>
+      </div>
+    </div>
+
+    <!-- Memory 3 -->
+    <div class="panel-section">
+      <div class="section-label">📸 Memory 3</div>
+      <div class="field"><label>Year</label><input type="text" id="m3-year" value="2016"/></div>
+      <div class="field"><label>Title</label><input type="text" id="m3-title" value="College Days"/></div>
+      <div class="field"><label>Caption</label><input type="text" id="m3-caption" value="New city, new friends, new adventures."/></div>
+      <div class="field"><label>Photo</label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'p3','prev-p3')"/><span id="p3-label">📁 Click to upload</span></label>
+      </div>
+    </div>
+
+    <!-- Memory 4 -->
+    <div class="panel-section">
+      <div class="section-label">📸 Memory 4</div>
+      <div class="field"><label>Year</label><input type="text" id="m4-year" value="2020"/></div>
+      <div class="field"><label>Title</label><input type="text" id="m4-title" value="New Beginnings"/></div>
+      <div class="field"><label>Caption</label><input type="text" id="m4-caption" value="Growing stronger every single day."/></div>
+      <div class="field"><label>Photo</label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'p4','prev-p4')"/><span id="p4-label">📁 Click to upload</span></label>
+      </div>
+    </div>
+
+    <!-- Memory 5 -->
+    <div class="panel-section">
+      <div class="section-label">📸 Memory 5</div>
+      <div class="field"><label>Year</label><input type="text" id="m5-year" value="2024"/></div>
+      <div class="field"><label>Title</label><input type="text" id="m5-title" value="Today & Always"/></div>
+      <div class="field"><label>Caption</label><input type="text" id="m5-caption" value="Here's to many more beautiful years!"/></div>
+      <div class="field"><label>Photo</label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'p5','prev-p5')"/><span id="p5-label">📁 Click to upload</span></label>
+      </div>
+    </div>
+
+    <!-- ✅ COLORS — correctly placed in left panel -->
+    <div class="panel-section">
+      <div class="section-label">🎨 Colors</div>
+
+      <div class="field">
+        <label>Page Background — Top</label>
+        <div class="color-picker-row">
+          <input type="color" id="bg-color1" value="#1a0030"/>
+          <span class="color-hex-display" id="hex-bg1">#1a0030</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Page Background — Bottom</label>
+        <div class="color-picker-row">
+          <input type="color" id="bg-color2" value="#0a0a0a"/>
+          <span class="color-hex-display" id="hex-bg2">#0a0a0a</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Memory Card Color</label>
+        <div class="color-picker-row">
+          <input type="color" id="card-color" value="#ffffff"/>
+          <span class="color-hex-display" id="hex-card">#ffffff</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Wish -->
+    <div class="panel-section">
+      <div class="section-label">🎉 Final Wish Screen</div>
+      <div class="field"><label>Name</label><input type="text" id="final-name" value="Friend"/></div>
+      <div class="field"><label>Message</label><textarea id="final-message">Wishing you a year filled with joy, laughter, and all the things that make you smile. Happy Birthday!</textarea></div>
+      <div class="field"><label>From</label><input type="text" id="final-from" value="Someone Special"/></div>
+      <div class="field"><label>Photo (optional)</label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'fp','prev-fp')"/><span id="fp-label">📁 Click to upload</span></label>
+      </div>
+    </div>
+
+    <!-- Share -->
+    <div class="share-section">
+      <div class="section-label">🔗 Share</div>
+      <button id="generate-btn">✨ Generate Shareable Link</button>
+      <div class="result-area" id="result-area">
+        <span class="result-url" id="result-link"></span>
+        <div class="result-actions">
+          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ════ RIGHT PANEL ════ -->
+  <main class="right-panel">
+
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <span class="live-dot">Live</span>
+    </div>
+
+    <div id="preview-card">
+
+      <div class="prev-intro">
+        <h1>Happy Birthday <span id="prev-recipient">Friend</span> 🎂</h1>
+        <p>Let's relive some beautiful memories together</p>
+        <span class="scroll-hint">↓ Scroll Down ↓</span>
+      </div>
+
+      <div class="prev-timeline">
+        <div class="timeline-line"></div>
+        <div class="tl-item right">
+          <div class="tl-dot"></div>
+          <div class="tl-card"><span class="tl-year" id="prev-y1">2005</span><h3 id="prev-t1">The Day You Were Born</h3><div class="tl-img-box" id="prev-p1"><span>📷</span></div><p class="tl-caption" id="prev-c1">The world got a little brighter that day.</p></div>
+        </div>
+        <div class="tl-item left">
+          <div class="tl-dot"></div>
+          <div class="tl-card"><span class="tl-year" id="prev-y2">2012</span><h3 id="prev-t2">School Memories</h3><div class="tl-img-box" id="prev-p2"><span>📷</span></div><p class="tl-caption" id="prev-c2">Those crazy school days we'll never forget.</p></div>
+        </div>
+        <div class="tl-item right">
+          <div class="tl-dot"></div>
+          <div class="tl-card"><span class="tl-year" id="prev-y3">2016</span><h3 id="prev-t3">College Days</h3><div class="tl-img-box" id="prev-p3"><span>📷</span></div><p class="tl-caption" id="prev-c3">New city, new friends, new adventures.</p></div>
+        </div>
+        <div class="tl-item left">
+          <div class="tl-dot"></div>
+          <div class="tl-card"><span class="tl-year" id="prev-y4">2020</span><h3 id="prev-t4">New Beginnings</h3><div class="tl-img-box" id="prev-p4"><span>📷</span></div><p class="tl-caption" id="prev-c4">Growing stronger every single day.</p></div>
+        </div>
+        <div class="tl-item right">
+          <div class="tl-dot"></div>
+          <div class="tl-card"><span class="tl-year" id="prev-y5">2024</span><h3 id="prev-t5">Today & Always</h3><div class="tl-img-box" id="prev-p5"><span>📷</span></div><p class="tl-caption" id="prev-c5">Here's to many more beautiful years!</p></div>
+        </div>
+      </div>
+
+      <div class="prev-final">
+        <h2>Happy Birthday <span id="prev-final-name">Friend</span> 🎉</h2>
+        <p id="prev-final-msg">Wishing you a year filled with joy, laughter, and all the things that make you smile. Happy Birthday!</p>
+        <div class="fp-box" id="prev-fp"></div>
+        <p class="final-from">From ❤️ <span id="prev-final-from">Someone Special</span></p>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  var photos = {};
+  var currentBg1 = '#1a0030';
+  var currentBg2 = '#0a0a0a';
+  var currentCardColor = '#ffffff';
+
+  /* ── Photo upload ── */
+  function handlePhoto(input, key, previewId) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      photos[key] = e.target.result;
+      var box = document.getElementById(previewId);
+      box.innerHTML = '<img src="' + e.target.result + '">';
+      if (key === 'fp') box.style.display = 'flex';
+      var lbl = document.getElementById(key + '-label');
+      if (lbl) lbl.textContent = '✅ Uploaded';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── Text bindings ── */
+  function bind(inputId, previewId) {
+    var el = document.getElementById(inputId);
+    if (!el) return;
+    el.addEventListener('input', function() {
+      document.getElementById(previewId).textContent = this.value;
+    });
+  }
+  bind('recipient-name','prev-recipient');
+  bind('m1-year','prev-y1'); bind('m1-title','prev-t1'); bind('m1-caption','prev-c1');
+  bind('m2-year','prev-y2'); bind('m2-title','prev-t2'); bind('m2-caption','prev-c2');
+  bind('m3-year','prev-y3'); bind('m3-title','prev-t3'); bind('m3-caption','prev-c3');
+  bind('m4-year','prev-y4'); bind('m4-title','prev-t4'); bind('m4-caption','prev-c4');
+  bind('m5-year','prev-y5'); bind('m5-title','prev-t5'); bind('m5-caption','prev-c5');
+  bind('final-name','prev-final-name');
+  bind('final-message','prev-final-msg');
+  bind('final-from','prev-final-from');
+
+  /* ── Color helpers ── */
+  function applyBg() {
+    document.querySelector('.prev-intro').style.background    = 'linear-gradient(160deg,' + currentBg1 + ',' + currentBg2 + ')';
+    document.querySelector('.prev-final').style.background    = 'linear-gradient(160deg,' + currentBg2 + ',' + currentBg1 + ')';
+    document.querySelector('.prev-timeline').style.background = currentBg2;
+  }
+  function applyCardColor() {
+    var dark = isColorDark(currentCardColor);
+    document.querySelectorAll('.tl-card').forEach(function(c) {
+      c.style.background = currentCardColor;
+      c.style.color = dark ? '#fff' : '#111';
+    });
+    document.querySelectorAll('.tl-caption').forEach(function(c) {
+      c.style.color = dark ? 'rgba(255,255,255,.6)' : '#555';
+    });
+  }
+  function isColorDark(hex) {
+    var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return (r*.299 + g*.587 + b*.114) < 128;
+  }
+
+  /* ── Color pickers ── */
+  document.getElementById('bg-color1').addEventListener('input', function() {
+    currentBg1 = this.value;
+    document.getElementById('hex-bg1').textContent = this.value;
+    applyBg();
+  });
+  document.getElementById('bg-color2').addEventListener('input', function() {
+    currentBg2 = this.value;
+    document.getElementById('hex-bg2').textContent = this.value;
+    applyBg();
+  });
+  document.getElementById('card-color').addEventListener('input', function() {
+    currentCardColor = this.value;
+    document.getElementById('hex-card').textContent = this.value;
+    applyCardColor();
+  });
+
+  /* ── Generate link ── */
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    var btn = this;
+    btn.textContent = 'Generating...';
+    var data = {
+  template: 'birthday-timeline',
+  data: {
+    recipientName: document.getElementById('recipient-name').value,
+    finalMessage: document.getElementById('final-message').value,
+    finalFrom: document.getElementById('final-from').value,
+    finalName: document.getElementById('final-name').value,
+    finalPhotoUrl: photos['fp'] || '',
+    bgColor1: currentBg1,
+    bgColor2: currentBg2,
+    cardColor: currentCardColor,
+    memories: [1,2,3,4,5].map(function(i) {
+      return {
+        year:     document.getElementById('m'+i+'-year').value,
+        title:    document.getElementById('m'+i+'-title').value,
+        caption:  document.getElementById('m'+i+'-caption').value,
+        photoUrl: photos['p'+i] || ''
+      };
+    })
+  }
+};
+    try {
+      const res = await fetch('http://localhost:5000/api/pages', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      const result = await res.json();
+      if (result.success) {
+        var link = window.location.origin + '/templates/birthday2/view.html?slug=' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
+      } else { btn.textContent = '✨ Generate Shareable Link'; }
+    } catch(err) {
+      document.getElementById('result-link').textContent = '⚠️ Server not running — start your backend first.';
+      document.getElementById('result-area').classList.add('show');
+      btn.textContent = '✨ Generate Shareable Link';
+    }
+  });
+
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    if (!link) return;
+    navigator.clipboard.writeText(link).then(function() {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!'; btn.classList.add('copied');
+      setTimeout(function(){ btn.textContent = '📋 Copy Link'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    var name = document.getElementById('recipient-name').value || 'Friend';
+    window.open('https://wa.me/?text=' + encodeURIComponent('🎂 I made a special birthday timeline for ' + name + '! ' + link), '_blank');
+  }
+</script>
+</body>
+</html>

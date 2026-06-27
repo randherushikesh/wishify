@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishify — Birthday Wish</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="view.css">
+</head>
+<body>
+
+  <div id="wish-card">
+    <p class="eyebrow">✨ Special Day ✨</p>
+    <div class="emoji-row">🎂 🎈 🎉</div>
+
+    <h1 id="view-heading">Happy Birthday, <span id="view-name"></span>! 🎂</h1>
+    <p id="view-date"></p>
+
+    <div class="divider"><span>🎉</span></div>
+
+    <div class="photo-box" id="view-photo-box">
+      <div id="photo-placeholder">
+        <span>📸</span>
+        <p>No photo added</p>
+      </div>
+    </div>
+
+    <div class="message-card">
+      <p id="view-message"></p>
+    </div>
+
+    <div class="from-row">
+      <div class="avatar" id="view-avatar"></div>
+      <div>
+        <div class="from-label">With all the love, from</div>
+        <div id="view-from"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  async function loadWish() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+
+    if (!slug) {
+      document.body.innerHTML = '<p style="text-align:center;margin-top:50px;">No wish found.</p>';
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/pages/' + slug);
+      const result = await response.json();
+
+      if (!result.success) {
+        document.body.innerHTML = '<p style="text-align:center;margin-top:50px;">Wish not found.</p>';
+        return;
+      }
+
+      const page = result.page;
+const data = page.data;
+
+document.getElementById('view-name').textContent = data.name;
+document.getElementById('view-avatar').textContent = data.name.charAt(0).toUpperCase();
+document.getElementById('view-from').textContent = data.from;
+document.getElementById('view-message').textContent = data.message;
+
+if (data.date) {
+  const d = new Date(data.date + 'T00:00:00');
+  document.getElementById('view-date').textContent = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+if (data.photoUrl) {
+  document.getElementById('view-photo-box').innerHTML = `<img src="${data.photoUrl}" style="width:100%;border-radius:12px;">`;
+}
+
+if (data.bgTop && data.bgBottom) {
+  document.getElementById('wish-card').style.background =
+    'linear-gradient(160deg, ' + data.bgTop + ' 0%, ' + data.bgBottom + ' 100%)';
+}
+
+if (data.font) {
+  document.getElementById('view-heading').style.fontFamily = data.font;
+}
+
+    } catch (err) {
+      document.body.innerHTML = '<p style="text-align:center;margin-top:50px;">Could not load wish. Is the server running?</p>';
+    }
+  }
+
+  loadWish();
+</script>
+
+</body>
+</html>

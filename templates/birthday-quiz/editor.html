@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishify — Quiz Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; }
+
+    .navbar { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 1.5rem; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; }
+    .nav-badge { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #f4c842; background: rgba(244,200,66,.12); border: 1px solid rgba(244,200,66,.25); padding: .25rem .75rem; border-radius: 50px; }
+    .nav-step { font-size: .8rem; color: rgba(255,255,255,.4); }
+
+    .editor-layout { display: flex; height: calc(100vh - 56px); overflow: hidden; }
+
+    .left-panel { width: 360px; flex-shrink: 0; background: #111; border-right: 1px solid rgba(255,255,255,.07); padding: 1rem; overflow-y: auto; height: 100%; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; }
+    .left-panel::-webkit-scrollbar { width: 4px; }
+    .left-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+    .right-panel { flex: 1; background: #0d0d0d; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; align-items: center; height: 100%; }
+
+    .panel-section { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 1rem; margin-bottom: .85rem; }
+    .section-label { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: .75rem; }
+
+    .field { margin-bottom: .75rem; }
+    .field:last-child { margin-bottom: 0; }
+    .field label { display: block; font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.4); margin-bottom: .3rem; }
+    .field input, .field textarea { width: 100%; font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 600; color: #fff; background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.1); border-radius: 8px; padding: .55rem .75rem; outline: none; resize: none; transition: border-color .2s; }
+    .field textarea { height: 72px; line-height: 1.6; }
+    .field input:focus, .field textarea:focus { border-color: rgba(244,200,66,.5); }
+
+    .upload-zone { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .65rem; border: 2px dashed rgba(255,255,255,.15); border-radius: 8px; cursor: pointer; font-size: .78rem; color: rgba(255,255,255,.4); position: relative; transition: border-color .2s; }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-zone:hover { border-color: rgba(244,200,66,.4); color: #f4c842; }
+
+    /* Question block */
+    .question-block { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 1rem; margin-bottom: .85rem; position: relative; }
+    .q-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+    .q-number { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #f4c842; }
+    .q-remove { background: rgba(232,80,106,.15); border: 1px solid rgba(232,80,106,.3); color: #e8506a; font-size: .72rem; font-weight: 700; padding: .2rem .6rem; border-radius: 6px; cursor: pointer; }
+    .q-remove:hover { background: rgba(232,80,106,.25); }
+
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: .5rem; }
+    .options-grid input { font-size: .8rem; padding: .45rem .65rem; }
+
+    .add-q-btn { width: 100%; padding: .75rem; background: rgba(244,200,66,.08); border: 1.5px dashed rgba(244,200,66,.3); border-radius: 10px; color: #f4c842; font-family: 'Nunito', sans-serif; font-size: .85rem; font-weight: 800; cursor: pointer; transition: background .2s; margin-bottom: .85rem; }
+    .add-q-btn:hover { background: rgba(244,200,66,.14); }
+    .add-q-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .share-section { background: linear-gradient(135deg, rgba(244,200,66,.08), rgba(232,80,106,.06)); border: 1.5px solid rgba(244,200,66,.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+    .share-section .section-label { color: #f4c842; }
+    #generate-btn { width: 100%; padding: .8rem; font-family: 'Nunito', sans-serif; font-size: .9rem; font-weight: 800; background: linear-gradient(135deg, #f4c842, #e8506a); color: #1a0010; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 16px rgba(244,200,66,.2); transition: transform .15s, box-shadow .15s; }
+    #generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,200,66,.3); }
+    .result-area { display: none; margin-top: .75rem; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; overflow: hidden; }
+    .result-area.show { display: block; }
+    .result-url { display: block; padding: .6rem .8rem; font-size: .7rem; color: rgba(255,255,255,.5); word-break: break-all; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .result-actions { display: flex; }
+    .result-btn { flex: 1; padding: .55rem; font-family: 'Nunito', sans-serif; font-size: .75rem; font-weight: 700; border: none; background: transparent; color: rgba(255,255,255,.5); cursor: pointer; }
+    .result-btn:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .result-btn + .result-btn { border-left: 1px solid rgba(255,255,255,.07); }
+
+    /* RIGHT PANEL PREVIEW */
+    .preview-topbar { width: 100%; max-width: 420px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-shrink: 0; }
+    .preview-label { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.4); }
+    .live-dot { font-size: .72rem; font-weight: 700; color: #34d399; display: flex; align-items: center; gap: .3rem; }
+    .live-dot::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #34d399; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* PHONE MOCKUP */
+    .phone-wrap { width: 100%; max-width: 360px; flex-shrink: 0; }
+    .phone {
+      width: 100%; background: #1a1a2e;
+      border-radius: 32px; overflow: hidden;
+      border: 2px solid rgba(255,255,255,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      min-height: 560px;
+    }
+    .phone-bar { height: 28px; background: rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; }
+    .phone-notch { width: 80px; height: 12px; background: #000; border-radius: 0 0 10px 10px; }
+    .phone-screen { padding: 1.5rem 1.2rem; min-height: 532px; display: flex; flex-direction: column; }
+
+    /* Preview screens inside phone */
+    .prev-screen { display: none; flex-direction: column; height: 100%; }
+    .prev-screen.active { display: flex; }
+
+    /* Intro preview */
+    .prev-intro { background: linear-gradient(160deg,#1a0030,#0d0d0d); flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1.5rem 1rem; border-radius: 8px; }
+    .prev-intro h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .5rem; }
+    .prev-intro p { font-size: .78rem; color: rgba(255,255,255,.5); margin-bottom: 1rem; }
+    .prev-start-btn { background: linear-gradient(135deg,#f4c842,#e8506a); color: #1a0010; font-family: 'Nunito',sans-serif; font-size: .8rem; font-weight: 800; border: none; padding: .6rem 1.4rem; border-radius: 50px; cursor: pointer; }
+
+    /* Question preview */
+    .prev-question { flex: 1; display: flex; flex-direction: column; padding: .5rem 0; }
+    .prev-q-progress { font-size: .65rem; color: rgba(255,255,255,.35); text-align: right; margin-bottom: .5rem; }
+    .prev-q-img { width: 100%; height: 120px; background: rgba(255,255,255,.06); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: .75rem; overflow: hidden; }
+    .prev-q-img img { width: 100%; height: 100%; object-fit: cover; }
+    .prev-q-text { font-size: .9rem; font-weight: 800; margin-bottom: .9rem; line-height: 1.4; }
+    .prev-options { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: .75rem; }
+    .prev-option { background: rgba(255,255,255,.07); border: 1.5px solid rgba(255,255,255,.1); border-radius: 10px; padding: .5rem .4rem; font-size: .72rem; font-weight: 700; text-align: center; cursor: pointer; transition: background .15s; }
+    .prev-option:hover { background: rgba(244,200,66,.15); border-color: #f4c842; }
+    .prev-next-btn { width: 100%; background: linear-gradient(135deg,#f4c842,#e8506a); color: #1a0010; font-family: 'Nunito',sans-serif; font-size: .82rem; font-weight: 800; border: none; padding: .65rem; border-radius: 10px; cursor: pointer; margin-top: auto; }
+
+    /* Final preview */
+    .prev-final { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1rem; background: linear-gradient(160deg,#0d0d0d,#1a0030); border-radius: 8px; }
+    .prev-final h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: .5rem; }
+    .prev-final p { font-size: .75rem; color: rgba(255,255,255,.6); line-height: 1.6; margin-bottom: .5rem; }
+    .prev-final .from { color: #f4c842; font-size: .78rem; font-weight: 700; }
+
+    /* nav dots */
+    .screen-nav { display: flex; gap: .4rem; justify-content: center; margin-top: .75rem; }
+    .screen-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.2); cursor: pointer; transition: background .2s; }
+    .screen-dot.active { background: #f4c842; }
+
+    @media (max-width: 768px) {
+  .editor-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .left-panel {
+    width: 100%;
+    height: auto;
+    overflow-y: visible;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+
+  .right-panel {
+    height: auto;
+    overflow-y: visible;
+    padding: 1rem;
+  }
+
+  .phone-wrap {
+    max-width: 100%;
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    padding: 0 1rem;
+  }
+
+  .nav-step {
+    display: none;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo">✨ Wishify</div>
+  <div class="nav-badge">Quiz Editor</div>
+  <div class="nav-step">Birthday Template 3</div>
+</nav>
+
+<div class="editor-layout">
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel">
+
+    <!-- Intro -->
+    <div class="panel-section">
+      <div class="section-label">🎉 Intro Screen</div>
+      <div class="field">
+        <label>Recipient's Name</label>
+        <input type="text" id="quiz-name" placeholder="e.g. Rushikesh" value="Friend"/>
+      </div>
+      <div class="field">
+        <label>Intro Message</label>
+        <textarea id="quiz-intro-msg">I made a fun little quiz just for you! How well do you know me? 🎉</textarea>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div id="questions-container"></div>
+
+    <button class="add-q-btn" id="add-q-btn" onclick="addQuestion()">+ Add Question</button>
+
+    <!-- Final Screen -->
+    <div class="panel-section">
+      <div class="section-label">🎊 Final Screen</div>
+      <div class="field">
+        <label>Wish Message</label>
+        <textarea id="final-msg">Happy Birthday! You mean the world to me. Wishing you all the happiness today and always! 🎂</textarea>
+      </div>
+      <div class="field">
+        <label>From</label>
+        <input type="text" id="final-from" value="Someone Special"/>
+      </div>
+      <div class="field">
+        <label>Photo (optional)</label>
+        <label class="upload-zone">
+          <input type="file" accept="image/*" onchange="handleFinalPhoto(this)"/>
+          <span id="final-photo-label">📁 Click to upload</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Share -->
+    <div class="share-section">
+      <div class="section-label">🔗 Share</div>
+      <button id="generate-btn">✨ Generate Shareable Link</button>
+      <div class="result-area" id="result-area">
+        <span class="result-url" id="result-link"></span>
+        <div class="result-actions">
+          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL — PHONE PREVIEW -->
+  <main class="right-panel">
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <span class="live-dot">Live</span>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-bar"><div class="phone-notch"></div></div>
+        <div class="phone-screen">
+
+          <!-- Intro screen -->
+          <div class="prev-screen active" id="prev-intro">
+            <div class="prev-intro">
+              <div style="font-size:2.5rem;margin-bottom:.75rem">🎂</div>
+              <h2 id="prev-name">Friend</h2>
+              <p id="prev-intro-msg">I made a fun little quiz just for you! How well do you know me? 🎉</p>
+              <button class="prev-start-btn">Let's Go! →</button>
+            </div>
+          </div>
+
+          <!-- Question screen (dynamic) -->
+          <div class="prev-screen" id="prev-question">
+            <div class="prev-question">
+              <p class="prev-q-progress" id="prev-q-progress">Question 1 of 1</p>
+              <div class="prev-q-img" id="prev-q-img"><span>🖼️</span></div>
+              <p class="prev-q-text" id="prev-q-text">Your question will appear here</p>
+              <div class="prev-options" id="prev-options">
+                <div class="prev-option" id="prev-opt-1">Option A</div>
+                <div class="prev-option" id="prev-opt-2">Option B</div>
+                <div class="prev-option" id="prev-opt-3">Option C</div>
+                <div class="prev-option" id="prev-opt-4">Option D</div>
+              </div>
+              <button class="prev-next-btn">Next →</button>
+            </div>
+          </div>
+
+          <!-- Final screen -->
+          <div class="prev-screen" id="prev-final">
+            <div class="prev-final">
+              <div style="font-size:2rem;margin-bottom:.5rem">🎊</div>
+              <h3 id="prev-final-msg-display">Happy Birthday! You mean the world to me.</h3>
+              <p class="from" id="prev-final-from-display">From ❤️ Someone Special</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Screen navigation dots -->
+      <div class="screen-nav" id="screen-nav">
+        <div class="screen-dot active" onclick="showScreen('intro')"></div>
+        <div class="screen-dot" onclick="showScreen('question')"></div>
+        <div class="screen-dot" onclick="showScreen('final')"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  var questionCount = 0;
+  var questionPhotos = {};
+  var finalPhoto = '';
+  var MAX_Q = 10;
+
+  // Show default 1 question on load
+  window.addEventListener('load', function() { addQuestion(); });
+
+  function addQuestion() {
+    if (questionCount >= MAX_Q) return;
+    questionCount++;
+    var i = questionCount;
+
+    var block = document.createElement('div');
+    block.className = 'question-block';
+    block.id = 'q-block-' + i;
+    block.innerHTML =
+      '<div class="q-header">' +
+        '<span class="q-number">❓ Question ' + i + '</span>' +
+        '<button class="q-remove" onclick="removeQuestion(' + i + ')">✕ Remove</button>' +
+      '</div>' +
+      '<div class="field"><label>Question</label>' +
+        '<input type="text" id="q-text-' + i + '" placeholder="e.g. What is my favourite color?" oninput="updatePreview(' + i + ')"/>' +
+      '</div>' +
+      '<div class="field"><label>Options</label>' +
+        '<div class="options-grid">' +
+          '<input type="text" id="q-opt1-' + i + '" placeholder="Option A" oninput="updatePreview(' + i + ')"/>' +
+          '<input type="text" id="q-opt2-' + i + '" placeholder="Option B" oninput="updatePreview(' + i + ')"/>' +
+          '<input type="text" id="q-opt3-' + i + '" placeholder="Option C" oninput="updatePreview(' + i + ')"/>' +
+          '<input type="text" id="q-opt4-' + i + '" placeholder="Option D" oninput="updatePreview(' + i + ')"/>' +
+        '</div>' +
+      '</div>' +
+      '<div class="field"><label>Photo (optional)</label>' +
+        '<label class="upload-zone">' +
+          '<input type="file" accept="image/*" onchange="handleQPhoto(this,' + i + ')"/>' +
+          '<span id="q-photo-label-' + i + '">📁 Click to upload</span>' +
+        '</label>' +
+      '</div>';
+
+    document.getElementById('questions-container').appendChild(block);
+
+    // Update add button state
+    document.getElementById('add-q-btn').disabled = questionCount >= MAX_Q;
+    updateScreenNav();
+    showScreen('question');
+    updatePreview(i);
+  }
+
+  function removeQuestion(i) {
+    if (questionCount <= 1) {
+      alert('You need at least 1 question.');
+      return;
+    }
+    var block = document.getElementById('q-block-' + i);
+    if (block) block.remove();
+    delete questionPhotos[i];
+    questionCount--;
+    document.getElementById('add-q-btn').disabled = false;
+    updateScreenNav();
+    // show first remaining question in preview
+    var remaining = document.querySelectorAll('.question-block');
+    if (remaining.length > 0) {
+      var firstId = remaining[0].id.replace('q-block-','');
+      updatePreview(parseInt(firstId));
+    }
+    showScreen('question');
+  }
+
+  function handleQPhoto(input, i) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      questionPhotos[i] = e.target.result;
+      document.getElementById('q-photo-label-' + i).textContent = '✅ Uploaded';
+      updatePreview(i);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleFinalPhoto(input) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      finalPhoto = e.target.result;
+      document.getElementById('final-photo-label').textContent = '✅ Uploaded';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updatePreview(i) {
+    var qText = document.getElementById('q-text-' + i);
+    var opt1  = document.getElementById('q-opt1-' + i);
+    var opt2  = document.getElementById('q-opt2-' + i);
+    var opt3  = document.getElementById('q-opt3-' + i);
+    var opt4  = document.getElementById('q-opt4-' + i);
+
+    if (qText) document.getElementById('prev-q-text').textContent = qText.value || 'Your question will appear here';
+    if (opt1)  document.getElementById('prev-opt-1').textContent = opt1.value || 'Option A';
+    if (opt2)  document.getElementById('prev-opt-2').textContent = opt2.value || 'Option B';
+    if (opt3)  document.getElementById('prev-opt-3').textContent = opt3.value || 'Option C';
+    if (opt4)  document.getElementById('prev-opt-4').textContent = opt4.value || 'Option D';
+
+    var total = document.querySelectorAll('.question-block').length;
+    document.getElementById('prev-q-progress').textContent = 'Question ' + i + ' of ' + total;
+
+    // photo
+    var imgBox = document.getElementById('prev-q-img');
+    if (questionPhotos[i]) {
+      imgBox.innerHTML = '<img src="' + questionPhotos[i] + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">';
+    } else {
+      imgBox.innerHTML = '<span>🖼️</span>';
+    }
+
+    showScreen('question');
+  }
+
+  function showScreen(type) {
+    document.getElementById('prev-intro').classList.remove('active');
+    document.getElementById('prev-question').classList.remove('active');
+    document.getElementById('prev-final').classList.remove('active');
+    document.querySelectorAll('.screen-dot').forEach(function(d){ d.classList.remove('active'); });
+
+    if (type === 'intro') {
+      document.getElementById('prev-intro').classList.add('active');
+      document.querySelectorAll('.screen-dot')[0].classList.add('active');
+    } else if (type === 'question') {
+      document.getElementById('prev-question').classList.add('active');
+      document.querySelectorAll('.screen-dot')[1].classList.add('active');
+    } else {
+      document.getElementById('prev-final').classList.add('active');
+      document.querySelectorAll('.screen-dot')[2].classList.add('active');
+    }
+  }
+
+  function updateScreenNav() {
+    // dots stay as 3 — intro, question, final
+  }
+
+  // Live bindings
+  document.getElementById('quiz-name').addEventListener('input', function() {
+    document.getElementById('prev-name').textContent = this.value || 'Friend';
+  });
+  document.getElementById('quiz-intro-msg').addEventListener('input', function() {
+    document.getElementById('prev-intro-msg').textContent = this.value;
+  });
+  document.getElementById('final-msg').addEventListener('input', function() {
+    document.getElementById('prev-final-msg-display').textContent = this.value;
+  });
+  document.getElementById('final-from').addEventListener('input', function() {
+    document.getElementById('prev-final-from-display').textContent = 'From ❤️ ' + this.value;
+  });
+
+  // Generate Link
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    var btn = this;
+    btn.textContent = 'Generating...';
+
+    var blocks = document.querySelectorAll('.question-block');
+    var questions = [];
+    blocks.forEach(function(block) {
+      var id = block.id.replace('q-block-', '');
+      questions.push({
+        questionText: (document.getElementById('q-text-' + id) || {}).value || '',
+        options: [
+          (document.getElementById('q-opt1-' + id) || {}).value || '',
+          (document.getElementById('q-opt2-' + id) || {}).value || '',
+          (document.getElementById('q-opt3-' + id) || {}).value || '',
+          (document.getElementById('q-opt4-' + id) || {}).value || ''
+        ],
+        photoUrl: questionPhotos[id] || ''
+      });
+    });
+
+   var data = {
+  template: 'birthday-quiz',
+  data: {
+    quizIntroName: document.getElementById('quiz-name').value,
+    quizIntroMessage: document.getElementById('quiz-intro-msg').value,
+    quizFinalMessage: document.getElementById('final-msg').value,
+    quizFinalFrom: document.getElementById('final-from').value,
+    quizFinalPhotoUrl: finalPhoto || '',
+    questions: questions
+  }
+};
+
+    try {
+      var res = await fetch('http://localhost:5000/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      var result = await res.json();
+      if (result.success) {
+        var link = window.location.origin + '/templates/birthday-quiz/view.html?slug=' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
+      } else {
+        btn.textContent = '✨ Generate Shareable Link';
+      }
+    } catch(err) {
+      document.getElementById('result-link').textContent = '⚠️ Server not running.';
+      document.getElementById('result-area').classList.add('show');
+      btn.textContent = '✨ Generate Shareable Link';
+    }
+  });
+
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    navigator.clipboard.writeText(link).then(function() {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!';
+      setTimeout(function(){ btn.textContent = '📋 Copy Link'; }, 2000);
+    });
+  }
+
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    var name = document.getElementById('quiz-name').value || 'Friend';
+    window.open('https://wa.me/?text=' + encodeURIComponent('🎂 I made a fun birthday quiz for ' + name + '! ' + link), '_blank');
+  }
+</script>
+</body>
+</html>

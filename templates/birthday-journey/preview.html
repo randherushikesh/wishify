@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wishify — Birthday Journey Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* FLOATING CTA */
+    .floating-cta {
+      position: fixed; left: 1.2rem; top: 50%;
+      transform: translateY(-50%); z-index: 999;
+      display: flex; flex-direction: column; align-items: center; gap: .6rem;
+    }
+    /* 1. Ensure the card stacks elements properly */
+    /* 1. The Card Container */
+.gallery-card, .gallery-card-p {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #1a1a2e;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  height: auto !important;
+  min-height: min-content !important;
+}
+
+/* 2. The Image (When uploaded) */
+.gallery-img, .gallery-img-p {
+  width: 100% !important;
+  height: 180px !important;         /* Locks the height strictly */
+  min-height: 180px !important;     /* Prevents shrinking */
+  max-height: 180px !important;     /* Prevents expanding */
+  object-fit: contain !important;   /* Shows full image without crop */
+  background: rgba(0, 0, 0, 0.5) !important;
+  flex-shrink: 0 !important;        /* Forbids flexbox from altering the size */
+  display: block !important;
+}
+
+/* 3. The Placeholder (Before upload / Error) */
+.gallery-placeholder, .gallery-img-placeholder, .gallery-img-error {
+  width: 100% !important;
+  height: 180px !important;
+  min-height: 180px !important;
+  max-height: 180px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+}
+
+/* 4. The Caption Area */
+.gallery-caption, .gallery-caption-p {
+  padding: 1rem 1.2rem !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  flex-grow: 1 !important;          /* Tells text to fill remaining space */
+  min-height: 80px !important;      /* Guarantees the text is never hidden */
+  display: block !important;
+}
+
+    /* 2. Let the image dictate its own height naturally */
+
+    /* 3. Force the caption to always be visible */
+    
+    .floating-cta a {
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010; font-family: 'Nunito', sans-serif;
+      font-size: .72rem; font-weight: 800; text-decoration: none;
+      padding: 1rem .6rem; border-radius: 50px;
+      box-shadow: 0 8px 24px rgba(244,200,66,.3);
+      transition: transform .2s, box-shadow .2s;
+      writing-mode: vertical-rl;
+      letter-spacing: .05em;
+    }
+    .floating-cta a:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(244,200,66,.45); }
+    .floating-cta .cta-icon { font-size: 1.1rem; writing-mode: horizontal-tb; }
+    .floating-cta .back-btn {
+      background: rgba(255,255,255,.06); color: rgba(255,255,255,.5);
+      font-size: .65rem; padding: .6rem .5rem; border-radius: 50px;
+      text-decoration: none; writing-mode: vertical-rl; font-weight: 700;
+      border: 1px solid rgba(255,255,255,.1); transition: background .2s, color .2s;
+    }
+    .floating-cta .back-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+    /* CARD */
+    .card {
+      width: 100%; max-width: 420px;
+      background: #1a1a2e; border-radius: 28px; overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      border: 1px solid rgba(255,255,255,.08);
+      min-height: 600px; display: flex; flex-direction: column;
+      position: relative;
+    }
+    .top-bar {
+      height: 8px;
+      background: linear-gradient(90deg, #f4c842, #e8506a, #a855f7, #3b82f6);
+      background-size: 300%;
+      animation: shimmer 3s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes shimmer { 0% { background-position: 0%; } 100% { background-position: 300%; } }
+
+    .screen { display: none; flex-direction: column; flex: 1; padding: 2rem 1.5rem; min-height: 500px; }
+    .screen.active { display: flex; }
+
+    /* ── WELCOME SCREEN ── */
+    .welcome-screen {
+      align-items: center; justify-content: center; text-align: center;
+      background: linear-gradient(160deg, #1a0030, #0d0d1a);
+      border-radius: 28px; overflow: hidden; position: relative;
+    }
+    .welcome-stars { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .star {
+      position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%;
+      animation: twinkle var(--d,3s) infinite var(--del,0s);
+    }
+    @keyframes twinkle { 0%,100% { opacity: .15; } 50% { opacity: 1; } }
+    .welcome-emoji-big { font-size: 3.8rem; margin-bottom: .6rem; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .welcome-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 900; line-height: 1.2; margin-bottom: .4rem; letter-spacing: -.02em; }
+    .welcome-sub { font-size: .85rem; color: rgba(255,255,255,.55); line-height: 1.7; margin-bottom: 1.4rem; max-width: 320px; }
+    .welcome-btn {
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010; font-family: 'Nunito', sans-serif; font-weight: 900;
+      border: none; padding: .7rem 2.2rem; border-radius: 50px; font-size: .9rem;
+      cursor: pointer; box-shadow: 0 8px 30px rgba(244,200,66,.3);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .welcome-btn:hover { transform: scale(1.04); box-shadow: 0 12px 40px rgba(244,200,66,.4); }
+
+    /* ── LOADING SCREEN ── */
+    .loading-screen {
+      align-items: center; justify-content: center; text-align: center;
+      background: linear-gradient(160deg, #0d0d1a, #1a1a2e);
+      border-radius: 28px; padding: 2rem 1.5rem;
+    }
+    .road-label { font-size: .8rem; color: rgba(255,255,255,.5); font-weight: 700; letter-spacing: .04em; margin-bottom: 1rem; }
+    .road-track { width: 100%; max-width: 320px; height: 56px; background: #1e1e2e; border-radius: 12px; position: relative; overflow: hidden; margin: 0 auto .8rem; border: 1px solid rgba(255,255,255,.06); }
+    .road-line { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.1) 0 20px, transparent 20px 40px); transform: translateY(-50%); }
+    .road-car { position: absolute; top: 50%; left: 10%; transform: translateY(-50%); font-size: 1.8rem; animation: car-drive 2.8s ease-in-out infinite; }
+    @keyframes car-drive { 0% { left: 6%; } 70% { left: 76%; } 100% { left: 6%; } }
+    .road-trees { display: flex; justify-content: space-around; font-size: 1.2rem; max-width: 320px; margin: 0 auto; }
+    .loading-text { font-size: .85rem; color: rgba(255,255,255,.5); margin-top: .8rem; font-weight: 700; }
+    .loading-dots::after { content: '...'; animation: dots 1.2s steps(4,end) infinite; }
+    @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
+
+    /* ── GALLERY SCREEN ── */
+    .gallery-screen { background: #0d0d1a; border-radius: 28px; padding: 0; min-height: 500px; }
+    .gallery-top { padding: 1.2rem 1.5rem .4rem; flex-shrink: 0; }
+    .gallery-heading { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 900; }
+    .gallery-sub { font-size: .7rem; color: rgba(255,255,255,.45); margin-top: .1rem; font-weight: 600; }
+    .gallery-scroll { flex: 1; overflow-y: auto; padding: .6rem 1.2rem 1rem; display: flex; flex-direction: column; gap: .8rem; max-height: 280px; }
+    .gallery-scroll::-webkit-scrollbar { width: 0; }
+    .gallery-card { border-radius: 14px; overflow: hidden; background: #1a1a2e; border: 1px solid rgba(255,255,255,.06); }
+
+    .gallery-tag { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #f4c842; margin-bottom: .1rem; }
+    .gallery-msg { font-size: .8rem; color: rgba(255,255,255,.7); line-height: 1.5; font-weight: 600; }
+    .gallery-next-btn {
+      margin: .2rem 1.2rem 1.2rem; width: calc(100% - 2.4rem);
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      border: none; color: #1a0010; font-family: 'Nunito', sans-serif;
+      font-weight: 900; font-size: .82rem; padding: .65rem; border-radius: 12px;
+      cursor: pointer; transition: transform .15s, box-shadow .15s;
+    }
+    .gallery-next-btn:hover { transform: scale(1.02); box-shadow: 0 6px 24px rgba(244,200,66,.25); }
+
+    /* ── BIRTHDAY SCREEN ── */
+    .birthday-screen {
+      align-items: center; justify-content: center; text-align: center;
+      background: linear-gradient(160deg, #0d001a, #1a0030);
+      border-radius: 28px; overflow: hidden; position: relative;
+      padding: 2rem 1.5rem; min-height: 500px;
+    }
+    .balloon-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .balloon {
+      position: absolute; bottom: -80px; font-size: 2rem;
+      animation: balloon-rise var(--dur,4s) var(--del,0s) ease-in infinite;
+      cursor: pointer; pointer-events: all; user-select: none;
+    }
+    .balloon:hover { transform: scale(1.1); }
+    @keyframes balloon-rise {
+      0% { bottom: -80px; opacity: 1; transform: translateX(0) rotate(0deg); }
+      80% { opacity: 1; }
+      100% { bottom: 110%; opacity: 0; transform: translateX(var(--sway,20px)) rotate(10deg); }
+    }
+    .bday-content { position: relative; z-index: 2; }
+    /* Update the container to position: relative */
+.bday-photo-wrap {
+  width: 130px; 
+  height: 130px; 
+  border-radius: 20px; 
+  overflow: hidden;
+  border: 3px solid rgba(244,200,66,.4);
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, rgba(244,200,66,.15), rgba(232,80,106,.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,.3);
+  position: relative; /* <-- Added this to anchor the image */
+}
+
+/* Force the image to absolute position so it completely fills the box */
+.bday-photo, .bday-photo-p {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  display: block;
+  position: absolute; /* <-- Forces image to ignore siblings and cover the whole box */
+  top: 0;
+  left: 0;
+  z-index: 10; /* <-- Ensures the photo sits on top of any leftover emojis or broken text */
+}
+    
+    .bday-emoji { font-size: 1.8rem; margin-bottom: .2rem; }
+    .bday-name { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 900; margin-bottom: .3rem; letter-spacing: -.01em; }
+    .bday-msg { font-size: .82rem; color: rgba(255,255,255,.65); line-height: 1.7; max-width: 280px; margin: 0 auto .6rem; font-weight: 600; }
+    .bday-from { font-weight: 900; font-size: .85rem; background: linear-gradient(135deg, #f4c842, #e8506a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .bday-hint { font-size: .6rem; color: rgba(255,255,255,.2); margin-top: .5rem; letter-spacing: .04em; font-weight: 700; }
+    .brand { font-size: .5rem; color: rgba(255,255,255,.1); letter-spacing: .12em; text-transform: uppercase; margin-top: .6rem; font-weight: 800; }
+
+    /* ── CONFETTI ── */
+    .confetti-piece {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      animation: confetti-fall linear forwards;
+      pointer-events: none;
+      z-index: 20;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(700px) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── SCREEN DOTS ── */
+    .screen-nav {
+      display: flex; gap: .5rem; justify-content: center; margin-top: 1rem;
+    }
+    .screen-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.2);
+      cursor: pointer; transition: background .2s;
+    }
+    .screen-dot.active { background: #f4c842; }
+
+    @media (max-width: 480px) {
+      body { padding: 0; align-items: flex-start; }
+      .card { border-radius: 0; min-height: 100vh; max-width: 100%; }
+      .floating-cta { left: .5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- FLOATING CTA -->
+<div class="floating-cta">
+  <a href="editor.html">
+    <span class="cta-icon">✏️</span>
+    Start Editing
+  </a>
+  <a href="../birthday-gallery.html" class="back-btn">← Gallery</a>
+</div>
+
+<div class="card" id="card">
+  <div class="top-bar"></div>
+
+  <!-- WELCOME SCREEN -->
+  <div class="screen welcome-screen active" id="s-welcome">
+    <div class="welcome-stars" id="welcome-stars"></div>
+    <div class="welcome-emoji-big">🎂</div>
+    <div class="welcome-title">Let's Begin the Journey!</div>
+    <p class="welcome-sub">A little surprise is waiting for you… hop in! 🎉</p>
+    <button class="welcome-btn" onclick="goTo('s-loading', 1)">Yes, Let's Go! 🚀</button>
+  </div>
+
+  <!-- LOADING SCREEN -->
+  <div class="screen loading-screen" id="s-loading">
+    <div class="road-label">⏳ Getting your surprise ready</div>
+    <div class="road-scene">
+      <div class="road-track"><div class="road-line"></div><div class="road-car">🚗</div></div>
+      <div class="road-trees"><span>🌳</span><span>⭐</span><span>🌳</span><span>⭐</span><span>🌳</span></div>
+    </div>
+    <div class="loading-text">Loading your memories<span class="loading-dots"></span></div>
+  </div>
+
+  <!-- GALLERY SCREEN -->
+  <div class="screen gallery-screen" id="s-gallery">
+    <div class="gallery-top">
+      <div class="gallery-heading">Our Beautiful Memories 💫</div>
+      <div class="gallery-sub">A few moments that mean everything</div>
+    </div>
+    <div class="gallery-scroll" id="gallery-scroll">
+      <!-- Dummy gallery cards -->
+      <div class="gallery-card">
+        <div class="gallery-placeholder">📷</div>
+        <div class="gallery-caption">
+          <div class="gallery-tag">Memory #1</div>
+          <div class="gallery-msg">That smile that lit up the whole room 🌟</div>
+        </div>
+      </div>
+      <div class="gallery-card">
+        <div class="gallery-placeholder">📷</div>
+        <div class="gallery-caption">
+          <div class="gallery-tag">Memory #2</div>
+          <div class="gallery-msg">The day we laughed until our stomachs hurt 😂</div>
+        </div>
+      </div>
+    </div>
+    <button class="gallery-next-btn" onclick="goTo('s-birthday', 3)">🎂 Continue to Birthday</button>
+  </div>
+
+  <!-- BIRTHDAY SCREEN -->
+  <div class="screen birthday-screen" id="s-birthday">
+    <div class="balloon-container" id="balloon-container"></div>
+    <div class="bday-content">
+      <div class="bday-photo-wrap">🎂</div>
+      <div class="bday-emoji">🎊</div>
+      <div class="bday-name">Happy Birthday, Rushi! 🎊</div>
+      <p class="bday-msg">You're one in a million and today is all about YOU! Wishing you all the love, laughter, and cake you can handle. 🥂</p>
+      <p class="bday-from">From ❤️ Someone who cares</p>
+      <p class="bday-hint">👆 Tap a balloon to pop it!</p>
+      <p class="brand">Made with love · Wishify</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- SCREEN DOTS -->
+<div class="screen-nav" id="screen-nav">
+  <div class="screen-dot active" onclick="goTo('s-welcome', 0)"></div>
+  <div class="screen-dot" onclick="goTo('s-loading', 1)"></div>
+  <div class="screen-dot" onclick="goTo('s-gallery', 2)"></div>
+  <div class="screen-dot" onclick="goTo('s-birthday', 3)"></div>
+</div>
+
+<script>
+  // ─── SCREEN LIST ───
+  var screens = ['s-welcome', 's-loading', 's-gallery', 's-birthday'];
+  var currentIdx = 0;
+  var autoAdvanceTimer = null;
+
+  function goTo(screenId, idx) {
+    // clear any auto-advance timer
+    if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+
+    // hide all
+    screens.forEach(function(s) {
+      document.getElementById(s).classList.remove('active');
+    });
+    // show target
+    document.getElementById(screenId).classList.add('active');
+    currentIdx = idx;
+
+    // update dots
+    var dots = document.querySelectorAll('.screen-dot');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+
+    // auto-advance from loading to gallery after 3.5s
+    if (screenId === 's-loading') {
+      autoAdvanceTimer = setTimeout(function() {
+        goTo('s-gallery', 2);
+      }, 3500);
+    }
+
+    // launch confetti on birthday screen
+    if (screenId === 's-birthday') {
+      launchConfetti();
+      spawnBalloons();
+    }
+  }
+
+  // ─── STARS (welcome) ───
+  (function spawnStars() {
+    var container = document.getElementById('welcome-stars');
+    if (!container) return;
+    for (var i = 0; i < 35; i++) {
+      var s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 100 + '%';
+      s.style.setProperty('--d', (2 + Math.random() * 3) + 's');
+      s.style.setProperty('--del', (Math.random() * 3) + 's');
+      container.appendChild(s);
+    }
+  })();
+
+  // ─── BALLOONS ───
+  function spawnBalloons() {
+    var container = document.getElementById('balloon-container');
+    if (!container) return;
+    container.innerHTML = '';
+    var emojis = ['🎈', '🎀', '🎊', '🎁', '💛'];
+    var count = 12;
+    for (var i = 0; i < count; i++) {
+      var b = document.createElement('div');
+      b.className = 'balloon';
+      b.textContent = emojis[i % emojis.length];
+      b.style.left = (8 + Math.random() * 84) + '%';
+      b.style.setProperty('--dur', (3 + Math.random() * 3.5) + 's');
+      b.style.setProperty('--del', (Math.random() * 4) + 's');
+      b.style.setProperty('--sway', (Math.random() * 44 - 22) + 'px');
+      b.onclick = function() {
+        this.style.transform = 'scale(2.2)';
+        this.style.opacity = '0';
+        this.style.transition = 'transform .2s, opacity .2s';
+        var self = this;
+        setTimeout(function() { self.remove(); }, 280);
+      };
+      container.appendChild(b);
+    }
+  }
+
+  // ─── CONFETTI ───
+  function launchConfetti() {
+    var colors = ['#f4c842', '#e8506a', '#a855f7', '#3b82f6', '#34d399', '#fb923c', '#ec4899'];
+    var card = document.getElementById('card');
+    for (var i = 0; i < 70; i++) {
+      (function(i) {
+        setTimeout(function() {
+          var piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          piece.style.left = Math.random() * 100 + '%';
+          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+          piece.style.width = (Math.random() * 8 + 5) + 'px';
+          piece.style.height = (Math.random() * 8 + 5) + 'px';
+          piece.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+          card.appendChild(piece);
+          setTimeout(function(){ piece.remove(); }, 4000);
+        }, i * 50);
+      })(i);
+    }
+  }
+
+  // ─── initialise balloons on first load (if birthday is active) ───
+  // but by default welcome is active, so nothing.
+</script>
+</body>
+</html>

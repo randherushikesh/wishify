@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishify — Quiz Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+
+    /* FLOATING CTA */
+    .floating-cta {
+      position: fixed; left: 1.2rem; top: 50%;
+      transform: translateY(-50%); z-index: 999;
+      display: flex; flex-direction: column; align-items: center; gap: .6rem;
+    }
+    .floating-cta a {
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010; font-family: 'Nunito', sans-serif;
+      font-size: .72rem; font-weight: 800; text-decoration: none;
+      padding: 1rem .6rem; border-radius: 50px;
+      box-shadow: 0 8px 24px rgba(244,200,66,.3);
+      transition: transform .2s, box-shadow .2s;
+      writing-mode: vertical-rl;
+      letter-spacing: .05em;
+    }
+    .floating-cta a:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(244,200,66,.45); }
+    .floating-cta .cta-icon { font-size: 1.1rem; writing-mode: horizontal-tb; }
+    .floating-cta .back-btn {
+      background: rgba(255,255,255,.06); color: rgba(255,255,255,.5);
+      font-size: .65rem; padding: .6rem .5rem; border-radius: 50px;
+      text-decoration: none; writing-mode: vertical-rl; font-weight: 700;
+      border: 1px solid rgba(255,255,255,.1); transition: background .2s, color .2s;
+    }
+    .floating-cta .back-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+    /* CARD */
+    .card {
+      width: 100%; max-width: 420px;
+      background: #1a1a2e; border-radius: 28px; overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      border: 1px solid rgba(255,255,255,.08);
+      min-height: 600px; display: flex; flex-direction: column;
+    }
+    .top-bar {
+      height: 8px;
+      background: linear-gradient(90deg, #f97316, #ec4899, #a855f7, #3b82f6);
+      background-size: 200%; animation: shimmer 3s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+    .screen { display: none; flex-direction: column; flex: 1; padding: 2rem 1.5rem; }
+    .screen.active { display: flex; }
+
+    /* INTRO */
+    .intro-screen { align-items: center; justify-content: center; text-align: center; background: linear-gradient(160deg, #1a0030, #0d0d1a); }
+    .intro-emoji { font-size: 4rem; margin-bottom: 1rem; }
+    .intro-name { font-size: 1.8rem; font-weight: 800; margin-bottom: .75rem; }
+    .intro-msg { color: rgba(255,255,255,.6); font-size: .95rem; line-height: 1.7; margin-bottom: 2rem; }
+    .start-btn { background: linear-gradient(135deg, #f4c842, #e8506a); color: #1a0010; font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; border: none; padding: .85rem 2.5rem; border-radius: 50px; cursor: pointer; box-shadow: 0 8px 24px rgba(244,200,66,.3); }
+    .start-btn:hover { transform: translateY(-2px); }
+
+    /* QUESTION */
+    .question-screen { justify-content: space-between; }
+    .q-progress-text { font-size: .75rem; color: rgba(255,255,255,.4); font-weight: 700; margin-bottom: .5rem; }
+    .q-progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; margin-bottom: 1.2rem; }
+    .q-progress-fill { height: 100%; background: linear-gradient(90deg,#f4c842,#e8506a); border-radius: 2px; width: 33%; }
+    .q-img-placeholder { width: 100%; height: 160px; background: rgba(255,255,255,.06); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1.2rem; }
+    .q-text { font-size: 1.05rem; font-weight: 800; line-height: 1.4; margin-bottom: 1.2rem; }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; margin-bottom: 1.2rem; }
+    .option { background: rgba(255,255,255,.07); border: 1.5px solid rgba(255,255,255,.12); border-radius: 12px; padding: .75rem .5rem; font-family: 'Nunito', sans-serif; font-size: .82rem; font-weight: 700; text-align: center; cursor: pointer; color: #fff; transition: background .15s; }
+    .option:hover { background: rgba(244,200,66,.12); border-color: rgba(244,200,66,.4); }
+    .option.selected { background: rgba(244,200,66,.2); border-color: #f4c842; color: #f4c842; }
+    .next-btn { width: 100%; background: linear-gradient(135deg,#f4c842,#e8506a); color: #1a0010; font-family: 'Nunito', sans-serif; font-size: .95rem; font-weight: 800; border: none; padding: .85rem; border-radius: 14px; cursor: pointer; margin-top: auto; }
+
+    /* FINAL */
+    .final-screen { align-items: center; justify-content: center; text-align: center; background: linear-gradient(160deg,#0d0d1a,#1a0030); }
+    .final-emoji { font-size: 3rem; margin-bottom: .75rem; }
+    .final-msg { font-size: .95rem; line-height: 1.75; color: rgba(255,255,255,.8); max-width: 300px; margin-bottom: 1rem; }
+    .final-from { color: #f4c842; font-weight: 800; font-size: .95rem; }
+    .brand { font-size: .65rem; color: rgba(255,255,255,.2); letter-spacing: .1em; text-transform: uppercase; margin-top: 1.5rem; }
+
+    /* SCREEN DOTS */
+    .screen-nav { display: flex; gap: .5rem; justify-content: center; margin-top: 1rem; }
+    .screen-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.2); cursor: pointer; transition: background .2s; }
+    .screen-dot.active { background: #f4c842; }
+
+    @media (max-width: 480px) {
+      body { padding: 0; align-items: flex-start; }
+      .card { border-radius: 0; min-height: 100vh; max-width: 100%; }
+      .floating-cta { left: .5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- FLOATING CTA -->
+<div class="floating-cta">
+  <a href="editor.html">
+    <span class="cta-icon">✏️</span>
+    Start Editing
+  </a>
+  <a href="../birthday-gallery.html" class="back-btn">← Gallery</a>
+</div>
+
+<div class="card" id="card">
+  <div class="top-bar"></div>
+
+  <!-- INTRO SCREEN -->
+  <div class="screen intro-screen active" id="s-intro">
+    <div class="intro-emoji">🎂</div>
+    <div class="intro-name">Hey Rushikesh!</div>
+    <p class="intro-msg">I made a fun little quiz just for you! How well do you know me? Let's find out! 🎉</p>
+    <button class="start-btn" onclick="goTo('s-q1', 0)">Let's Go! 🎉</button>
+  </div>
+
+  <!-- QUESTION 1 -->
+  <div class="screen question-screen" id="s-q1">
+    <div>
+      <p class="q-progress-text">Question 1 of 3</p>
+      <div class="q-progress-bar"><div class="q-progress-fill" style="width:0%"></div></div>
+      <div class="q-img-placeholder">📷</div>
+      <p class="q-text">What is my favourite subject in college?</p>
+      <div class="options">
+        <div class="option" onclick="selectOpt(this,'s-q1')">Maths</div>
+        <div class="option" onclick="selectOpt(this,'s-q1')">AI & ML</div>
+        <div class="option" onclick="selectOpt(this,'s-q1')">History</div>
+        <div class="option" onclick="selectOpt(this,'s-q1')">Chemistry</div>
+      </div>
+    </div>
+    <button class="next-btn" id="next-q1" onclick="goTo('s-q2', 1)" style="opacity:.4;pointer-events:none">Next →</button>
+  </div>
+
+  <!-- QUESTION 2 -->
+  <div class="screen question-screen" id="s-q2">
+    <div>
+      <p class="q-progress-text">Question 2 of 3</p>
+      <div class="q-progress-bar"><div class="q-progress-fill" style="width:33%"></div></div>
+      <div class="q-img-placeholder">📷</div>
+      <p class="q-text">What is my favourite food?</p>
+      <div class="options">
+        <div class="option" onclick="selectOpt(this,'s-q2')">Pizza</div>
+        <div class="option" onclick="selectOpt(this,'s-q2')">Biryani</div>
+        <div class="option" onclick="selectOpt(this,'s-q2')">Pasta</div>
+        <div class="option" onclick="selectOpt(this,'s-q2')">Sushi</div>
+      </div>
+    </div>
+    <button class="next-btn" id="next-q2" onclick="goTo('s-q3', 2)" style="opacity:.4;pointer-events:none">Next →</button>
+  </div>
+
+  <!-- QUESTION 3 -->
+  <div class="screen question-screen" id="s-q3">
+    <div>
+      <p class="q-progress-text">Question 3 of 3</p>
+      <div class="q-progress-bar"><div class="q-progress-fill" style="width:66%"></div></div>
+      <div class="q-img-placeholder">📷</div>
+      <p class="q-text">Which city do I want to visit most?</p>
+      <div class="options">
+        <div class="option" onclick="selectOpt(this,'s-q3')">Tokyo</div>
+        <div class="option" onclick="selectOpt(this,'s-q3')">Paris</div>
+        <div class="option" onclick="selectOpt(this,'s-q3')">New York</div>
+        <div class="option" onclick="selectOpt(this,'s-q3')">Dubai</div>
+      </div>
+    </div>
+    <button class="next-btn" id="next-q3" onclick="goTo('s-final', 3)" style="opacity:.4;pointer-events:none">See Your Result 🎊</button>
+  </div>
+
+  <!-- FINAL SCREEN -->
+  <div class="screen final-screen" id="s-final">
+    <div class="final-emoji">🎊</div>
+    <p class="final-msg">Happy Birthday Rushikesh! You mean the world to me. Wishing you all the happiness today and always!</p>
+    <p class="final-from">From ❤️ Someone Special</p>
+    <p class="brand">Made with love · Wishify</p>
+  </div>
+
+</div>
+
+<!-- SCREEN DOTS -->
+<div class="screen-nav" id="screen-nav">
+  <div class="screen-dot active" onclick="goTo('s-intro',-1)"></div>
+  <div class="screen-dot" onclick="goTo('s-q1',0)"></div>
+  <div class="screen-dot" onclick="goTo('s-q2',1)"></div>
+  <div class="screen-dot" onclick="goTo('s-q3',2)"></div>
+  <div class="screen-dot" onclick="goTo('s-final',3)"></div>
+</div>
+
+<script>
+  var screens = ['s-intro','s-q1','s-q2','s-q3','s-final'];
+  var currentIdx = 0;
+
+  function goTo(screenId, idx) {
+    // hide all
+    screens.forEach(function(s) {
+      document.getElementById(s).classList.remove('active');
+    });
+    // show target
+    document.getElementById(screenId).classList.add('active');
+    currentIdx = idx + 1;
+
+    // update dots
+    var dots = document.querySelectorAll('.screen-dot');
+    dots.forEach(function(d, i){ d.classList.toggle('active', i === currentIdx); });
+
+    // confetti on final
+    if (screenId === 's-final') launchConfetti();
+  }
+
+  function selectOpt(el, screenId) {
+    var opts = document.querySelectorAll('#' + screenId + ' .option');
+    opts.forEach(function(o){ o.classList.remove('selected'); });
+    el.classList.add('selected');
+    // enable next button
+    var nextId = 'next-' + screenId.replace('s-','');
+    var btn = document.getElementById(nextId);
+    if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'all'; }
+  }
+
+  function launchConfetti() {
+    var colors = ['#f4c842','#e8506a','#a855f7','#3b82f6','#34d399','#fb923c'];
+    var card = document.getElementById('card');
+    for (var i = 0; i < 60; i++) {
+      (function(i) {
+        setTimeout(function() {
+          var piece = document.createElement('div');
+          piece.style.cssText = 'position:absolute;width:' + (Math.random()*8+5) + 'px;height:' + (Math.random()*8+5) + 'px;border-radius:2px;background:' + colors[Math.floor(Math.random()*colors.length)] + ';left:' + (Math.random()*100) + '%;top:-10px;animation:confetti-fall ' + (Math.random()*2+1.5) + 's linear forwards;pointer-events:none;';
+          card.appendChild(piece);
+          setTimeout(function(){ piece.remove(); }, 3500);
+        }, i * 50);
+      })(i);
+    }
+  }
+
+  // add confetti keyframe dynamically
+  var style = document.createElement('style');
+  style.textContent = '@keyframes confetti-fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(700px) rotate(720deg);opacity:0} }';
+  document.head.appendChild(style);
+</script>
+</body>
+</html>

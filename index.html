@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WishCraft – Create Beautiful Wishes in Seconds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║            NAVBAR                ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<header class="navbar">
+  <div class="container nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">🎊</div>
+      Wish<span>Craft</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#categories">Templates</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#">Gallery</a></li>
+      <li><a href="#">Pricing</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <a href="#" class="btn-outline" style="padding:.6rem 1.4rem;font-size:.88rem;">Sign in</a>
+      <a href="#" class="btn-primary" style="padding:.6rem 1.4rem;font-size:.88rem;">Start Free</a>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="#categories">Templates</a>
+    <a href="#how">How it Works</a>
+    <a href="#">Gallery</a>
+    <a href="#">Pricing</a>
+    <a href="#">Sign In</a>
+    <a href="#" class="btn-primary">Start Free ✨</a>
+  </nav>
+</header>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║              HERO                ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<section class="hero">
+  <!-- Decorative confetti SVG -->
+  <svg class="confetti-burst" viewBox="0 0 520 520" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="460" cy="80"  r="22" fill="#f4a733" opacity=".5"/>
+    <circle cx="390" cy="30"  r="12" fill="#e8506a" opacity=".45"/>
+    <circle cx="490" cy="170" r="16" fill="#7c4dbd" opacity=".4"/>
+    <rect x="320" y="60"  width="18" height="18" rx="4" fill="#e8506a" opacity=".45" transform="rotate(25 320 60)"/>
+    <rect x="430" y="240" width="14" height="14" rx="3" fill="#f4a733" opacity=".4"  transform="rotate(-15 430 240)"/>
+    <rect x="360" y="140" width="10" height="10" rx="2" fill="#7c4dbd" opacity=".35" transform="rotate(40 360 140)"/>
+    <path d="M480 310 Q500 280 520 310 Q500 340 480 310Z" fill="#e8506a" opacity=".35"/>
+    <path d="M350 220 Q370 195 390 220 Q370 245 350 220Z" fill="#f4a733" opacity=".38"/>
+    <circle cx="310" cy="310" r="8" fill="#e8506a" opacity=".3"/>
+    <circle cx="500" cy="400" r="14" fill="#f4a733" opacity=".3"/>
+    <rect x="260" y="180" width="9" height="9" rx="2" fill="#7c4dbd" opacity=".3" transform="rotate(20 260 180)"/>
+  </svg>
+
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-eyebrow">🎉 No coding needed</div>
+        <h1>Create beautiful<br/><em>wishes in seconds</em></h1>
+        <p class="hero-desc">
+          Pick a template, add a photo, write your message — and share a celebration page your loved ones will never forget.
+        </p>
+        <div class="hero-actions">
+          <a href="#categories" class="btn-primary">Browse Templates ✨</a>
+          <a href="#how" class="btn-outline">See how it works</a>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-avatars">
+            <span>A</span><span>M</span><span>P</span><span>R</span>
+          </div>
+          <p class="hero-stat-text"><strong>12,000+</strong> wishes created this month</p>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="card-stack">
+          <div class="wish-card wish-card-1">
+            <div class="wc-emoji">🎂</div>
+            <div class="wc-title">Happy Birthday!</div>
+            <div class="wc-msg">Wishing you a day filled with joy and laughter…</div>
+          </div>
+          <div class="wish-card wish-card-2">
+            <div class="wc-emoji">💍</div>
+            <div class="wc-title">Congratulations!</div>
+            <div class="wc-msg">May your love story be forever beautiful…</div>
+          </div>
+          <div class="wish-card wish-card-3">
+            <div class="wc-emoji">🎆</div>
+            <div class="wc-title">Happy Diwali!</div>
+            <div class="wc-msg">May the festival of lights brighten your life…</div>
+            <div class="wc-name">— From Priya & Family ♥</div>
+          </div>
+        </div>
+        <div class="floating-badge">
+          <span class="badge-dot"></span> Just created by Rushikesh
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║           CATEGORIES             ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<section class="categories" id="categories">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Choose your occasion</span>
+      <h2>Every celebration deserves<br/>its own page</h2>
+      <p>Pick a category and personalise a template in minutes.</p>
+    </div>
+
+    <div class="cat-grid">
+      <div class="cat-card cat-birthday reveal">
+        <div class="cat-thumb">
+          🎂
+          <span class="cat-thumb-label">Birthday</span>
+        </div>
+        <div class="cat-body">
+          <h3>Birthday Wishes</h3>
+          <p>Add photos, your message, and even a song for a surprise they'll love.</p>
+          <!-- <span class="cat-link">Explore →</span> -->
+        <a href="templates/birthday-gallery.html" class="cat-link">Explore →</a>
+        </div>
+      </div>
+
+      <div class="cat-card cat-marriage reveal">
+        <div class="cat-thumb">
+          💍
+          <span class="cat-thumb-label">Marriage</span>
+        </div>
+        <div class="cat-body">
+          <h3>Wedding Wishes</h3>
+          <p>Beautiful cards for the couple — with photos, vows and warm greetings.</p>
+          <!-- <span class="cat-link">Explore →</span> -->
+          <a href="templates/weding.html" class="cat-link">Explore →</a>
+        </div>
+      </div>
+
+      <div class="cat-card cat-diwali reveal">
+        <div class="cat-thumb">
+          🪔
+          <span class="cat-thumb-label">Diwali</span>
+        </div>
+        <div class="cat-body">
+          <h3>Diwali Greetings</h3>
+          <p>Festive templates glowing with diyas and lights for your whole family.</p>
+          <span class="cat-link">Explore →</span>
+        </div>
+      </div>
+
+      <div class="cat-card cat-holi reveal">
+        <div class="cat-thumb">
+          🎨
+          <span class="cat-thumb-label">Holi</span>
+        </div>
+        <div class="cat-body">
+          <h3>Holi Cards</h3>
+          <p>Colourful splash designs to share the joy of the festival of colours.</p>
+          <span class="cat-link">Explore →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║          HOW IT WORKS            ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Three simple steps</span>
+      <h2>Make it yours in minutes</h2>
+      <p>No design skills, no coding — just you and a blank canvas.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step reveal">
+        <div class="step-num">🎨</div>
+        <h3>Pick a template</h3>
+        <p>Browse our library of ready-made designs for birthdays, weddings, Diwali, Holi and more.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">✏️</div>
+        <h3>Customise freely</h3>
+        <p>Add your photos, write your message, change colours and backgrounds — all with simple clicks.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">🔗</div>
+        <h3>Share the link</h3>
+        <p>Copy one link and send it over WhatsApp, Instagram or anywhere else. No app needed to view it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║             FOOTER               ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-icon">🎊</div>
+          Wish<span>Craft</span>
+        </a>
+        <p>Create, personalise and share beautiful celebration pages for every occasion — no coding needed.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Templates</h4>
+        <ul>
+          <li><a href="#">Birthday</a></li>
+          <li><a href="#">Wedding</a></li>
+          <li><a href="#">Diwali</a></li>
+          <li><a href="#">Holi</a></li>
+          <li><a href="#">Anniversary</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">How it Works</a></li>
+          <li><a href="#">Gallery</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 WishCraft. Made with ♥ in India.</p>
+      <div class="footer-socials">
+        <div class="social-btn" title="Instagram">📸</div>
+        <div class="social-btn" title="WhatsApp">💬</div>
+        <div class="social-btn" title="Twitter/X">🐦</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║         JAVASCRIPT               ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<script>
+  /* Mobile menu toggle */
+  const hamburger   = document.getElementById('hamburger');
+  const mobileMenu  = document.getElementById('mobileMenu');
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    hamburger.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', isOpen);
+  });
+
+  /* Close mobile menu when a link is clicked */
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('open');
+    });
+  });
+
+  /* Scroll-reveal via IntersectionObserver */
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer  = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

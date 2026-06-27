@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Birthday Journey 🎂</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── same base styles as before (copy from the previous version) ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0c0c14;
+      color: #f0f0f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* 1. The Card Container */
+.gallery-card, .gallery-card-p {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #1a1a2e;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  height: auto !important;
+  min-height: min-content !important;
+}
+
+/* 2. The Image (When uploaded) */
+.gallery-img, .gallery-img-p {
+  width: 100% !important;
+  height: 180px !important;         /* Locks the height strictly */
+  min-height: 180px !important;     /* Prevents shrinking */
+  max-height: 180px !important;     /* Prevents expanding */
+  object-fit: contain !important;   /* Shows full image without crop */
+  background: rgba(0, 0, 0, 0.5) !important;
+  flex-shrink: 0 !important;        /* Forbids flexbox from altering the size */
+  display: block !important;
+}
+
+/* 3. The Placeholder (Before upload / Error) */
+.gallery-placeholder, .gallery-img-placeholder, .gallery-img-error {
+  width: 100% !important;
+  height: 180px !important;
+  min-height: 180px !important;
+  max-height: 180px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+}
+
+/* 4. The Caption Area */
+.gallery-caption, .gallery-caption-p {
+  padding: 1rem 1.2rem !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  flex-grow: 1 !important;          /* Tells text to fill remaining space */
+  min-height: 80px !important;      /* Guarantees the text is never hidden */
+  display: block !important;
+}
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #141425;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.7);
+      border: 1px solid rgba(255,255,255,.06);
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    /* 1. Ensure the card stacks elements properly */
+  
+
+    /* 3. Force the caption to always be visible */
+    .top-bar {
+      height: 6px;
+      background: linear-gradient(90deg, #f4c842, #e8506a, #a855f7, #3b82f6);
+      background-size: 300%;
+      animation: shimmer 4s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes shimmer { 0% { background-position: 0%; } 100% { background-position: 300%; } }
+    .screen { display: none; flex-direction: column; flex: 1; padding: 2rem 1.5rem; min-height: 480px; }
+    .screen.active { display: flex; }
+
+    .welcome-screen {
+      align-items: center; justify-content: center; text-align: center;
+      background: linear-gradient(160deg, #1a0030, #0d0d1a);
+      border-radius: 28px; overflow: hidden; position: relative;
+    }
+    .welcome-stars { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .star {
+      position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%;
+      animation: twinkle var(--d,3s) infinite var(--del,0s);
+    }
+    @keyframes twinkle { 0%,100% { opacity: .15; } 50% { opacity: 1; } }
+    .welcome-emoji-big { font-size: 3.8rem; margin-bottom: .6rem; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .welcome-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 900; line-height: 1.2; margin-bottom: .4rem; letter-spacing: -.02em; }
+    .welcome-sub { font-size: .85rem; color: rgba(255,255,255,.55); line-height: 1.7; margin-bottom: 1.4rem; max-width: 320px; }
+    .welcome-btn {
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010; font-family: 'Nunito', sans-serif; font-weight: 900;
+      border: none; padding: .7rem 2.2rem; border-radius: 50px; font-size: .9rem;
+      cursor: pointer; box-shadow: 0 8px 30px rgba(244,200,66,.3);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .welcome-btn:hover { transform: scale(1.04); box-shadow: 0 12px 40px rgba(244,200,66,.4); }
+
+    .loading-screen {
+      align-items: center; justify-content: center; text-align: center;
+      background: linear-gradient(160deg, #0d0d1a, #1a1a2e);
+      border-radius: 28px; padding: 2rem 1.5rem;
+    }
+    .road-label { font-size: .8rem; color: rgba(255,255,255,.5); font-weight: 700; letter-spacing: .04em; margin-bottom: 1rem; }
+    .road-track { width: 100%; max-width: 320px; height: 56px; background: #1e1e2e; border-radius: 12px; position: relative; overflow: hidden; margin: 0 auto .8rem; border: 1px solid rgba(255,255,255,.06); }
+    .road-line { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.1) 0 20px, transparent 20px 40px); transform: translateY(-50%); }
+    .road-car { position: absolute; top: 50%; left: 10%; transform: translateY(-50%); font-size: 1.8rem; animation: car-drive 2.8s ease-in-out infinite; }
+    @keyframes car-drive { 0% { left: 6%; } 70% { left: 76%; } 100% { left: 6%; } }
+    .road-trees { display: flex; justify-content: space-around; font-size: 1.2rem; max-width: 320px; margin: 0 auto; }
+    .loading-text { font-size: .85rem; color: rgba(255,255,255,.5); margin-top: .8rem; font-weight: 700; }
+    .loading-dots::after { content: '...'; animation: dots 1.2s steps(4,end) infinite; }
+    @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
+
+    .gallery-screen { background: #0d0d1a; border-radius: 28px; padding: 0; min-height: 480px; }
+    .gallery-top { padding: 1.2rem 1.5rem .4rem; flex-shrink: 0; }
+    .gallery-heading { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 900; }
+    .gallery-sub { font-size: .7rem; color: rgba(255,255,255,.45); margin-top: .1rem; font-weight: 600; }
+    .gallery-scroll { flex: 1; overflow-y: auto; padding: .6rem 1.2rem 1rem; display: flex; flex-direction: column; gap: .8rem; max-height: 280px; }
+    .gallery-scroll::-webkit-scrollbar { width: 0; }
+    .gallery-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(135deg, rgba(244,200,66,.12), rgba(232,80,106,.12));
+    }
+    
+    
+    .gallery-tag {
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #f4c842;
+      margin-bottom: .1rem;
+    }
+    .gallery-msg {
+      font-size: .8rem;
+      color: rgba(255,255,255,.7);
+      line-height: 1.5;
+      font-weight: 600;
+      min-height: 1.2em;
+    }
+    .gallery-msg-empty {
+      color: rgba(255,255,255,.3);
+      font-style: italic;
+      font-size: .75rem;
+    }
+    .gallery-next-btn {
+      margin: .2rem 1.2rem 1.2rem; width: calc(100% - 2.4rem);
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      border: none; color: #1a0010; font-family: 'Nunito', sans-serif;
+      font-weight: 900; font-size: .82rem; padding: .65rem; border-radius: 12px;
+      cursor: pointer; transition: transform .15s, box-shadow .15s;
+    }
+    .gallery-next-btn:hover { transform: scale(1.02); box-shadow: 0 6px 24px rgba(244,200,66,.25); }
+
+    .birthday-screen {
+      align-items: center; justify-content: center; text-align: center;
+      background: linear-gradient(160deg, #0d001a, #1a0030);
+      border-radius: 28px; overflow: hidden; position: relative;
+      padding: 2rem 1.5rem; min-height: 480px;
+    }
+    .balloon-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .balloon {
+      position: absolute; bottom: -80px; font-size: 2rem;
+      animation: balloon-rise var(--dur,4s) var(--del,0s) ease-in infinite;
+      cursor: pointer; pointer-events: all; user-select: none;
+    }
+    .balloon:hover { transform: scale(1.1); }
+    @keyframes balloon-rise {
+      0% { bottom: -80px; opacity: 1; transform: translateX(0) rotate(0deg); }
+      80% { opacity: 1; }
+      100% { bottom: 110%; opacity: 0; transform: translateX(var(--sway,20px)) rotate(10deg); }
+    }
+    .bday-content { position: relative; z-index: 2; }
+    /* Update the container to position: relative */
+.bday-photo-wrap {
+  width: 130px; 
+  height: 130px; 
+  border-radius: 20px; 
+  overflow: hidden;
+  border: 3px solid rgba(244,200,66,.4);
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, rgba(244,200,66,.15), rgba(232,80,106,.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,.3);
+  position: relative; /* <-- Added this to anchor the image */
+}
+
+/* Force the image to absolute position so it completely fills the box */
+.bday-photo, .bday-photo-p {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  display: block;
+  position: absolute; /* <-- Forces image to ignore siblings and cover the whole box */
+  top: 0;
+  left: 0;
+  z-index: 10; /* <-- Ensures the photo sits on top of any leftover emojis or broken text */
+}
+    .bday-photo-fallback {
+      font-size: 2.6rem;
+      line-height: 1;
+    }
+    .bday-emoji { font-size: 1.8rem; margin-bottom: .2rem; }
+    .bday-name { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 900; margin-bottom: .3rem; letter-spacing: -.01em; }
+    .bday-msg { font-size: .82rem; color: rgba(255,255,255,.65); line-height: 1.7; max-width: 280px; margin: 0 auto .6rem; font-weight: 600; }
+    .bday-from { font-weight: 900; font-size: .85rem; background: linear-gradient(135deg, #f4c842, #e8506a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .bday-hint { font-size: .6rem; color: rgba(255,255,255,.2); margin-top: .5rem; letter-spacing: .04em; font-weight: 700; }
+    .brand { font-size: .5rem; color: rgba(255,255,255,.1); letter-spacing: .12em; text-transform: uppercase; margin-top: .6rem; font-weight: 800; }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      animation: confetti-fall linear forwards;
+      pointer-events: none;
+      z-index: 20;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(700px) rotate(720deg); opacity: 0; }
+    }
+
+    .screen-nav {
+      display: flex; gap: .5rem; justify-content: center; margin-top: 1rem;
+    }
+    .screen-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.2);
+      cursor: pointer; transition: background .2s;
+    }
+    .screen-dot.active { background: #f4c842; }
+
+    @media (max-width: 480px) {
+      body { padding: 0; align-items: flex-start; }
+      .card { border-radius: 0; min-height: 100vh; max-width: 100%; }
+      .gallery-img, .gallery-img-error { height: 120px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="top-bar"></div>
+  <div id="app-screens"></div>
+  <div class="screen-nav" id="screen-nav"></div>
+</div>
+
+<script>
+  // ──────────────────────────────────────────────────────────────
+  //  STATE
+  // ──────────────────────────────────────────────────────────────
+
+  var state = null;
+  var screens = ['welcome', 'loading', 'gallery', 'birthday'];
+  var currentIdx = 0;
+  var autoTimer = null;
+
+  // ──────────────────────────────────────────────────────────────
+  //  LOAD DATA FROM API
+  // ──────────────────────────────────────────────────────────────
+
+  async function loadData() {
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('slug');
+    var app = document.getElementById('app-screens');
+
+    if (!slug) {
+      app.innerHTML = '<div style="padding:2rem;text-align:center;color:rgba(255,255,255,.4);">No journey specified.</div>';
+      return;
+    }
+
+    try {
+      console.log('Fetching data for slug:', slug);
+      var res = await fetch('http://localhost:5000/api/pages/' + slug);
+      var result = await res.json();
+      console.log('API response:', result);
+
+      if (!result.success || !result.page || !result.page.data) {
+        throw new Error('Invalid data from API');
+      }
+      state = result.page.data;
+      console.log('State loaded:', state);
+
+      // ─── Ensure all fields exist ───
+      if (!state.galleryItems) state.galleryItems = [];
+      if (!state.welcomeEmoji) state.welcomeEmoji = '🎂';
+      if (!state.welcomeTitle) state.welcomeTitle = "Let's Begin the Journey!";
+      if (!state.welcomeSub) state.welcomeSub = "A little surprise is waiting for you… hop in! 🎉";
+      if (!state.welcomeBtn) state.welcomeBtn = "Yes, Let's Go! 🚀";
+      if (!state.galleryHeading) state.galleryHeading = "Our Beautiful Memories 💫";
+      if (!state.gallerySub) state.gallerySub = "A few moments that mean everything";
+      if (!state.bdayName) state.bdayName = "Happy Birthday! 🎊";
+      if (!state.bdayMsg) state.bdayMsg = "Wishing you all the love and joy! 🥂";
+      if (!state.bdayFrom) state.bdayFrom = "Someone who cares ❤️";
+      if (!state.balloonEmojis) state.balloonEmojis = "🎈 🎀 🎊 🎁 💛";
+      if (!state.theme) state.theme = { bg1: '#1a0030', bg2: '#0d0d1a' };
+      if (!state.accent) state.accent = { c1: '#f4c842', c2: '#e8506a' };
+
+      // ─── Ensure each gallery item has tag, msg, photoUrl ───
+      state.galleryItems = state.galleryItems.map(function(item, idx) {
+        return {
+          tag: item.tag || 'Memory #' + (idx + 1),
+          msg: item.msg || '',
+          photoUrl: item.photoUrl || ''
+        };
+      });
+      console.log('Processed gallery items:', state.galleryItems);
+
+      renderScreen('welcome');
+      buildDots();
+    } catch(err) {
+      console.error('Load error:', err);
+      app.innerHTML = '<div style="padding:2rem;text-align:center;color:rgba(255,255,255,.4);">Could not load journey. Please check the link.</div>';
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  NAVIGATION
+  // ──────────────────────────────────────────────────────────────
+
+  function buildDots() {
+    var nav = document.getElementById('screen-nav');
+    nav.innerHTML = '';
+    screens.forEach(function(s, i) {
+      var dot = document.createElement('div');
+      dot.className = 'screen-dot' + (i === currentIdx ? ' active' : '');
+      dot.onclick = function() { goTo(i); };
+      nav.appendChild(dot);
+    });
+  }
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= screens.length) return;
+    if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+    currentIdx = idx;
+    renderScreen(screens[idx]);
+    var dots = document.querySelectorAll('.screen-dot');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  RENDER SCREEN
+  // ──────────────────────────────────────────────────────────────
+
+  function renderScreen(type) {
+    var app = document.getElementById('app-screens');
+    var html = '';
+
+    if (type === 'welcome') {
+      var stars = '';
+      for (var i = 0; i < 30; i++) {
+        stars += '<div class="star" style="left:' + (Math.random()*100) + '%;top:' + (Math.random()*100) + '%;--d:' + (2+Math.random()*3) + 's;--del:' + (Math.random()*3) + 's;"></div>';
+      }
+      html =
+        '<div class="screen welcome-screen active">' +
+          '<div class="welcome-stars">' + stars + '</div>' +
+          '<div class="welcome-emoji-big">' + state.welcomeEmoji + '</div>' +
+          '<div class="welcome-title">' + state.welcomeTitle + '</div>' +
+          '<p class="welcome-sub">' + state.welcomeSub + '</p>' +
+          '<button class="welcome-btn" onclick="goTo(1)">' + state.welcomeBtn + '</button>' +
+        '</div>';
+
+    } else if (type === 'loading') {
+      html =
+        '<div class="screen loading-screen active">' +
+          '<div class="road-label">⏳ Getting your surprise ready</div>' +
+          '<div class="road-scene">' +
+            '<div class="road-track"><div class="road-line"></div><div class="road-car">🚗</div></div>' +
+            '<div class="road-trees"><span>🌳</span><span>⭐</span><span>🌳</span><span>⭐</span><span>🌳</span></div>' +
+          '</div>' +
+          '<div class="loading-text">Loading your memories<span class="loading-dots"></span></div>' +
+        '</div>';
+      autoTimer = setTimeout(function() { if (currentIdx === 1) goTo(2); }, 3500);
+
+    } else if (type === 'gallery') {
+      var cards = '';
+      var items = state.galleryItems || [];
+
+      if (items.length === 0) {
+        cards = '<div style="text-align:center;padding:1rem;color:rgba(255,255,255,.3);font-size:.85rem;">No memories added yet.</div>';
+      } else {
+        items.forEach(function(item, idx) {
+          // ─── Image with fallback ───
+          // ─── Image with fallback ───
+          var imgHtml = '';
+          
+          // FIX: Only render the image tag if a valid photo exists. 
+          // If the image fails to load, simply hide it. No more camera boxes!
+          if (item.photoUrl && item.photoUrl.length > 50) {
+            imgHtml = '<img class="gallery-img" src="' + item.photoUrl + '" alt="Memory photo" onerror="this.style.display=\'none\';" />';
+          } 
+          // Notice we completely removed the "else" block that was generating the 📷 icon.
+
+          // ─── Message ───
+          var msgHtml = (item.msg && item.msg.trim().length > 0)
+            ? '<div class="gallery-msg">' + escapeHtml(item.msg) + '</div>'
+            : '<div class="gallery-msg gallery-msg-empty">No caption yet 💭</div>';
+
+          cards +=
+            '<div class="gallery-card">' +
+              imgHtml +
+              '<div class="gallery-caption">' +
+                '<div class="gallery-tag">' + escapeHtml(item.tag || 'Memory') + '</div>' +
+                msgHtml +
+              '</div>' +
+            '</div>';
+        });
+      }
+
+      html =
+        '<div class="screen gallery-screen active">' +
+          '<div class="gallery-top">' +
+            '<div class="gallery-heading">' + state.galleryHeading + '</div>' +
+            '<div class="gallery-sub">' + state.gallerySub + '</div>' +
+          '</div>' +
+          '<div class="gallery-scroll">' + cards + '</div>' +
+          '<button class="gallery-next-btn" onclick="goTo(3)">🎂 Continue to Birthday</button>' +
+        '</div>';
+
+    } else if (type === 'birthday') {
+      // ─── Birthday photo with fallback ───
+      var photoHtml = '';
+      if (state.bdayPhotoUrl && state.bdayPhotoUrl.length > 50) {
+        photoHtml = '<img class="bday-photo" src="' + state.bdayPhotoUrl + '" alt="Birthday photo" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<span class=\\"bday-photo-fallback\\">🎂</span>\'" />';
+      } else {
+        photoHtml = '<span class="bday-photo-fallback">🎂</span>';
+      }
+
+      // ─── Balloons ───
+      var balloons = '';
+      var emojis = (state.balloonEmojis || '🎈 🎀 🎊 🎁 💛').split(/\s+/).filter(Boolean);
+      var count = Math.min(emojis.length * 2, 14);
+      var palette = emojis.length ? emojis : ['🎈'];
+      for (var j = 0; j < count; j++) {
+        var b = palette[j % palette.length];
+        balloons += '<div class="balloon" style="left:' + (8+Math.random()*84) + '%;--dur:' + (3+Math.random()*3.5) + 's;--del:' + (Math.random()*4) + 's;--sway:' + (Math.random()*44-22) + 'px;" onclick="this.style.transform=\'scale(2.2)\';this.style.opacity=\'0\';setTimeout(()=>this.remove(),250);">' + b + '</div>';
+      }
+
+      html =
+        '<div class="screen birthday-screen active">' +
+          '<div class="balloon-container">' + balloons + '</div>' +
+          '<div class="bday-content">' +
+            '<div class="bday-photo-wrap">' + photoHtml + '</div>' +
+            '<div class="bday-emoji">🎊</div>' +
+            '<div class="bday-name">' + state.bdayName + '</div>' +
+            '<p class="bday-msg">' + state.bdayMsg + '</p>' +
+            '<p class="bday-from">From ❤️ ' + state.bdayFrom + '</p>' +
+            '<p class="bday-hint">👆 Tap a balloon to pop it!</p>' +
+            '<p class="brand">Made with love · Wishify</p>' +
+          '</div>' +
+        '</div>';
+
+      setTimeout(function() { launchConfetti(); }, 500);
+    }
+
+    app.innerHTML = html;
+
+    // ─── Apply theme & accent ───
+    applyThemeAndAccent();
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  THEME & ACCENT (dynamic)
+  // ──────────────────────────────────────────────────────────────
+
+  function applyThemeAndAccent() {
+    // Theme backgrounds
+    if (state.theme) {
+      var bg1 = state.theme.bg1 || '#1a0030';
+      var bg2 = state.theme.bg2 || '#0d0d1a';
+      var wel = document.querySelector('.welcome-screen');
+      var bday = document.querySelector('.birthday-screen');
+      var load = document.querySelector('.loading-screen');
+      if (wel) wel.style.background = 'linear-gradient(160deg,' + bg1 + ',' + bg2 + ',#0d0d1a)';
+      if (bday) bday.style.background = 'linear-gradient(160deg,' + bg1 + ',' + bg2 + ')';
+      if (load) load.style.background = 'linear-gradient(160deg,' + bg2 + ',#1a1a2e)';
+    }
+
+    // Accent colours
+    if (state.accent) {
+      var c1 = state.accent.c1 || '#f4c842';
+      var c2 = state.accent.c2 || '#e8506a';
+      var grad = 'linear-gradient(135deg,' + c1 + ',' + c2 + ')';
+      var btn = document.querySelector('.welcome-btn');
+      var next = document.querySelector('.gallery-next-btn');
+      var from = document.querySelector('.bday-from');
+      
+      if (btn) btn.style.background = grad;
+      if (next) next.style.background = grad;
+      
+      // FIX: Restore text clipping
+      if (from) {
+        from.style.background = grad;
+        from.style.webkitBackgroundClip = 'text';
+        from.style.webkitTextFillColor = 'transparent';
+      }
+
+      // FIX: Apply color to generated gallery tags
+      var tags = document.querySelectorAll('.gallery-tag');
+      tags.forEach(function(tag) {
+        tag.style.color = c1;
+      });
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  UTILITY
+  // ──────────────────────────────────────────────────────────────
+
+  function escapeHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  CONFETTI
+  // ──────────────────────────────────────────────────────────────
+
+  function launchConfetti() {
+    var colors = ['#f4c842','#e8506a','#a855f7','#3b82f6','#34d399','#fb923c','#ec4899'];
+    var card = document.getElementById('card');
+    for (var i = 0; i < 70; i++) {
+      (function(i) {
+        setTimeout(function() {
+          var piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          piece.style.left = Math.random() * 100 + '%';
+          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+          piece.style.width = (Math.random() * 8 + 5) + 'px';
+          piece.style.height = (Math.random() * 8 + 5) + 'px';
+          piece.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+          card.appendChild(piece);
+          setTimeout(function(){ piece.remove(); }, 4000);
+        }, i * 50);
+      })(i);
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  INIT
+  // ──────────────────────────────────────────────────────────────
+
+  window.onload = loadData;
+</script>
+</body>
+</html>
