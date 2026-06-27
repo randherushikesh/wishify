@@ -7,6 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // ← increased limit
 
+app.get('/', (req, res) => {
+  res.json({ status: 'Wishify API is running' });
+});
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.log(err));
