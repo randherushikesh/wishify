@@ -182,7 +182,6 @@
 
     <!-- Questions -->
     <div id="questions-container"></div>
-
     <button class="add-q-btn" id="add-q-btn" onclick="addQuestion()">+ Add Question</button>
 
     <!-- Final Screen -->
@@ -204,6 +203,32 @@
         </label>
       </div>
     </div>
+
+    <!-- Colors -->
+    
+    <!-- Colors -->
+    <div class="panel-section">
+      <div class="section-label">🎨 Colors</div>
+      <div class="field">
+        <label>Intro & Final Screen Background</label>
+        <input type="color" id="color-bg1" value="#1a0030" style="width:100%;height:36px;border:none;border-radius:8px;cursor:pointer;"/>
+      </div>
+      <div class="field">
+        <label>Question Screen Background</label>
+        <input type="color" id="color-bg2" value="#0d0d1a" style="width:100%;height:36px;border:none;border-radius:8px;cursor:pointer;"/>
+      </div>
+      <div class="field">
+        <label>Button Color (Start / Next)</label>
+        <input type="color" id="color-btn1" value="#f4c842" style="width:48%;height:36px;border:none;border-radius:8px;cursor:pointer;"/>
+        <input type="color" id="color-btn2" value="#e8506a" style="width:48%;height:36px;border:none;border-radius:8px;cursor:pointer;margin-left:4%;"/>
+      </div>
+      <div class="field">
+        <label>Option Button Color</label>
+        <input type="color" id="color-opt" value="#ffffff" style="width:100%;height:36px;border:none;border-radius:8px;cursor:pointer;"/>
+      </div>
+    </div>
+
+    <!-- Share -->
 
     <!-- Share -->
     <div class="share-section">
@@ -267,6 +292,8 @@
             </div>
           </div>
 
+          <!-- Colors -->
+
         </div>
       </div>
 
@@ -286,7 +313,47 @@
   var questionPhotos = {};
   var finalPhoto = '';
   var MAX_Q = 10;
+  var colorBg1 = '#1a0030';
+var colorBg2 = '#0d0d1a';
+var colorBtn1 = '#f4c842';
+var colorBtn2 = '#e8506a';
+var colorOpt = '#ffffff';
 
+document.getElementById('color-bg1').addEventListener('input', function() {
+  colorBg1 = this.value;
+  document.querySelector('.prev-intro').style.background = 'linear-gradient(160deg,' + colorBg1 + ',#0d0d0d)';
+  document.querySelector('.prev-final').style.background = 'linear-gradient(160deg,#0d0d0d,' + colorBg1 + ')';
+});
+
+document.getElementById('color-bg2').addEventListener('input', function() {
+  colorBg2 = this.value;
+  document.querySelector('.prev-question').style.background = colorBg2;
+});
+
+document.getElementById('color-btn1').addEventListener('input', function() {
+  colorBtn1 = this.value;
+  updateBtnColors();
+});
+
+document.getElementById('color-btn2').addEventListener('input', function() {
+  colorBtn2 = this.value;
+  updateBtnColors();
+});
+
+document.getElementById('color-opt').addEventListener('input', function() {
+  colorOpt = this.value;
+  document.querySelectorAll('.prev-option').forEach(function(opt) {
+    opt.style.color = colorOpt;
+  });
+});
+
+function updateBtnColors() {
+  var grad = 'linear-gradient(135deg,' + colorBtn1 + ',' + colorBtn2 + ')';
+  var startBtn = document.querySelector('.prev-start-btn');
+  var nextBtn = document.querySelector('.prev-next-btn');
+  if (startBtn) startBtn.style.background = grad;
+  if (nextBtn) nextBtn.style.background = grad;
+}
   // Show default 1 question on load
   window.addEventListener('load', function() { addQuestion(); });
 
@@ -465,7 +532,12 @@
     quizFinalMessage: document.getElementById('final-msg').value,
     quizFinalFrom: document.getElementById('final-from').value,
     quizFinalPhotoUrl: finalPhoto || '',
-    questions: questions
+    questions: questions,
+    colorBg1: colorBg1,
+colorBg2: colorBg2,
+colorBtn1: colorBtn1,
+colorBtn2: colorBtn2,
+colorOpt: colorOpt,
   }
 };
 

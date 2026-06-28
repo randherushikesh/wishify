@@ -2,109 +2,217 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>A Special Birthday Quiz 🎂</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
 
     body {
       font-family: 'Nunito', sans-serif;
       background: #0d0d0d;
       color: #fff;
-      min-height: 100vh;
+      height: 100vh;
+      height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
     }
 
-    /* MAIN CARD — phone sized on desktop, full width on mobile */
+    /* ── CARD ── */
     .card {
       width: 100%;
       max-width: 420px;
+      height: 100vh;
+      height: 100dvh;
       background: #1a1a2e;
-      border-radius: 28px;
-      overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0,0,0,.6);
-      border: 1px solid rgba(255,255,255,.08);
-      min-height: 600px;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* On desktop: show as a phone card */
+    @media (min-width: 480px) {
+      .card {
+        max-height: 820px;
+        height: 90vh;
+        height: 90dvh;
+        border-radius: 28px;
+        box-shadow: 0 24px 64px rgba(0,0,0,.7);
+        border: 1px solid rgba(255,255,255,.08);
+      }
     }
 
     /* TOP BAR */
     .top-bar {
       height: 8px;
+      flex-shrink: 0;
       background: linear-gradient(90deg, #f97316, #ec4899, #a855f7, #3b82f6);
       background-size: 200%;
       animation: shimmer 3s linear infinite;
     }
     @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
 
-    /* SCREENS */
-    .screen { display: none; flex-direction: column; flex: 1; padding: 2rem 1.5rem; }
+    /* ── APP SCREENS WRAPPER ── */
+    #app-screens {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      padding: 1.8rem 1.5rem 1.5rem;
+    }
     .screen.active { display: flex; }
 
-    /* INTRO SCREEN */
+    /* ── INTRO SCREEN ── */
     .intro-screen {
       align-items: center;
       justify-content: center;
       text-align: center;
       background: linear-gradient(160deg, #1a0030, #0d0d1a);
     }
-    .intro-emoji { font-size: 4rem; margin-bottom: 1rem; animation: pop .5s ease; }
+    .intro-emoji {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: pop .5s ease;
+    }
     @keyframes pop { 0%{transform:scale(0)} 80%{transform:scale(1.15)} 100%{transform:scale(1)} }
-    .intro-name { font-size: 1.8rem; font-weight: 800; margin-bottom: .75rem; }
-    .intro-msg { color: rgba(255,255,255,.6); font-size: .95rem; line-height: 1.7; margin-bottom: 2rem; max-width: 300px; }
+    .intro-name { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 900; margin-bottom: .75rem; }
+    .intro-msg {
+      color: rgba(255,255,255,.6);
+      font-size: .95rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 300px;
+    }
     .start-btn {
       background: linear-gradient(135deg, #f4c842, #e8506a);
-      color: #1a0010; font-family: 'Nunito', sans-serif;
-      font-size: 1rem; font-weight: 800;
-      border: none; padding: .85rem 2.5rem;
-      border-radius: 50px; cursor: pointer;
+      color: #1a0010;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      border: none;
+      padding: .85rem 2.5rem;
+      border-radius: 50px;
+      cursor: pointer;
       box-shadow: 0 8px 24px rgba(244,200,66,.3);
       transition: transform .15s, box-shadow .15s;
     }
     .start-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(244,200,66,.4); }
 
-    /* QUESTION SCREEN */
-    .question-screen { justify-content: space-between; }
-    .q-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-    .q-progress-text { font-size: .75rem; color: rgba(255,255,255,.4); font-weight: 700; }
-    .q-progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; margin-bottom: 1.2rem; overflow: hidden; }
-    .q-progress-fill { height: 100%; background: linear-gradient(90deg, #f4c842, #e8506a); border-radius: 2px; transition: width .4s ease; }
+    /* ── QUESTION SCREEN ── */
+    .question-screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      padding: 1.8rem 1.5rem 1.5rem;
+      background: #0d0d1a;
+    }
+    .question-screen.active { display: flex; }
 
-    .q-photo { width: 100%; height: 180px; border-radius: 14px; object-fit: cover; margin-bottom: 1.2rem; display: block; }
-    .q-text { font-size: 1.05rem; font-weight: 800; line-height: 1.4; margin-bottom: 1.2rem; }
+    .q-top { flex-shrink: 0; }
+    .q-progress-text { font-size: .75rem; color: rgba(255,255,255,.4); font-weight: 700; margin-bottom: .5rem; }
+    .q-progress-bar {
+      width: 100%; height: 4px;
+      background: rgba(255,255,255,.1);
+      border-radius: 2px;
+      margin-bottom: 1.2rem;
+      overflow: hidden;
+    }
+    .q-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f4c842, #e8506a);
+      border-radius: 2px;
+      transition: width .4s ease;
+    }
 
-    .options { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; margin-bottom: 1.2rem; }
+    .q-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .q-scroll::-webkit-scrollbar { width: 0; }
+
+    .q-photo {
+      width: 100%;
+      height: 170px;
+      border-radius: 14px;
+      object-fit: cover;
+      margin-bottom: 1.1rem;
+      display: block;
+      flex-shrink: 0;
+    }
+    .q-text {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.4;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .65rem;
+      flex-shrink: 0;
+    }
     .option {
       background: rgba(255,255,255,.07);
       border: 1.5px solid rgba(255,255,255,.12);
-      border-radius: 12px; padding: .75rem .5rem;
+      border-radius: 12px;
+      padding: .75rem .5rem;
       font-family: 'Nunito', sans-serif;
-      font-size: .82rem; font-weight: 700;
-      text-align: center; cursor: pointer; color: #fff;
+      font-size: .82rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      color: #fff;
       transition: background .15s, border-color .15s, transform .1s;
     }
     .option:hover { background: rgba(244,200,66,.12); border-color: rgba(244,200,66,.4); transform: scale(1.02); }
     .option.selected { background: rgba(244,200,66,.2); border-color: #f4c842; color: #f4c842; }
 
+    /* Next button — always at bottom, never scrolled away */
+    .next-btn-wrap {
+      flex-shrink: 0;
+      padding-top: 1rem;
+    }
     .next-btn {
-      width: 100%; background: linear-gradient(135deg, #f4c842, #e8506a);
-      color: #1a0010; font-family: 'Nunito', sans-serif;
-      font-size: .95rem; font-weight: 800;
-      border: none; padding: .85rem;
-      border-radius: 14px; cursor: pointer;
-      opacity: .4; pointer-events: none;
+      width: 100%;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      font-family: 'Nunito', sans-serif;
+      font-size: .95rem;
+      font-weight: 800;
+      border: none;
+      padding: .85rem;
+      border-radius: 14px;
+      cursor: pointer;
+      opacity: .4;
+      pointer-events: none;
       transition: opacity .2s, transform .15s;
-      margin-top: auto;
     }
     .next-btn.enabled { opacity: 1; pointer-events: all; }
     .next-btn.enabled:hover { transform: translateY(-2px); }
 
-    /* FINAL SCREEN */
+    /* ── FINAL SCREEN ── */
     .final-screen {
       align-items: center;
       justify-content: center;
@@ -115,14 +223,27 @@
     }
     .final-photo {
       width: 120px; height: 120px;
-      border-radius: 50%; object-fit: cover;
+      border-radius: 50%;
+      object-fit: cover;
       border: 4px solid rgba(244,200,66,.5);
       margin-bottom: 1.2rem;
     }
     .final-emoji { font-size: 3rem; margin-bottom: .75rem; }
-    .final-msg { font-size: .95rem; line-height: 1.75; color: rgba(255,255,255,.8); max-width: 300px; margin-bottom: 1rem; }
+    .final-msg {
+      font-size: .95rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,.8);
+      max-width: 300px;
+      margin-bottom: 1rem;
+    }
     .final-from { color: #f4c842; font-weight: 800; font-size: .95rem; }
-    .brand { font-size: .65rem; color: rgba(255,255,255,.2); letter-spacing: .1em; text-transform: uppercase; margin-top: 1.5rem; }
+    .brand {
+      font-size: .65rem;
+      color: rgba(255,255,255,.2);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-top: 1.5rem;
+    }
 
     /* CONFETTI */
     .confetti-piece {
@@ -131,20 +252,20 @@
       border-radius: 2px;
       animation: confetti-fall linear forwards;
       pointer-events: none;
+      z-index: 10;
     }
     @keyframes confetti-fall {
       0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
+      100% { transform: translateY(700px) rotate(720deg); opacity: 0; }
     }
 
     /* ERROR */
-    .error-screen { align-items: center; justify-content: center; text-align: center; }
-    .error-screen p { color: rgba(255,255,255,.4); font-size: .9rem; }
-
-    @media (max-width: 480px) {
-      body { padding: 0; align-items: flex-start; }
-      .card { border-radius: 0; min-height: 100vh; max-width: 100%; }
+    .error-screen {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
+    .error-screen p { color: rgba(255,255,255,.4); font-size: .9rem; }
   </style>
 </head>
 <body>
@@ -187,14 +308,25 @@
     }
   }
 
+  function getColors() {
+    return {
+      bg1: pageData.colorBg1 || '#1a0030',
+      bg2: pageData.colorBg2 || '#0d0d1a',
+      btn1: pageData.colorBtn1 || '#f4c842',
+      btn2: pageData.colorBtn2 || '#e8506a',
+      opt: pageData.colorOpt || '#ffffff'
+    };
+  }
+
   function showIntro() {
+    var c = getColors();
     var app = document.getElementById('app-screens');
     app.innerHTML =
-      '<div class="screen intro-screen active" id="screen-intro">' +
+      '<div class="screen intro-screen active" style="background:linear-gradient(160deg,' + c.bg1 + ',#0d0d1a)">' +
         '<div class="intro-emoji">🎂</div>' +
-        '<div class="intro-name">Hey ' + (pageData.quizIntroName || 'Friend') + '!</div>' +
-        '<p class="intro-msg">' + (pageData.quizIntroMessage || '') + '</p>' +
-        '<button class="start-btn" onclick="startQuiz()">Let\'s Go! 🎉</button>' +
+        '<div class="intro-name">Hey ' + escapeHtml(pageData.quizIntroName || 'Friend') + '!</div>' +
+        '<p class="intro-msg">' + escapeHtml(pageData.quizIntroMessage || '') + '</p>' +
+        '<button class="start-btn" onclick="startQuiz()" style="background:linear-gradient(135deg,' + c.btn1 + ',' + c.btn2 + ')">Let\'s Go! 🎉</button>' +
       '</div>';
   }
 
@@ -209,45 +341,49 @@
       return;
     }
 
+    var c = getColors();
     var q = questions[currentQ];
     var total = questions.length;
-    var progressWidth = ((currentQ) / total * 100) + '%';
+    var progressWidth = (currentQ / total * 100) + '%';
+    var isLast = (currentQ === total - 1);
 
-    var photoHtml = q.photoUrl
-      ? '<img class="q-photo" src="' + q.photoUrl + '" alt="Question photo"/>'
+    var photoHtml = (q.photoUrl && q.photoUrl.length > 10)
+      ? '<img class="q-photo" src="' + q.photoUrl + '" alt="Question photo" onerror="this.style.display=\'none\'"/>'
       : '';
 
     var optionsHtml = '';
-    q.options.forEach(function(opt, idx) {
-      if (opt) {
-        optionsHtml += '<button class="option" onclick="selectOption(this)">' + opt + '</button>';
+    (q.options || []).forEach(function(opt) {
+      if (opt && opt.trim()) {
+        optionsHtml += '<button class="option" onclick="selectOption(this)" style="color:' + c.opt + '">' + escapeHtml(opt) + '</button>';
       }
     });
 
+    var btnGradient = 'linear-gradient(135deg,' + c.btn1 + ',' + c.btn2 + ')';
     var app = document.getElementById('app-screens');
     app.innerHTML =
-      '<div class="screen question-screen active">' +
-        '<div>' +
-          '<div class="q-header">' +
-            '<span class="q-progress-text">Question ' + (currentQ + 1) + ' of ' + total + '</span>' +
-          '</div>' +
-          '<div class="q-progress-bar"><div class="q-progress-fill" style="width:' + progressWidth + '"></div></div>' +
+      '<div class="question-screen active" style="background:' + c.bg2 + '">' +
+        '<div class="q-top">' +
+          '<p class="q-progress-text">Question ' + (currentQ + 1) + ' of ' + total + '</p>' +
+          '<div class="q-progress-bar"><div class="q-progress-fill" style="width:' + progressWidth + ';background:' + btnGradient + '"></div></div>' +
+        '</div>' +
+        '<div class="q-scroll">' +
           photoHtml +
-          '<p class="q-text">' + (q.questionText || '') + '</p>' +
+          '<p class="q-text">' + escapeHtml(q.questionText || '') + '</p>' +
           '<div class="options">' + optionsHtml + '</div>' +
         '</div>' +
-        '<button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button>' +
+        '<div class="next-btn-wrap">' +
+          '<button class="next-btn" id="next-btn" onclick="nextQuestion()" style="background:' + btnGradient + '">' +
+            (isLast ? 'See Your Result 🎊' : 'Next →') +
+          '</button>' +
+        '</div>' +
       '</div>';
   }
 
   function selectOption(el) {
-    // deselect all
     document.querySelectorAll('.option').forEach(function(o){ o.classList.remove('selected'); });
-    // select clicked
     el.classList.add('selected');
-    // enable next button
     var btn = document.getElementById('next-btn');
-    btn.classList.add('enabled');
+    if (btn) btn.classList.add('enabled');
   }
 
   function nextQuestion() {
@@ -256,28 +392,28 @@
   }
 
   function showFinal() {
-    var photoHtml = pageData.quizFinalPhotoUrl
-      ? '<img class="final-photo" src="' + pageData.quizFinalPhotoUrl + '" alt="Photo"/>'
+    var c = getColors();
+    var photoHtml = (pageData.quizFinalPhotoUrl && pageData.quizFinalPhotoUrl.length > 10)
+      ? '<img class="final-photo" src="' + pageData.quizFinalPhotoUrl + '" alt="Photo" onerror="this.style.display=\'none\'"/>'
       : '';
 
     var app = document.getElementById('app-screens');
     app.innerHTML =
-      '<div class="screen final-screen active" id="screen-final">' +
+      '<div class="screen final-screen active" style="background:linear-gradient(160deg,#0d0d1a,' + c.bg1 + ')">' +
         '<div class="final-emoji">🎊</div>' +
         photoHtml +
-        '<p class="final-msg">' + (pageData.quizFinalMessage || '') + '</p>' +
-        '<p class="final-from">From ❤️ ' + (pageData.quizFinalFrom || 'Someone Special') + '</p>' +
+        '<p class="final-msg">' + escapeHtml(pageData.quizFinalMessage || '') + '</p>' +
+        '<p class="final-from">From ❤️ ' + escapeHtml(pageData.quizFinalFrom || 'Someone Special') + '</p>' +
         '<p class="brand">Made with love · Wishify</p>' +
       '</div>';
 
-    // launch confetti
     launchConfetti();
   }
 
   function launchConfetti() {
     var colors = ['#f4c842','#e8506a','#a855f7','#3b82f6','#34d399','#fb923c'];
     var card = document.getElementById('card');
-    for (var i = 0; i < 60; i++) {
+    for (var i = 0; i < 70; i++) {
       (function(i) {
         setTimeout(function() {
           var piece = document.createElement('div');
@@ -285,14 +421,19 @@
           piece.style.left = Math.random() * 100 + '%';
           piece.style.background = colors[Math.floor(Math.random() * colors.length)];
           piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
-          piece.style.animationDelay = '0s';
           piece.style.width = (Math.random() * 8 + 5) + 'px';
           piece.style.height = (Math.random() * 8 + 5) + 'px';
+          piece.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
           card.appendChild(piece);
-          setTimeout(function(){ piece.remove(); }, 3500);
-        }, i * 50);
+          setTimeout(function(){ piece.remove(); }, 4000);
+        }, i * 40);
       })(i);
     }
+  }
+
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   loadQuiz();
