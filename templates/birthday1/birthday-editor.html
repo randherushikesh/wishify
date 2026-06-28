@@ -556,27 +556,65 @@
 
   /* 5. PHOTO */
   /* 5. PHOTO */
-  document.getElementById('photo-input').addEventListener('change', function () {
+  /* 5. PHOTO — Cloudinary upload */
+  var uploadedPhotoUrl = '';
+
+  async function uploadToCloudinary(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result })
+          });
+          var result = await res.json();
+          if (result.success) {
+            resolve(result.url);
+          } else {
+            reject('Upload failed');
+          }
+        } catch(err) {
+          reject(err);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('photo-input').addEventListener('change', async function () {
     var file = this.files[0];
     if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function (e) {
-      window.uploadedPhotoBase64 = e.target.result;
-      var box = document.getElementById('preview-photo-box');
-      // ...rest stays same
-      document.getElementById('photo-placeholder').style.display = 'none';
-      var old = box.querySelector('img');
-      if (old) old.remove();
-      var img = document.createElement('img');
-      img.src = e.target.result;
-      box.appendChild(img);
-      box.style.borderStyle = 'solid';
-      box.style.borderColor = 'rgba(255,215,0,0.5)';
-      var zone = document.getElementById('upload-zone');
-      zone.querySelector('.up-title').textContent = 'Photo uploaded!';
+
+    var zone = document.getElementById('upload-zone');
+    zone.querySelector('.up-title').textContent = 'Uploading...';
+
+    try {
+      // Show preview immediately from local file
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var box = document.getElementById('preview-photo-box');
+        document.getElementById('photo-placeholder').style.display = 'none';
+        var old = box.querySelector('img');
+        if (old) old.remove();
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        box.appendChild(img);
+        box.style.borderStyle = 'solid';
+        box.style.borderColor = 'rgba(255,215,0,0.5)';
+      };
+      reader.readAsDataURL(file);
+
+      // Upload to Cloudinary
+      uploadedPhotoUrl = await uploadToCloudinary(file);
+      zone.querySelector('.up-title').textContent = 'Photo uploaded! ✅';
       zone.querySelector('.up-sub').textContent = 'Click to change photo';
-    };
-    reader.readAsDataURL(file);
+
+    } catch(err) {
+      zone.querySelector('.up-title').textContent = 'Upload failed ❌';
+      console.error(err);
+    }
   });
 
   /* 6. BACKGROUND */
@@ -621,7 +659,7 @@
     date: document.getElementById('date-input').value,
     from: document.getElementById('from-input').value.trim(),
     message: document.getElementById('message-input').value.trim(),
-    photoUrl: window.uploadedPhotoBase64 || '',
+    photoUrl: uploadedPhotoUrl || '',
     bgTop: document.getElementById('bg-top').value,
     bgBottom: document.getElementById('bg-bottom').value,
     font: document.querySelector('.font-pill.active').dataset.font

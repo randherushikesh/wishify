@@ -2,6 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 app.use(cors());
@@ -48,4 +55,17 @@ app.get('/api/pages/:slug', async (req, res) => {
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
+});
+
+app.post('/api/upload', async (req, res) => {
+  try {
+    const fileStr = req.body.data;
+    const uploadResponse = await cloudinary.uploader.upload(fileStr, {
+      folder: 'wishify'
+    });
+    res.json({ success: true, url: uploadResponse.secure_url });
+  } catch (err) {
+    console.log('Upload error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
