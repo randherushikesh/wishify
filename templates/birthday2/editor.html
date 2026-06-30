@@ -196,20 +196,57 @@
   var currentBg2 = '#0a0a0a';
   var currentCardColor = '#ffffff';
 
+  async function uploadToCloudinary(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result })
+          });
+          var result = await res.json();
+          if (result.success) {
+            resolve(result.url);
+          } else {
+            reject('Upload failed');
+          }
+        } catch(err) {
+          reject(err);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   /* ── Photo upload ── */
-  function handlePhoto(input, key, previewId) {
+  async function handlePhoto(input, key, previewId) {
     var file = input.files[0];
     if (!file) return;
+
+    // Show preview immediately from local file
     var reader = new FileReader();
     reader.onload = function(e) {
-      photos[key] = e.target.result;
       var box = document.getElementById(previewId);
       box.innerHTML = '<img src="' + e.target.result + '">';
       if (key === 'fp') box.style.display = 'flex';
-      var lbl = document.getElementById(key + '-label');
-      if (lbl) lbl.textContent = '✅ Uploaded';
     };
     reader.readAsDataURL(file);
+
+    // Update label to uploading
+    var lbl = document.getElementById(key + '-label');
+    if (lbl) lbl.textContent = '⏳ Uploading...';
+
+    try {
+      // Upload to Cloudinary
+      var uploadedUrl = await uploadToCloudinary(file);
+      photos[key] = uploadedUrl;
+      if (lbl) lbl.textContent = '✅ Uploaded';
+    } catch(err) {
+      if (lbl) lbl.textContent = '❌ Upload failed';
+      console.error(err);
+    }
   }
 
   /* ── Text bindings ── */

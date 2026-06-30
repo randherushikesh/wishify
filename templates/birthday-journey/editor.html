@@ -1219,33 +1219,35 @@
     accent: { c1: '#f4c842', c2: '#e8506a' },
   };
 
+  async function uploadToCloudinary(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result })
+          });
+          var result = await res.json();
+          if (result.success) {
+            resolve(result.url);
+          } else {
+            reject('Upload failed');
+          }
+        } catch(err) {
+          reject(err);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   var currentPreviewScreen = 0;
 
   // ──────────────────────────────────────────────────────────────
   //  IMAGE COMPRESSION HELPER
-  // ──────────────────────────────────────────────────────────────
-
-  function compressImage(file, maxWidth = 800, quality = 0.7) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ratio = Math.min(maxWidth / img.width, 1);
-          canvas.width = img.width * ratio;
-          canvas.height = img.height * ratio;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = e.target.result;
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-  }
+  // ────────────────────────────────────────────────────────────── 
 
   // ──────────────────────────────────────────────────────────────
   //  INIT
@@ -1438,20 +1440,86 @@
   }
 
   // ─── UPDATED: handleGalleryPhoto with compression ───
+ async function uploadToCloudinary(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result })
+          });
+          var result = await res.json();
+          if (result.success) {
+            resolve(result.url);
+          } else {
+            reject('Upload failed');
+          }
+        } catch(err) {
+          reject(err);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function handleGalleryPhoto(input, idx) {
     if (!input.files || !input.files[0]) return;
-    try {
-      const compressed = await compressImage(input.files[0], 800, 0.7);
-      state.galleryItems[idx].photoUrl = compressed;
+    var file = input.files[0];
+
+    // Show local preview immediately
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      state.galleryItems[idx].photoUrl = e.target.result;
       renderGalleryEditor();
       renderGalleryPreview();
-      showToast('✅ Photo uploaded & compressed');
-    } catch (err) {
-      showToast('❌ Failed to process image');
+    };
+    reader.readAsDataURL(file);
+
+    showToast('⏳ Uploading photo...');
+    try {
+      var url = await uploadToCloudinary(file);
+      state.galleryItems[idx].photoUrl = url;
+      renderGalleryEditor();
+      renderGalleryPreview();
+      showToast('✅ Photo uploaded!');
+    } catch(err) {
+      showToast('❌ Upload failed');
       console.error(err);
     }
   }
 
+  async function handlePhotoUpload(input, previewId, placeholderId, stateKey) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+
+    // Show local preview immediately
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var prev = document.getElementById(previewId);
+      var ph = document.getElementById(placeholderId);
+      if (prev) { prev.src = e.target.result; prev.style.display = 'block'; }
+      if (ph) ph.style.display = 'none';
+      if (stateKey === 'bdayPhotoUrl') {
+        var img = document.getElementById('p-bday-photo-img');
+        var emoji = document.getElementById('p-bday-photo-emoji');
+        if (img) { img.src = e.target.result; img.style.display = 'block'; }
+        if (emoji) emoji.style.display = 'none';
+      }
+    };
+    reader.readAsDataURL(file);
+
+    showToast('⏳ Uploading photo...');
+    try {
+      var url = await uploadToCloudinary(file);
+      state[stateKey] = url;
+      showToast('✅ Photo uploaded!');
+    } catch(err) {
+      showToast('❌ Upload failed');
+      console.error(err);
+    }
+  }
   function renderGalleryPreview() {
     var scroll = document.getElementById('p-gallery-scroll');
     if (!scroll) return;
@@ -1481,36 +1549,6 @@
 
   function triggerUpload(id) {
     document.getElementById(id).click();
-  }
-
-  async function handlePhotoUpload(input, previewId, placeholderId, stateKey) {
-    if (!input.files || !input.files[0]) return;
-    try {
-      const compressed = await compressImage(input.files[0], 800, 0.7);
-      state[stateKey] = compressed;
-
-      var prev = document.getElementById(previewId);
-      var ph = document.getElementById(placeholderId);
-      if (prev) {
-        prev.src = compressed;
-        prev.style.display = 'block';
-      }
-      if (ph) ph.style.display = 'none';
-
-      if (stateKey === 'bdayPhotoUrl') {
-        var img = document.getElementById('p-bday-photo-img');
-        var emoji = document.getElementById('p-bday-photo-emoji');
-        if (img) {
-          img.src = compressed;
-          img.style.display = 'block';
-        }
-        if (emoji) emoji.style.display = 'none';
-      }
-      showToast('✅ Photo uploaded & compressed');
-    } catch (err) {
-      showToast('❌ Failed to process image');
-      console.error(err);
-    }
   }
 
   // ──────────────────────────────────────────────────────────────

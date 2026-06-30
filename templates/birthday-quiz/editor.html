@@ -319,6 +319,30 @@ var colorBtn1 = '#f4c842';
 var colorBtn2 = '#e8506a';
 var colorOpt = '#ffffff';
 
+async function uploadToCloudinary(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result })
+          });
+          var result = await res.json();
+          if (result.success) {
+            resolve(result.url);
+          } else {
+            reject('Upload failed');
+          }
+        } catch(err) {
+          reject(err);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
 document.getElementById('color-bg1').addEventListener('input', function() {
   colorBg1 = this.value;
   document.querySelector('.prev-intro').style.background = 'linear-gradient(160deg,' + colorBg1 + ',#0d0d0d)';
@@ -417,27 +441,75 @@ function updateBtnColors() {
     showScreen('question');
   }
 
-  function handleQPhoto(input, i) {
+  async function uploadToCloudinary(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result })
+          });
+          var result = await res.json();
+          if (result.success) {
+            resolve(result.url);
+          } else {
+            reject('Upload failed');
+          }
+        } catch(err) {
+          reject(err);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleQPhoto(input, i) {
     var file = input.files[0];
     if (!file) return;
+
+    document.getElementById('q-photo-label-' + i).textContent = '⏳ Uploading...';
+
+    // Show preview immediately
     var reader = new FileReader();
     reader.onload = function(e) {
       questionPhotos[i] = e.target.result;
-      document.getElementById('q-photo-label-' + i).textContent = '✅ Uploaded';
       updatePreview(i);
     };
     reader.readAsDataURL(file);
+
+    try {
+      var uploadedUrl = await uploadToCloudinary(file);
+      questionPhotos[i] = uploadedUrl;
+      document.getElementById('q-photo-label-' + i).textContent = '✅ Uploaded';
+    } catch(err) {
+      document.getElementById('q-photo-label-' + i).textContent = '❌ Upload failed';
+      console.error(err);
+    }
   }
 
-  function handleFinalPhoto(input) {
+  async function handleFinalPhoto(input) {
     var file = input.files[0];
     if (!file) return;
+
+    document.getElementById('final-photo-label').textContent = '⏳ Uploading...';
+
+    // Show preview immediately
     var reader = new FileReader();
     reader.onload = function(e) {
       finalPhoto = e.target.result;
-      document.getElementById('final-photo-label').textContent = '✅ Uploaded';
     };
     reader.readAsDataURL(file);
+
+    try {
+      var uploadedUrl = await uploadToCloudinary(file);
+      finalPhoto = uploadedUrl;
+      document.getElementById('final-photo-label').textContent = '✅ Uploaded';
+    } catch(err) {
+      document.getElementById('final-photo-label').textContent = '❌ Upload failed';
+      console.error(err);
+    }
   }
 
   function updatePreview(i) {
