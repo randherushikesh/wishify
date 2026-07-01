@@ -74,10 +74,43 @@
   </style>
 </head>
 <body>
-
+<audio id="bg-music" loop preload="auto" style="display:none;"></audio>
+<button id="audio-toggle" onclick="toggleMute()" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:1000;width:50px;height:50px;border-radius:50%;background:rgba(12,12,20,.85);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:#f4c842;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);">🔇</button>
 <div id="app"></div>
 
 <script>
+
+  var audioEl = document.getElementById('bg-music');
+  var audioToggleBtn = document.getElementById('audio-toggle');
+
+  function initAudio(url) {
+    if (!url) return;
+    audioEl.src = url;
+    audioToggleBtn.style.display = 'flex';
+    audioEl.volume = 0.5;
+
+    // Autoplay attempt
+    audioEl.play().then(() => {
+      audioToggleBtn.textContent = '🔊';
+    }).catch(() => {
+      // Autoplay blocked: wait for user click
+      document.addEventListener('click', function enable() {
+        audioEl.play();
+        audioToggleBtn.textContent = '🔊';
+        document.removeEventListener('click', enable);
+      });
+    });
+  }
+
+  function toggleMute() {
+    if (audioEl.muted) {
+      audioEl.muted = false;
+      audioToggleBtn.textContent = '🔊';
+    } else {
+      audioEl.muted = true;
+      audioToggleBtn.textContent = '🔇';
+    }
+  }
   async function loadPage() {
     var app = document.getElementById('app');
     var params = new URLSearchParams(window.location.search);
@@ -85,7 +118,7 @@
 
     if (!slug) {
       app.innerHTML = '<div class="error"><p>No wish found.</p></div>';
-      return;
+      return; // Stop here, no need to call initAudio
     }
 
     try {
@@ -99,6 +132,9 @@
 
       var d = result.page.data;
 
+      // 🎵 CALL INIT AUDIO HERE (after d is defined)
+      if (d.audioUrl) initAudio(d.audioUrl);
+
       // Apply colors
       var bg1 = d.bgColor1 || '#1a0030';
       var bg2 = d.bgColor2 || '#0a0a0a';
@@ -107,7 +143,7 @@
       var textColor = isDark ? '#fff' : '#111';
       var captionColor = isDark ? 'rgba(255,255,255,.6)' : '#555';
 
-      // Build memories HTML
+      // ... rest of your existing build code ...
       var positions = ['right','left','right','left','right'];
       var memoriesHtml = '';
       if (d.memories && d.memories.length) {
@@ -128,12 +164,10 @@
         });
       }
 
-      // Final photo
       var finalPhotoHtml = d.finalPhotoUrl
         ? '<img class="final-photo" src="' + d.finalPhotoUrl + '" alt="Photo"/>'
         : '';
 
-      // Build full page
       app.innerHTML =
         '<div class="intro" style="background:linear-gradient(160deg,' + bg1 + ',' + bg2 + ')">' +
           '<h1>Happy Birthday ' + (d.recipientName || 'Friend') + ' 🎂</h1>' +

@@ -204,7 +204,18 @@
       </div>
     </div>
 
-    <!-- Colors -->
+    <!-- Background Music -->
+    <div class="panel-section">
+      <div class="section-label">🎵 Background Music</div>
+      <p style="font-size:.7rem;color:rgba(255,255,255,.4);margin-bottom:.8rem;line-height:1.4;">Pick a song from your device to play during the quiz.</p>
+      <div class="field">
+        <label class="upload-zone">
+          <input type="file" accept="audio/*,.opus,.ogg,.m4a,.mp3,.wav,.aac" onchange="handleAudioUpload(this)"/>
+          <span id="audio-label-text">🎵 Click to upload audio</span>
+        </label>
+        <div id="audio-filename" style="font-size:.7rem;color:#f4c842;margin-top:.4rem;font-weight:600;display:none;"></div>
+      </div>
+    </div>
     
     <!-- Colors -->
     <div class="panel-section">
@@ -253,11 +264,13 @@
     </div>
 
     <div class="phone-wrap">
-      <div class="phone">
+      <<div class="phone" style="position: relative;">
         <div class="phone-bar"><div class="phone-notch"></div></div>
+
+        <audio id="prev-audio-player" loop style="display:none;"></audio>
+        <button id="prev-audio-toggle" onclick="togglePreviewAudio()" style="display:none; position:absolute; bottom:20px; right:20px; z-index:100; width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.75); color:#f4c842; font-size: 1.2rem; cursor:pointer; backdrop-filter: blur(5px); padding: 0; line-height: 44px; text-align: center;">🔇</button>
         <div class="phone-screen">
 
-          <!-- Intro screen -->
           <div class="prev-screen active" id="prev-intro">
             <div class="prev-intro">
               <div style="font-size:2.5rem;margin-bottom:.75rem">🎂</div>
@@ -267,7 +280,6 @@
             </div>
           </div>
 
-          <!-- Question screen (dynamic) -->
           <div class="prev-screen" id="prev-question">
             <div class="prev-question">
               <p class="prev-q-progress" id="prev-q-progress">Question 1 of 1</p>
@@ -283,7 +295,6 @@
             </div>
           </div>
 
-          <!-- Final screen -->
           <div class="prev-screen" id="prev-final">
             <div class="prev-final">
               <div style="font-size:2rem;margin-bottom:.5rem">🎊</div>
@@ -292,9 +303,7 @@
             </div>
           </div>
 
-          <!-- Colors -->
-
-        </div>
+          </div>
       </div>
 
       <!-- Screen navigation dots -->
@@ -319,7 +328,21 @@ var colorBtn1 = '#f4c842';
 var colorBtn2 = '#e8506a';
 var colorOpt = '#ffffff';
 
-async function uploadToCloudinary(file) {
+var audioUrl = '';
+  var audioName = '';
+  var pendingUploads = 0;
+
+  function beginUpload() { 
+    pendingUploads++; 
+    document.getElementById('generate-btn').textContent = '⏳ Uploading...'; 
+  }
+  
+  function endUpload() { 
+    pendingUploads = Math.max(0, pendingUploads - 1); 
+    if(pendingUploads === 0) document.getElementById('generate-btn').textContent = '✨ Generate Shareable Link'; 
+  }
+
+async function uploadToCloudinary(file, type = 'image') {
     return new Promise(function(resolve, reject) {
       var reader = new FileReader();
       reader.onload = async function(e) {
@@ -327,7 +350,7 @@ async function uploadToCloudinary(file) {
           var res = await fetch('https://wishify.onrender.com/api/upload', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: e.target.result })
+            body: JSON.stringify({ data: e.target.result, type: type })
           });
           var result = await res.json();
           if (result.success) {
@@ -341,6 +364,36 @@ async function uploadToCloudinary(file) {
       };
       reader.readAsDataURL(file);
     });
+  }
+
+  async function handleAudioUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (file.size > 15 * 1024 * 1024) { 
+      alert('Song too large (max 15MB). Pick a shorter clip.'); 
+      input.value = ''; 
+      return; 
+    }
+
+    audioName = file.name;
+    var label = document.getElementById('audio-filename');
+    label.textContent = '⏳ Uploading: ' + file.name;
+    label.style.display = 'block';
+
+    beginUpload();
+    try {
+      audioUrl = await uploadToCloudinary(file, 'audio');
+      label.textContent = '✅ ' + audioName;
+      
+      // NEW: Show the preview play button on the phone!
+      document.getElementById('prev-audio-toggle').style.display = 'block'; 
+      
+    } catch(err) {
+      label.textContent = '❌ Upload failed. Check connection.';
+      console.error(err);
+    } finally {
+      endUpload();
+    }
   }
 
 document.getElementById('color-bg1').addEventListener('input', function() {
@@ -470,8 +523,6 @@ function updateBtnColors() {
     if (!file) return;
 
     document.getElementById('q-photo-label-' + i).textContent = '⏳ Uploading...';
-
-    // Show preview immediately
     var reader = new FileReader();
     reader.onload = function(e) {
       questionPhotos[i] = e.target.result;
@@ -479,13 +530,16 @@ function updateBtnColors() {
     };
     reader.readAsDataURL(file);
 
+    beginUpload();
     try {
-      var uploadedUrl = await uploadToCloudinary(file);
+      var uploadedUrl = await uploadToCloudinary(file, 'image');
       questionPhotos[i] = uploadedUrl;
       document.getElementById('q-photo-label-' + i).textContent = '✅ Uploaded';
     } catch(err) {
       document.getElementById('q-photo-label-' + i).textContent = '❌ Upload failed';
       console.error(err);
+    } finally {
+      endUpload();
     }
   }
 
@@ -494,21 +548,22 @@ function updateBtnColors() {
     if (!file) return;
 
     document.getElementById('final-photo-label').textContent = '⏳ Uploading...';
-
-    // Show preview immediately
     var reader = new FileReader();
     reader.onload = function(e) {
       finalPhoto = e.target.result;
     };
     reader.readAsDataURL(file);
 
+    beginUpload();
     try {
-      var uploadedUrl = await uploadToCloudinary(file);
+      var uploadedUrl = await uploadToCloudinary(file, 'image');
       finalPhoto = uploadedUrl;
       document.getElementById('final-photo-label').textContent = '✅ Uploaded';
     } catch(err) {
       document.getElementById('final-photo-label').textContent = '❌ Upload failed';
       console.error(err);
+    } finally {
+      endUpload();
     }
   }
 
@@ -577,6 +632,10 @@ function updateBtnColors() {
 
   // Generate Link
   document.getElementById('generate-btn').addEventListener('click', async function() {
+    if (pendingUploads > 0) { 
+      alert('⏳ Still uploading files — please wait a moment.'); 
+      return; 
+    }
     var btn = this;
     btn.textContent = 'Generating...';
 
@@ -597,21 +656,23 @@ function updateBtnColors() {
     });
 
    var data = {
-  template: 'birthday-quiz',
-  data: {
-    quizIntroName: document.getElementById('quiz-name').value,
-    quizIntroMessage: document.getElementById('quiz-intro-msg').value,
-    quizFinalMessage: document.getElementById('final-msg').value,
-    quizFinalFrom: document.getElementById('final-from').value,
-    quizFinalPhotoUrl: finalPhoto || '',
-    questions: questions,
-    colorBg1: colorBg1,
-colorBg2: colorBg2,
-colorBtn1: colorBtn1,
-colorBtn2: colorBtn2,
-colorOpt: colorOpt,
-  }
-};
+      template: 'birthday-quiz',
+      data: {
+        quizIntroName: document.getElementById('quiz-name').value,
+        quizIntroMessage: document.getElementById('quiz-intro-msg').value,
+        quizFinalMessage: document.getElementById('final-msg').value,
+        quizFinalFrom: document.getElementById('final-from').value,
+        quizFinalPhotoUrl: finalPhoto || '',
+        questions: questions,
+        audioUrl: audioUrl,        // <-- NEW
+        audioName: audioName,      // <-- NEW
+        colorBg1: colorBg1,
+        colorBg2: colorBg2,
+        colorBtn1: colorBtn1,
+        colorBtn2: colorBtn2,
+        colorOpt: colorOpt,
+      }
+    };
 
     try {
       var res = await fetch('https://wishify.onrender.com/api/pages', {
@@ -651,6 +712,29 @@ colorOpt: colorOpt,
     var name = document.getElementById('quiz-name').value || 'Friend';
     window.open('https://wa.me/?text=' + encodeURIComponent('🎂 I made a fun birthday quiz for ' + name + '! ' + link), '_blank');
   }
+
+  var prevAudio = document.getElementById('prev-audio-player');
+  var prevToggle = document.getElementById('prev-audio-toggle');
+
+  function togglePreviewAudio() {
+    if (!audioUrl) return;
+    
+    // Ensure the player has the right URL
+    if (prevAudio.src !== audioUrl) {
+      prevAudio.src = audioUrl;
+      prevAudio.volume = 0.5;
+    }
+
+    if (prevAudio.paused) {
+      prevAudio.play().catch(e => console.log(e));
+      prevToggle.textContent = '🔊';
+    } else {
+      prevAudio.pause();
+      prevToggle.textContent = '🔇';
+    }
+  }
+
+
 </script>
 </body>
 </html>

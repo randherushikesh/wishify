@@ -459,6 +459,17 @@
       </div>
     </div>
 
+    <div class="panel-section">
+      <div class="section-label">🎵 Background Music</div>
+      <div class="field">
+        <label class="upload-zone" id="audio-zone">
+          <input type="file" accept="audio/*" onchange="handleAudioUpload(this)"/>
+          <div class="up-icon">🎵</div>
+          <div class="up-title" id="audio-label">Click to upload music</div>
+        </label>
+      </div>
+    </div>
+
     <!-- ✅ GENERATE LINK — added here, after all customisation sections -->
     <div class="share-section">
       <div class="section-label">🔗 Share Your Wish</div>
@@ -529,6 +540,24 @@
 </div>
 
 <script>
+
+  var audioUrl = '';
+
+  async function handleAudioUpload(input) {
+    var file = input.files[0];
+    if (!file) return;
+    
+    var label = document.getElementById('audio-label');
+    label.textContent = '⏳ Uploading...';
+    
+    try {
+      audioUrl = await uploadToCloudinary(file);
+      label.textContent = '✅ Audio Uploaded';
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    }
+  }
   /* 1. NAME */
   document.getElementById('name-input').addEventListener('input', function () {
     var val = this.value.trim() || 'Friend';
@@ -655,6 +684,7 @@
     var data = {
   template: 'birthday-classic',
   data: {
+    audioUrl: audioUrl,
     name: document.getElementById('name-input').value.trim() || 'Friend',
     date: document.getElementById('date-input').value,
     from: document.getElementById('from-input').value.trim(),

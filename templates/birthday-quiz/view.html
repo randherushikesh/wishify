@@ -269,7 +269,11 @@
   </style>
 </head>
 <body>
+<!-- Hidden audio player for background music -->
+<audio id="bg-music" loop preload="auto" style="display:none;"></audio>
 
+<!-- Floating mute/unmute toggle -->
+<button id="audio-toggle" onclick="toggleMute()" style="display:none;position:fixed;bottom:1.2rem;right:1.2rem;z-index:1000;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(12,12,20,.85);backdrop-filter:blur(8px);color:#f4c842;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:transform .2s,opacity .2s;align-items:center;justify-content:center;padding:0;">🔇</button>
 <div class="card" id="card">
   <div class="top-bar"></div>
   <div id="app-screens"></div>
@@ -279,6 +283,57 @@
   var questions = [];
   var currentQ = 0;
   var pageData = null;
+  var audioEl = document.getElementById('bg-music');
+  var audioToggleBtn = document.getElementById('audio-toggle');
+  var audioStarted = false;
+
+  function initAudio() {
+    if (!pageData || !pageData.audioUrl) {
+      console.log("No audio configured.");
+      return; 
+    }
+    
+    audioStarted = true;
+    audioEl.src = pageData.audioUrl;
+    
+    // Force the button to be visible if audio exists
+    audioToggleBtn.style.display = 'flex'; 
+    audioEl.volume = 0.5;
+    
+    audioEl.play().then(function() {
+      audioToggleBtn.textContent = '🔊';
+    }).catch(function() {
+      // Browsers block autoplay until the user interacts with the page
+      audioToggleBtn.textContent = '🔇';
+      function enableOnInteraction() {
+        if (audioEl.paused) {
+          audioEl.play().catch(function(){});
+          audioToggleBtn.textContent = '🔊';
+        }
+        document.removeEventListener('click', enableOnInteraction);
+      }
+      document.addEventListener('click', enableOnInteraction);
+    });
+  }
+
+  function toggleMute() {
+    if (audioEl.muted) {
+      audioEl.muted = false;
+      audioToggleBtn.textContent = audioEl.paused ? '🔇' : '🔊';
+      if (audioEl.paused) {
+        audioEl.play().catch(function(){});
+        audioToggleBtn.textContent = '🔊';
+      }
+    } else {
+      if (audioEl.paused) {
+        audioEl.play().catch(function(){});
+        audioToggleBtn.textContent = '🔊';
+      } else {
+        audioEl.pause();
+        audioToggleBtn.textContent = '🔇';
+      }
+    }
+  }
 
   async function loadQuiz() {
     var params = new URLSearchParams(window.location.search);
@@ -302,6 +357,7 @@
       pageData = result.page.data;
       questions = pageData.questions || [];
       showIntro();
+      initAudio();
 
     } catch(err) {
       app.innerHTML = '<div class="screen error-screen active"><p>Could not load quiz. Is the server running?</p></div>';
@@ -380,9 +436,15 @@
   }
 
   function selectOption(el) {
-    document.querySelectorAll('.option').forEach(function(o){ o.classList.remove('selected'); });
+    // 1. Remove 'selected' from all options in this screen
+    var parent = el.closest('.question-screen');
+    parent.querySelectorAll('.option').forEach(function(o){ o.classList.remove('selected'); });
+    
+    // 2. Select the clicked one
     el.classList.add('selected');
-    var btn = document.getElementById('next-btn');
+    
+    // 3. Enable the button
+    var btn = parent.querySelector('.next-btn');
     if (btn) btn.classList.add('enabled');
   }
 

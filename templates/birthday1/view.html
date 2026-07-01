@@ -9,6 +9,8 @@
 </head>
 <body>
 
+  <audio id="bg-music" loop preload="auto" style="display:none;"></audio>
+<button id="audio-toggle" onclick="toggleMute()" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:1000;width:50px;height:50px;border-radius:50%;background:rgba(12,12,20,.85);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:#f4c842;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);">🔇</button>
   <div id="wish-card">
     <p class="eyebrow">✨ Special Day ✨</p>
     <div class="emoji-row">🎂 🎈 🎉</div>
@@ -39,6 +41,38 @@
   </div>
 
 <script>
+
+  var audioEl = document.getElementById('bg-music');
+  var audioToggleBtn = document.getElementById('audio-toggle');
+
+  function initAudio(url) {
+    if (!url) return;
+    audioEl.src = url;
+    audioToggleBtn.style.display = 'flex';
+    audioEl.volume = 0.5;
+
+    // Autoplay attempt
+    audioEl.play().then(() => {
+      audioToggleBtn.textContent = '🔊';
+    }).catch(() => {
+      // Wait for user interaction to start audio
+      document.addEventListener('click', function enable() {
+        audioEl.play();
+        audioToggleBtn.textContent = '🔊';
+        document.removeEventListener('click', enable);
+      }, { once: true });
+    });
+  }
+
+  function toggleMute() {
+    if (audioEl.muted) {
+      audioEl.muted = false;
+      audioToggleBtn.textContent = '🔊';
+    } else {
+      audioEl.muted = true;
+      audioToggleBtn.textContent = '🔇';
+    }
+  } 
   async function loadWish() {
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('slug');
@@ -58,30 +92,33 @@
       }
 
       const page = result.page;
-const data = page.data;
+      const data = page.data;
 
-document.getElementById('view-name').textContent = data.name;
-document.getElementById('view-avatar').textContent = data.name.charAt(0).toUpperCase();
-document.getElementById('view-from').textContent = data.from;
-document.getElementById('view-message').textContent = data.message;
+      // 🎵 ADD THIS LINE: Initialize audio immediately after data is loaded
+      if (data.audioUrl) initAudio(data.audioUrl);
 
-if (data.date) {
-  const d = new Date(data.date + 'T00:00:00');
-  document.getElementById('view-date').textContent = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-}
+      document.getElementById('view-name').textContent = data.name;
+      document.getElementById('view-avatar').textContent = data.name.charAt(0).toUpperCase();
+      document.getElementById('view-from').textContent = data.from;
+      document.getElementById('view-message').textContent = data.message;
 
-if (data.photoUrl) {
-  document.getElementById('view-photo-box').innerHTML = `<img src="${data.photoUrl}" style="width:100%;border-radius:12px;">`;
-}
+      if (data.date) {
+        const d = new Date(data.date + 'T00:00:00');
+        document.getElementById('view-date').textContent = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      }
 
-if (data.bgTop && data.bgBottom) {
-  document.getElementById('wish-card').style.background =
-    'linear-gradient(160deg, ' + data.bgTop + ' 0%, ' + data.bgBottom + ' 100%)';
-}
+      if (data.photoUrl) {
+        document.getElementById('view-photo-box').innerHTML = `<img src="${data.photoUrl}" style="width:100%;border-radius:12px;">`;
+      }
 
-if (data.font) {
-  document.getElementById('view-heading').style.fontFamily = data.font;
-}
+      if (data.bgTop && data.bgBottom) {
+        document.getElementById('wish-card').style.background =
+          'linear-gradient(160deg, ' + data.bgTop + ' 0%, ' + data.bgBottom + ' 100%)';
+      }
+
+      if (data.font) {
+        document.getElementById('view-heading').style.fontFamily = data.font;
+      }
 
     } catch (err) {
       document.body.innerHTML = '<p style="text-align:center;margin-top:50px;">Could not load wish. Is the server running?</p>';

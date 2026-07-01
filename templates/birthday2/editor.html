@@ -113,6 +113,17 @@
       </div>
     </div>
 
+    <div class="panel-section">
+      <div class="section-label">🎵 Background Music</div>
+      <div class="field">
+        <label class="upload-zone">
+          <input type="file" accept="audio/*" onchange="handleAudioUpload(this)"/>
+          <span id="audio-label">📁 Click to upload music</span>
+        </label>
+        <div id="audio-filename" style="font-size:.7rem;color:#f4c842;margin-top:.4rem;font-weight:600;display:none;"></div>
+      </div>
+    </div>
+
     <!-- Final Wish -->
     <div class="panel-section">
       <div class="section-label">🎉 Final Wish Screen</div>
@@ -195,6 +206,22 @@
   var currentBg1 = '#1a0030';
   var currentBg2 = '#0a0a0a';
   var currentCardColor = '#ffffff';
+  var audioUrl = '';
+  
+  async function handleAudioUpload(input) {
+    var file = input.files[0];
+    if (!file) return;
+    document.getElementById('audio-label').textContent = '⏳ Uploading...';
+    try {
+      audioUrl = await uploadToCloudinary(file);
+      document.getElementById('audio-label').textContent = '✅ Audio Uploaded';
+      document.getElementById('audio-filename').textContent = file.name;
+      document.getElementById('audio-filename').style.display = 'block';
+    } catch(err) {
+      document.getElementById('audio-label').textContent = '❌ Upload failed';
+      console.error(err);
+    }
+  }
 
   async function uploadToCloudinary(file) {
     return new Promise(function(resolve, reject) {
@@ -320,6 +347,7 @@
     bgColor1: currentBg1,
     bgColor2: currentBg2,
     cardColor: currentCardColor,
+    audioUrl: audioUrl,
     memories: [1,2,3,4,5].map(function(i) {
       return {
         year:     document.getElementById('m'+i+'-year').value,
