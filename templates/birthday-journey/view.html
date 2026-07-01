@@ -362,6 +362,14 @@
   async function loadData() {
     var params = new URLSearchParams(window.location.search);
     var slug = params.get('slug');
+
+    // NEW: Grab the slug from the clean URL path if ?slug= is missing
+    if (!slug) {
+      var pathParts = window.location.pathname.split('/').filter(Boolean);
+      if (pathParts.length >= 2) {
+        slug = pathParts[pathParts.length - 1]; 
+      }
+    }
     var app = document.getElementById('app-screens');
 
     if (!slug) {

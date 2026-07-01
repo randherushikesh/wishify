@@ -12,6 +12,10 @@
     {
       "source": "/quiz/:slug",
       "destination": "/templates/birthday-quiz/view?slug=:slug"
+    },
+    {
+      "source": "/journey/:slug",
+      "destination": "/templates/birthday-journey/view?slug=:slug"
     }
   ]
 }
