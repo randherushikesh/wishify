@@ -682,7 +682,8 @@ function updateBtnColors() {
       });
       var result = await res.json();
       if (result.success) {
-        var link = window.location.origin + '/templates/birthday-quiz/view.html?slug=' + result.slug;
+        // Change to this:
+        const link = window.location.origin + '/quiz/' + result.slug;
         document.getElementById('result-link').textContent = link;
         document.getElementById('result-area').classList.add('show');
         btn.textContent = '✅ Link Generated!';

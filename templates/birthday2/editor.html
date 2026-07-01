@@ -362,7 +362,7 @@
       const res = await fetch('https://wishify.onrender.com/api/pages', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
       const result = await res.json();
       if (result.success) {
-        var link = window.location.origin + '/templates/birthday2/view.html?slug=' + result.slug;
+        const link = window.location.origin + '/timeline/' + result.slug;
         document.getElementById('result-link').textContent = link;
         document.getElementById('result-area').classList.add('show');
         btn.textContent = '✅ Link Generated!';

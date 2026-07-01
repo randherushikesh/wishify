@@ -705,7 +705,7 @@
       const result = await response.json();
 
       if (result.success) {
-        const link = window.location.origin + '/templates/birthday1/view.html?slug=' + result.slug;
+       const link = window.location.origin + '/classic/' + result.slug;
         document.getElementById('result-link').textContent = link;
         document.getElementById('result-area').classList.add('show');
         btn.textContent = '✅ Link Generated!';
