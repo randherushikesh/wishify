@@ -116,6 +116,15 @@
     var params = new URLSearchParams(window.location.search);
     var slug = params.get('slug');
 
+    // NEW: If there is no ?slug= in the URL, grab it from the clean URL path!
+    if (!slug) {
+      var pathParts = window.location.pathname.split('/').filter(Boolean);
+      // If the URL is /timeline/yspeP0zq, this grabs the last part (yspeP0zq)
+      if (pathParts.length >= 2) {
+        slug = pathParts[pathParts.length - 1]; 
+      }
+    }
+
     if (!slug) {
       app.innerHTML = '<div class="error"><p>No wish found.</p></div>';
       return; // Stop here, no need to call initAudio
