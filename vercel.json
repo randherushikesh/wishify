@@ -3,15 +3,15 @@
   "rewrites": [
     {
       "source": "/classic/:slug",
-      "destination": "/templates/birthday1/view.html?slug=:slug"
+      "destination": "/templates/birthday1/view?slug=:slug"
     },
     {
       "source": "/timeline/:slug",
-      "destination": "/templates/birthday2/view.html?slug=:slug"
+      "destination": "/templates/birthday2/view?slug=:slug"
     },
     {
       "source": "/quiz/:slug",
-      "destination": "/templates/birthday-quiz/view.html?slug=:slug"
+      "destination": "/templates/birthday-quiz/view?slug=:slug"
     }
   ]
 }
