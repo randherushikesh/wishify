@@ -7,4 +7,8 @@ const pageSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Page', pageSchema);
+// Same schema, two separate collections in Compass
+const BirthdayPage = mongoose.model('BirthdayPage', pageSchema, 'birthdaypages');
+const WeddingPage = mongoose.model('WeddingPage', pageSchema, 'weddingpages');
+
+module.exports = { BirthdayPage, WeddingPage };

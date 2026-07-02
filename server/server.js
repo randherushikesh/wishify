@@ -32,7 +32,13 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.log('MongoDB connection error:', err));
 
-const Page = require('./models/Page');
+const { BirthdayPage, WeddingPage } = require('./models/Page');
+
+// Routes any template starting with "wedding" to the wedding collection,
+// everything else (birthday-timeline, birthday-quiz, etc.) to birthday
+function getModel(template) {
+  return template && template.startsWith('wedding') ? WeddingPage : BirthdayPage;
+}
 const { nanoid } = require('nanoid');
 
 // ── SAVE A PAGE ──
@@ -53,9 +59,29 @@ app.post('/api/pages', async (req, res) => {
 });
 
 // ── FETCH A PAGE ──
+// ── SAVE A PAGE ──
+app.post('/api/pages', async (req, res) => {
+  try {
+    const slug = nanoid(8);
+    const Model = getModel(req.body.template);
+    const newPage = new Model({
+      slug,
+      template: req.body.template,
+      data: req.body.data
+    });
+    await newPage.save();
+    res.json({ success: true, slug });
+  } catch (err) {
+    console.log('POST /api/pages ERROR:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── FETCH A PAGE ──
 app.get('/api/pages/:slug', async (req, res) => {
   try {
-    const page = await Page.findOne({ slug: req.params.slug });
+    let page = await BirthdayPage.findOne({ slug: req.params.slug });
+    if (!page) page = await WeddingPage.findOne({ slug: req.params.slug });
     if (!page) {
       return res.status(404).json({ success: false, error: 'Page not found' });
     }
@@ -63,41 +89,6 @@ app.get('/api/pages/:slug', async (req, res) => {
   } catch (err) {
     console.log('GET /api/pages/:slug ERROR:', err);
     res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// ── UPLOAD A FILE (image or audio) TO CLOUDINARY ──
-// IMPORTANT: this route must be registered BEFORE app.listen().
-// (It worked by accident before because Node registers routes
-// synchronously regardless of listen() position, but keeping
-// all routes together avoids confusion and future bugs.)
-app.post('/api/upload', async (req, res) => {
-  try {
-    const fileStr = req.body.data;
-    if (!fileStr) {
-      return res.status(400).json({ success: false, error: 'No file data received' });
-    }
-
-    // FIX: Let Cloudinary automatically detect the file type (image vs audio/video)
-    // This completely bypasses broken MIME types from WhatsApp or mobile browsers.
-    const uploadOptions = {
-      folder: 'wishify',
-      resource_type: 'auto' 
-    };
-
-    console.log('Uploading file... approx size (KB):', Math.round(fileStr.length / 1024));
-    
-    const uploadResponse = await cloudinary.uploader.upload(fileStr, uploadOptions);
-    
-    res.json({ 
-      success: true, 
-      url: uploadResponse.secure_url, 
-      resource_type: uploadResponse.resource_type 
-    });
-    
-  } catch (err) {
-    console.log('Upload error:', err.message || err);
-    res.status(500).json({ success: false, error: err.message || 'Upload failed' });
   }
 });
 
