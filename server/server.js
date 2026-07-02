@@ -45,24 +45,6 @@ const { nanoid } = require('nanoid');
 app.post('/api/pages', async (req, res) => {
   try {
     const slug = nanoid(8);
-    const newPage = new Page({
-      slug,
-      template: req.body.template,
-      data: req.body.data
-    });
-    await newPage.save();
-    res.json({ success: true, slug });
-  } catch (err) {
-    console.log('POST /api/pages ERROR:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// ── FETCH A PAGE ──
-// ── SAVE A PAGE ──
-app.post('/api/pages', async (req, res) => {
-  try {
-    const slug = nanoid(8);
     const Model = getModel(req.body.template);
     const newPage = new Model({
       slug,
