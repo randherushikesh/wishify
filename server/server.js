@@ -74,6 +74,23 @@ app.get('/api/pages/:slug', async (req, res) => {
   }
 });
 
+// ── UPLOAD TO CLOUDINARY ──
+app.post('/api/upload', async (req, res) => {
+  try {
+    const fileStr = req.body.data;
+    
+    // resource_type: 'auto' is required so Cloudinary accepts both images AND audio
+    const uploadResponse = await cloudinary.uploader.upload(fileStr, {
+      resource_type: 'auto' 
+    });
+    
+    res.json({ success: true, url: uploadResponse.secure_url });
+  } catch (err) {
+    console.error('CLOUDINARY UPLOAD ERROR:', err);
+    res.status(500).json({ success: false, error: 'Failed to upload to Cloudinary' });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
