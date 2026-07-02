@@ -10,113 +10,105 @@
   body{font-family:'Nunito',sans-serif;background:#0d0d10;color:#f2f2f2;}
   .serif{font-family:'Playfair Display',serif;}
 
+  /* Editor UI Styles */
   .navbar{display:flex;align-items:center;gap:1rem;padding:.9rem 1.4rem;background:#111114;border-bottom:1px solid rgba(212,175,55,.2);position:sticky;top:0;z-index:50;}
   .nav-logo{font-weight:800;font-size:1.05rem;}
   .nav-badge{background:rgba(212,175,55,.14);color:#e8cf7e;font-size:.7rem;font-weight:700;padding:.3rem .7rem;border-radius:20px;letter-spacing:.03em;}
   .nav-step{margin-left:auto;font-size:.78rem;color:rgba(255,255,255,.4);}
 
-  .editor-layout{display:grid;grid-template-columns:400px 1fr;min-height:calc(100vh - 58px);}
-
-  .left-panel{background:#111114;border-right:1px solid rgba(212,175,55,.15);overflow-y:auto;max-height:calc(100vh - 58px);}
+  .editor-layout{display:grid;grid-template-columns:400px 1fr;height:calc(100vh - 58px);}
+  .left-panel{background:#111114;border-right:1px solid rgba(212,175,55,.15);overflow-y:auto;padding-bottom: 2rem;}
+  
   .panel-section{padding:1.3rem 1.4rem;border-bottom:1px solid rgba(255,255,255,.06);}
   .section-label{font-size:.78rem;font-weight:800;color:#e8cf7e;letter-spacing:.03em;margin-bottom:1rem;text-transform:uppercase;}
   .field{margin-bottom:.9rem;}
   .field label{display:block;font-size:.72rem;color:rgba(255,255,255,.5);margin-bottom:.35rem;font-weight:700;letter-spacing:.02em;}
-  .field input[type=text], .field input[type=datetime-local], .field textarea{
-    width:100%;background:#1a1a1e;border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:8px;
-    padding:.55rem .7rem;font-family:'Nunito',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;
-  }
+  .field input[type=text], .field input[type=datetime-local], .field textarea{width:100%;background:#1a1a1e;border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:8px;padding:.55rem .7rem;font-family:'Nunito',sans-serif;font-size:.85rem;outline:none;}
   .field input:focus, .field textarea:focus{border-color:#d4af37;}
   .field textarea{resize:vertical;min-height:70px;}
   .field-row{display:flex;gap:.6rem;}
   .field-row .field{flex:1;}
 
-  .upload-zone{display:flex;align-items:center;justify-content:center;gap:.4rem;background:#1a1a1e;border:1.5px dashed rgba(212,175,55,.35);border-radius:8px;padding:.6rem;cursor:pointer;font-size:.78rem;color:rgba(255,255,255,.6);transition:border-color .15s,background .15s;}
+  .upload-zone{display:flex;align-items:center;justify-content:center;gap:.4rem;background:#1a1a1e;border:1.5px dashed rgba(212,175,55,.35);border-radius:8px;padding:.6rem;cursor:pointer;font-size:.78rem;color:rgba(255,255,255,.6);transition:border-color .15s;}
   .upload-zone:hover{border-color:#d4af37;background:#1e1e22;}
   .upload-zone input{display:none;}
-
   .color-picker-row{display:flex;align-items:center;gap:.6rem;}
   .color-picker-row input[type=color]{width:38px;height:38px;border:none;border-radius:8px;background:none;cursor:pointer;padding:0;}
   .color-hex-display{font-size:.78rem;color:rgba(255,255,255,.5);font-family:monospace;}
 
   .photo-block{border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.7rem;margin-bottom:.7rem;background:#151519;}
-
   .gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
-  .gallery-grid .upload-zone{padding:.5rem;font-size:.7rem;}
 
   .share-section{padding:1.4rem;background:#0f0f12;}
-  #generate-btn{width:100%;background:linear-gradient(135deg,#f0dd9e,#d4af37);color:#1a0010;border:none;padding:.85rem;border-radius:10px;font-weight:800;font-size:.9rem;cursor:pointer;transition:transform .15s,box-shadow .15s;}
-  #generate-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(212,175,55,.35);}
+  #generate-btn{width:100%;background:linear-gradient(135deg,#f0dd9e,#d4af37);color:#1a0010;border:none;padding:.85rem;border-radius:10px;font-weight:800;font-size:.9rem;cursor:pointer;}
   .result-area{margin-top:1rem;display:none;background:#1a1a1e;border-radius:10px;padding:.8rem;border:1px solid rgba(212,175,55,.25);}
   .result-area.show{display:block;}
   .result-url{display:block;font-size:.78rem;color:#e8cf7e;word-break:break-all;margin-bottom:.6rem;}
-  .result-actions{display:flex;gap:.5rem;}
+  .result-actions{display:flex;gap:.5rem; margin-top:1rem;}
   .result-btn{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;padding:.5rem;border-radius:8px;font-size:.75rem;cursor:pointer;font-weight:700;}
-  .result-btn:hover{background:rgba(255,255,255,.1);}
-  .result-btn.copied{background:#2e7d4f;border-color:#2e7d4f;}
 
-  .right-panel{background:#08080a;overflow-y:auto;max-height:calc(100vh - 58px);}
-  .preview-topbar{display:flex;align-items:center;gap:.6rem;padding:.8rem 1.4rem;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;background:#08080a;z-index:10;}
-  .preview-label{font-size:.78rem;color:rgba(255,255,255,.5);font-weight:700;}
-  .live-dot{font-size:.68rem;background:rgba(46,157,88,.18);color:#4ee68a;padding:.2rem .6rem;border-radius:20px;font-weight:800;}
+  /* --- LIVE PREVIEW (MATCHING NEW DESIGN) --- */
+  .right-panel{background:#fff;overflow-y:auto; position: relative; color: #2c3e50;}
+  .preview-topbar{display:flex;align-items:center;gap:.6rem;padding:.8rem 1.4rem;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:1000;}
+  .preview-label{font-size:.78rem;color:#999;font-weight:700;}
+  .live-dot{font-size:.68rem;background:rgba(46,157,88,.18);color:#2e9d58;padding:.2rem .6rem;border-radius:20px;font-weight:800;}
 
-  #preview-card{color:#f6efe2;}
-  .p-divider{display:flex;align-items:center;justify-content:center;gap:.9rem;margin:0 auto 2rem;max-width:260px;}
-  .p-divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,#d4af37,transparent);}
-  .p-divider .diamond{width:7px;height:7px;background:#d4af37;transform:rotate(45deg);}
-  .p-eyebrow{font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:#f0dd9e;font-weight:700;margin-bottom:1rem;text-align:center;}
+  #preview-card{position: relative; overflow: hidden; min-height: 100vh;}
+  
+  /* Glass Envelope */
+  .prev-envelope { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffe4e1; background-size: cover; background-position: center; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 2rem; transition: transform 0.8s; }
+  .prev-envelope.opened { transform: translateY(-100%); }
+  .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 20px; padding: 3rem 2rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border: 1px solid rgba(255,255,255,0.5); }
+  .heart-icon { width: 40px; height: 40px; margin-bottom: 1rem; }
+  .env-to { font-size: 1rem; color: #333; margin-bottom: 0.5rem; font-weight: 600;}
+  .env-names { font-size: 2.2rem; color: var(--accent); margin-bottom: 0.5rem; line-height: 1.2; }
+  .env-date { font-size: 0.85rem; color: #555; margin-bottom: 1.5rem; }
+  .env-msg { font-size: 0.8rem; color: var(--accent); margin-bottom: 2rem; font-weight: 600;}
+  .env-btn { background: var(--accent); color: #fff; padding: 0.8rem 2.5rem; border-radius: 50px; font-weight: 700; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);}
 
-  .prev-hero{position:relative;min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.4rem;overflow:hidden;}
-  .prev-names{font-size:clamp(2rem,6vw,3rem);font-weight:700;line-height:1.15;margin-bottom:.9rem;background:linear-gradient(100deg,#f0dd9e,#d4af37,#fff6da,#d4af37,#f0dd9e);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .prev-names .amp{font-style:italic;font-weight:500;padding:0 .2rem;opacity:.85;}
-  .prev-date{font-size:.92rem;letter-spacing:.06em;color:#f0dd9e;margin-bottom:1.2rem;font-weight:600;}
-  .prev-msg{max-width:440px;color:rgba(246,239,226,.7);font-size:.92rem;line-height:1.75;margin-bottom:1.4rem;}
-  .prev-scroll{font-size:.7rem;color:rgba(246,239,226,.4);letter-spacing:.18em;text-transform:uppercase;}
+  /* Hero Section */
+  .prev-hero{position:relative;min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.4rem; background: #ffe4e1; background-size: cover; background-position: center; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.3);}
+  .prev-hero::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1;}
+  .prev-hero > * { position: relative; z-index: 2; }
+  .prev-names{font-size:clamp(2.5rem,6vw,4rem);font-weight:700;line-height:1.15;margin-bottom:.9rem;}
+  .prev-names .amp{font-style:italic;font-weight:500;padding:0 .4rem;}
 
-  .prev-section{padding:3.2rem 1.4rem;}
-  .prev-section h2{font-size:clamp(1.4rem,3.4vw,1.9rem);font-weight:700;margin-bottom:.6rem;text-align:center;}
-  .prev-section > p.sub{color:rgba(246,239,226,.55);max-width:400px;margin:0 auto 2rem;font-size:.85rem;text-align:center;line-height:1.6;}
+  /* General Sections */
+  .prev-section{padding:4rem 1.4rem; background: var(--bg1); text-align: center;}
+  .prev-section h2{font-size:clamp(1.8rem,3.4vw,2.2rem);font-weight:700;margin-bottom:1rem; color: #2c3e50;}
+  .prev-section p.sub{color:#666; max-width:400px;margin:0 auto 2rem;font-size:.9rem;line-height:1.6;}
 
-  .prev-couple{max-width:600px;margin:0 auto;display:flex;justify-content:center;gap:2.4rem;flex-wrap:wrap;text-align:center;}
+  /* Couple Circular Photos */
+  .prev-couple{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;}
   .prev-couple-person{max-width:220px;}
-  .prev-couple-photo,.prev-couple-photo-empty{width:120px;height:120px;border-radius:50%;margin:0 auto .9rem;}
-  .prev-couple-photo{object-fit:cover;border:4px solid #d4af37;}
-  .prev-couple-photo-empty{border:4px dashed rgba(212,175,55,.4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:rgba(212,175,55,.4);}
-  .prev-couple-person h3{font-size:1.05rem;font-weight:700;margin-bottom:.3rem;}
-  .prev-couple-parent{font-size:.72rem;color:rgba(246,239,226,.55);margin-bottom:.4rem;}
-  .prev-couple-tagline{font-size:.72rem;color:#f0dd9e;font-style:italic;line-height:1.5;}
+  .prev-couple-photo{width:160px;height:160px;border-radius:50%;margin:0 auto 1rem;object-fit:cover; border: 5px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.08);}
+  .prev-couple-person h3{font-size:1.3rem;font-weight:700;margin-bottom:.3rem; color: #2c3e50;}
+  .prev-couple-parent{font-size:.8rem;color:#777;margin-bottom:.4rem;}
+  .prev-couple-tagline{font-size:.8rem;color:var(--accent);font-style:italic;}
 
-  .prev-carousel{display:flex;align-items:center;justify-content:center;gap:.8rem;perspective:1200px;}
-  .prev-car-slide{border-radius:12px;overflow:hidden;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);display:flex;align-items:center;justify-content:center;color:rgba(212,175,55,.35);font-size:1.4rem;}
-  .prev-car-slide img{width:100%;height:100%;object-fit:cover;}
-  .prev-car-slide.side{width:80px;height:170px;opacity:.5;transform:scale(.9);}
-  .prev-car-slide.center{width:170px;height:220px;border-color:#d4af37;}
+  /* 3D Gallery CSS */
+  .carousel-container { position: relative; width: 100%; height: 350px; perspective: 1000px; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-top: 2rem;}
+  .gallery-slide { position: absolute; width: 220px; height: 300px; border-radius: 15px; transition: all 0.5s ease; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 2px solid #fff;}
+  .gallery-slide.center { transform: translateX(0) translateZ(0) rotateY(0); z-index: 3; opacity: 1; }
+  .gallery-slide.left { transform: translateX(-65%) translateZ(-150px) rotateY(35deg); z-index: 2; opacity: 0.8; }
+  .gallery-slide.right { transform: translateX(65%) translateZ(-150px) rotateY(-35deg); z-index: 2; opacity: 0.8; }
+  .gallery-slide.hidden { transform: translateZ(-300px); z-index: 1; opacity: 0; pointer-events: none; }
+  .carousel-controls { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; align-items: center;}
+  .car-btn { background: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; color: var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer;}
+  
+  /* Events & Countdown */
+  /* --- EVENT CARDS --- */
+  .prev-section h2.event-title { font-size: clamp(1.8rem,4vw,2.2rem); margin-bottom: 3rem; color: #2c3e50; font-weight: 500; }
+  .prev-events { max-width: 900px; margin: 0 auto; display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+  .prev-event-card { flex: 1 1 300px; max-width: 400px; background: var(--card, #ffffff); border-radius: 24px; padding: 3rem 2rem; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: none; }
+  .card-icon-wrap { width: 65px; height: 65px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.06); color: var(--accent); }
+  .card-icon-wrap svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2; fill: none; }
+  .prev-event-card h3 { font-size: 1.5rem; font-weight: 500; margin-bottom: 2rem; color: #2c3e50; }
+  .event-detail-line { display: flex; align-items: flex-start; justify-content: center; gap: 0.8rem; font-size: 0.9rem; color: #555; margin-bottom: 1.2rem; line-height: 1.6; text-align: left; max-width: 250px; margin-left: auto; margin-right: auto;}
+  .event-detail-line svg { width: 18px; height: 18px; stroke: var(--accent); flex-shrink: 0; margin-top: 3px; fill: none; stroke-width: 2; }
+  .event-detail-line b { display: block; color: #333; font-weight: 700; margin-top: 0.5rem; font-size: 0.85rem;}
 
-  .prev-events{max-width:700px;margin:0 auto;display:flex;gap:1.4rem;flex-wrap:wrap;justify-content:center;}
-  .prev-event-card{flex:1 1 260px;max-width:320px;border:1px solid rgba(212,175,55,.35);border-radius:16px;padding:1.6rem 1.2rem;text-align:center;}
-  .prev-event-card .ic{font-size:1.5rem;margin-bottom:.6rem;}
-  .prev-event-card h3{font-size:1.05rem;font-weight:700;margin-bottom:.7rem;}
-  .prev-event-row{font-size:.8rem;line-height:1.7;color:rgba(246,239,226,.7);}
-  .prev-event-row b{display:block;color:#f0dd9e;font-weight:700;font-size:.86rem;margin-bottom:.1rem;}
-
-  .prev-countdown{padding:3rem 1.4rem;text-align:center;}
-  .prev-countdown .sub{color:#f0dd9e;font-size:.85rem;margin-bottom:1.4rem;}
-  .prev-cd-grid{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap;}
-  .prev-cd-box{background:rgba(246,239,226,.08);border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:.8rem 1rem;min-width:70px;}
-  .prev-cd-box .num{font-size:1.4rem;font-weight:800;color:#f0dd9e;font-family:'Playfair Display',serif;}
-  .prev-cd-box .lbl{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(246,239,226,.6);margin-top:.2rem;}
-
-  .prev-final{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.4rem;}
-  .prev-final-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid #d4af37;margin-bottom:1.2rem;display:none;}
-  .prev-final h2{font-size:clamp(1.5rem,3.4vw,2rem);font-weight:700;margin-bottom:.9rem;}
-  .prev-final-msg{max-width:420px;color:rgba(246,239,226,.78);font-size:.88rem;line-height:1.8;margin-bottom:1.1rem;white-space:pre-wrap;}
-  .prev-final-from{color:#d4af37;font-style:italic;font-size:1.05rem;font-weight:600;}
-  .prev-brand{text-align:center;padding:1.4rem;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,239,226,.22);}
-
-  @media (max-width:900px){
-    .editor-layout{grid-template-columns:1fr;}
-    .left-panel, .right-panel{max-height:none;}
-  }
+  @media (max-width:900px){ .editor-layout{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
@@ -124,228 +116,273 @@
 <nav class="navbar">
   <div class="nav-logo">✨ Wishify</div>
   <div class="nav-badge">Wedding Editor</div>
-  <div class="nav-step">Royal Wedding Invitation</div>
 </nav>
 
 <div class="editor-layout">
 
   <aside class="left-panel">
+    
+    <div class="panel-section">
+      <div class="section-label">🌟 Backgrounds</div>
+      <div class="field">
+        <label>Hero & Envelope Background (Image)</label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'hbg','prev-envelope', true)"/><span id="hbg-label">📁 Upload Hero Image</span></label>
+      </div>
+    </div>
 
     <div class="panel-section">
-      <div class="section-label">💍 Welcome Screen</div>
+      <div class="section-label">💍 Details</div>
       <div class="field-row">
-        <div class="field"><label>Bride's Name</label><input type="text" id="bride-name" value="Aisha"/></div>
-        <div class="field"><label>Groom's Name</label><input type="text" id="groom-name" value="Rohan"/></div>
+        <div class="field"><label>Bride</label><input type="text" id="bride-name" value="Ashvini"/></div>
+        <div class="field"><label>Groom</label><input type="text" id="groom-name" value="Rishikesh"/></div>
       </div>
-      <div class="field"><label>Wedding Date</label><input type="text" id="wedding-date" placeholder="e.g. 12th December 2026" value="12th December 2026"/></div>
-      <div class="field"><label>Location</label><input type="text" id="wedding-location" placeholder="e.g. Pune, Maharashtra" value="Pune, Maharashtra"/></div>
-      <div class="field"><label>Welcome Message</label><textarea id="welcome-message">Together with our families, we joyfully invite you to celebrate the beginning of our forever.</textarea></div>
+      <div class="field"><label>Date</label><input type="text" id="wedding-date" value="April 28, 2026"/></div>
     </div>
 
     <div class="panel-section">
-      <div class="section-label">👰🤵 The Happy Couple</div>
+      <div class="section-label">👰🤵 Couple Portraits</div>
       <div class="photo-block">
-        <div class="field"><label>Bride's Photo</label><label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'bride','prev-bride-photo')"/><span id="bride-label">📁 Click to upload</span></label></div>
-        <div class="field"><label>Parent Line</label><input type="text" id="bride-parent" placeholder="e.g. Daughter of Smt. Savita Chandrakant Bhand"/></div>
-        <div class="field"><label>Tagline</label><input type="text" id="bride-tagline" placeholder="e.g. A beautiful soul with a heart full of love and dreams"/></div>
+        <div class="field"><label>Bride's Photo</label><label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'bride','prev-bride-photo')"/><span id="bride-label">📁 Upload</span></label></div>
+        <div class="field"><label>Parent Line</label><input type="text" id="bride-parent" value="Daughter of Smt. Savita"/></div>
       </div>
       <div class="photo-block">
-        <div class="field"><label>Groom's Photo</label><label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'groom','prev-groom-photo')"/><span id="groom-label">📁 Click to upload</span></label></div>
-        <div class="field"><label>Parent Line</label><input type="text" id="groom-parent" placeholder="e.g. Son of Smt. Kavita Sahebrao Wabale"/></div>
-        <div class="field"><label>Tagline</label><input type="text" id="groom-tagline" placeholder="e.g. A gentleman with kindness and strength in equal measure"/></div>
+        <div class="field"><label>Groom's Photo</label><label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'groom','prev-groom-photo')"/><span id="groom-label">📁 Upload</span></label></div>
+        <div class="field"><label>Parent Line</label><input type="text" id="groom-parent" value="Son of Smt. Kavita"/></div>
       </div>
     </div>
 
     <div class="panel-section">
-      <div class="section-label">📸 Our Gallery</div>
+      <div class="section-label">📸 3D Gallery (Upload 3-6)</div>
       <div class="gallery-grid">
-        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'g1','prev-g1')"/><span id="g1-label">📁 Photo 1</span></label>
-        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'g2','prev-g2')"/><span id="g2-label">📁 Photo 2</span></label>
-        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'g3','prev-g3')"/><span id="g3-label">📁 Photo 3</span></label>
-        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'g4','prev-g4')"/><span id="g4-label">📁 Photo 4</span></label>
-        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'g5','prev-g5')"/><span id="g5-label">📁 Photo 5</span></label>
-        <label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'g6','prev-g6')"/><span id="g6-label">📁 Photo 6</span></label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handleGallery(this, 0)"/><span id="g0-label">📁 Photo 1</span></label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handleGallery(this, 1)"/><span id="g1-label">📁 Photo 2</span></label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handleGallery(this, 2)"/><span id="g2-label">📁 Photo 3</span></label>
+        <label class="upload-zone"><input type="file" accept="image/*" onchange="handleGallery(this, 3)"/><span id="g3-label">📁 Photo 4</span></label>
       </div>
     </div>
 
     <div class="panel-section">
-      <div class="section-label">⏳ Countdown</div>
-      <div class="field"><label>Heading</label><input type="text" id="countdown-heading" value="Counting Down To"/></div>
-      <div class="field"><label>Subheading</label><input type="text" id="countdown-sub" value="Our Special Day"/></div>
-      <div class="field"><label>Target Date &amp; Time</label><input type="datetime-local" id="countdown-datetime"/></div>
-      <div class="field"><label>Background Photo (optional)</label><label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'cdbg','prev-cdbg')"/><span id="cdbg-label">📁 Click to upload</span></label></div>
-    </div>
-
-    <div class="panel-section">
-      <div class="section-label">💒 Ceremony</div>
-      <div class="field"><label>Event Title</label><input type="text" id="ceremony-title" value="The Ceremony"/></div>
+      <div class="section-label">💒 Event Details</div>
+      <div class="field"><label>Ceremony Name</label><input type="text" id="ceremony-title" value="Ring Ceremony"/></div>
       <div class="field-row">
-        <div class="field"><label>Date</label><input type="text" id="ceremony-date" value="12th December 2026"/></div>
-        <div class="field"><label>Time</label><input type="text" id="ceremony-time" value="10:00 AM"/></div>
+        <div class="field"><label>Date</label><input type="text" id="ceremony-date" value="Monday, April 27, 2026"/></div>
+        <div class="field"><label>Time</label><input type="text" id="ceremony-time" value="04:00 PM to 6:00 PM"/></div>
       </div>
-      <div class="field"><label>Venue Name</label><input type="text" id="ceremony-venue" value="Radhika Lawns"/></div>
-      <div class="field"><label>Address</label><input type="text" id="ceremony-address" value="Kopargaon, Maharashtra"/></div>
-    </div>
+      <div class="field"><label>Venue & Address</label><input type="text" id="ceremony-venue" value="Bhagwati Lawns, Kolhar-bableshwar road"/></div>
 
-    <div class="panel-section">
-      <div class="section-label">🥂 Reception</div>
-      <div class="field"><label>Event Title</label><input type="text" id="reception-title" value="The Reception"/></div>
+      <div class="field" style="margin-top:1.5rem;"><label>Reception Name</label><input type="text" id="reception-title" value="Haldi Ceremony"/></div>
       <div class="field-row">
-        <div class="field"><label>Date</label><input type="text" id="reception-date" value="12th December 2026"/></div>
-        <div class="field"><label>Time</label><input type="text" id="reception-time" value="7:00 PM"/></div>
+        <div class="field"><label>Date</label><input type="text" id="reception-date" value="Monday, April 27, 2026"/></div>
+        <div class="field"><label>Time</label><input type="text" id="reception-time" value="06:00 PM onwards"/></div>
       </div>
-      <div class="field"><label>Venue Name</label><input type="text" id="reception-venue" value="The Grand Ballroom"/></div>
-      <div class="field"><label>Address</label><input type="text" id="reception-address" value="Kopargaon, Maharashtra"/></div>
+      <div class="field"><label>Venue & Address</label><input type="text" id="reception-venue" value="Bhagwati Lawns, Kolhar-bableshwar road"/></div>
     </div>
 
+    <div class="field" style="margin-top:1.5rem;"><label>Wedding Name</label><input type="text" id="wedding-title" value="Wedding Ceremony"/></div>
+      <div class="field-row">
+        <div class="field"><label>Date</label><input type="text" id="wedding-date" value="Tuesday, April 28, 2026"/></div>
+        <div class="field"><label>Time</label><input type="text" id="wedding-time" value="12:28 PM onwards"/></div>
+      </div>
+      <div class="field"><label>Venue & Address</label><input type="text" id="wedding-venue" value="Bhagwati Lawns, Kolhar-bableshwar road, Dist Ahilyanagar, Maharashtra"/></div>
+
     <div class="panel-section">
-      <div class="section-label">🎨 Colors</div>
-      <div class="field"><label>Background — Top</label><div class="color-picker-row"><input type="color" id="bg-color1" value="#1a0010"/><span class="color-hex-display" id="hex-bg1">#1a0010</span></div></div>
-      <div class="field"><label>Background — Bottom</label><div class="color-picker-row"><input type="color" id="bg-color2" value="#0a0a0a"/><span class="color-hex-display" id="hex-bg2">#0a0a0a</span></div></div>
-      <div class="field"><label>Gold Accent</label><div class="color-picker-row"><input type="color" id="accent-color" value="#d4af37"/><span class="color-hex-display" id="hex-accent">#d4af37</span></div></div>
-      <div class="field"><label>Event Card Color</label><div class="color-picker-row"><input type="color" id="card-color" value="#140508"/><span class="color-hex-display" id="hex-card">#140508</span></div></div>
+      <div class="section-label">🎨 Colors (Light Theme)</div>
+      <div class="field"><label>Main Background (Pastel)</label><div class="color-picker-row"><input type="color" id="bg-color1" value="#fff0f5"/></div></div>
+      <div class="field"><label>Accent Color (Pink/Red)</label><div class="color-picker-row"><input type="color" id="accent-color" value="#ff4d79"/></div></div>
+      <div class="field"><label>Card Background</label><div class="color-picker-row"><input type="color" id="card-color" value="#ffffff"/></div></div>
     </div>
 
     <div class="panel-section">
       <div class="section-label">🎵 Background Music</div>
       <div class="field">
-        <label class="upload-zone"><input type="file" accept="audio/*" onchange="handleAudioUpload(this)"/><span id="audio-label">📁 Click to upload music</span></label>
-        <div id="audio-filename" style="font-size:.7rem;color:#e8cf7e;margin-top:.4rem;font-weight:600;display:none;"></div>
+        <label class="upload-zone"><input type="file" accept="audio/*" onchange="handleAudioUpload(this)"/><span id="audio-label">📁 Upload MP3</span></label>
       </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="section-label">🎉 Final Wish Screen</div>
-      <div class="field"><label>Heading</label><input type="text" id="final-heading" value="With Love & Gratitude"/></div>
-      <div class="field"><label>Message</label><textarea id="final-message">Your presence would mean the world to us as we begin this beautiful new chapter together. We can't wait to celebrate with you!</textarea></div>
-      <div class="field"><label>Signature (From)</label><input type="text" id="final-from" placeholder="e.g. Aisha & Rohan" value="Aisha & Rohan"/></div>
-      <div class="field"><label>Couple Photo (optional)</label><label class="upload-zone"><input type="file" accept="image/*" onchange="handlePhoto(this,'fp','prev-fp')"/><span id="fp-label">📁 Click to upload</span></label></div>
     </div>
 
     <div class="share-section">
-      <div class="section-label">🔗 Share</div>
       <button id="generate-btn">✨ Generate Shareable Link</button>
       <div class="result-area" id="result-area">
         <span class="result-url" id="result-link"></span>
-        <div class="result-actions">
-          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
-          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
-        </div>
       </div>
     </div>
-
   </aside>
 
   <main class="right-panel">
     <div class="preview-topbar">
-      <span class="preview-label">Live Preview</span>
+      <span class="preview-label">Live Preview (Light Theme)</span>
       <span class="live-dot">Live</span>
     </div>
 
     <div id="preview-card">
-
-      <div class="prev-hero" id="prev-hero-bg">
-        <div class="p-eyebrow">You Are Cordially Invited</div>
-        <h1 class="prev-names serif"><span id="prev-bride">Aisha</span><span class="amp">&amp;</span><span id="prev-groom">Rohan</span></h1>
-        <div class="prev-date"><span id="prev-date">12th December 2026</span> · <span id="prev-location">Pune, Maharashtra</span></div>
-        <p class="prev-msg" id="prev-welcome-msg">Together with our families, we joyfully invite you to celebrate the beginning of our forever.</p>
-        <span class="prev-scroll">↓ Scroll Down ↓</span>
+      
+      <div class="prev-envelope" id="prev-envelope">
+        <div class="glass-card">
+          <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          <div class="env-to">The Wedding Of</div>
+          <div class="env-names serif"><span class="b-name">Ashvini</span> &amp; <span class="g-name">Rishikesh</span></div>
+          <div class="env-date w-date">April 28, 2026</div>
+          <div class="env-msg">Dear Guest,<br>You are invited to celebrate our special day</div>
+          <button class="env-btn" onclick="document.getElementById('prev-envelope').classList.add('opened')">Open Invitation</button>
+        </div>
       </div>
 
-      <div class="prev-section" id="prev-couple-bg">
-        <div class="p-divider"><span class="line"></span><span class="diamond"></span><span class="line"></span></div>
+      <div class="prev-hero" id="prev-hero-bg">
+        <svg class="heart-icon" style="stroke:#fff; width:50px; height:50px;" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        <div style="font-size:0.9rem; margin-bottom:1rem; letter-spacing:0.1em;">The Wedding Celebration of</div>
+        <h1 class="prev-names serif"><span class="b-name">Ashvini</span> <span class="amp">&amp;</span> <span class="g-name">Rishikesh</span></h1>
+        <div class="prev-date w-date" style="color:#fff;">April 28, 2026</div>
+      </div>
+
+      <div class="prev-section" style="background: var(--bg1);">
         <h2 class="serif">The Happy Couple</h2>
         <div class="prev-couple">
           <div class="prev-couple-person">
-            <div class="prev-couple-photo-empty" id="prev-bride-photo">👰</div>
-            <h3 class="serif" id="prev-bride-2">Aisha</h3>
-            <div class="prev-couple-parent" id="prev-bride-parent"></div>
-            <div class="prev-couple-tagline" id="prev-bride-tagline"></div>
+            <img class="prev-couple-photo" id="prev-bride-photo" src="https://via.placeholder.com/200" alt="Bride"/>
+            <h3 class="serif b-name">Ashvini</h3>
+            <div class="prev-couple-parent" id="prev-bride-parent">Daughter of Smt. Savita</div>
           </div>
           <div class="prev-couple-person">
-            <div class="prev-couple-photo-empty" id="prev-groom-photo">🤵</div>
-            <h3 class="serif" id="prev-groom-2">Rohan</h3>
-            <div class="prev-couple-parent" id="prev-groom-parent"></div>
-            <div class="prev-couple-tagline" id="prev-groom-tagline"></div>
+            <img class="prev-couple-photo" id="prev-groom-photo" src="https://via.placeholder.com/200" alt="Groom"/>
+            <h3 class="serif g-name">Rishikesh</h3>
+            <div class="prev-couple-parent" id="prev-groom-parent">Son of Smt. Kavita</div>
           </div>
         </div>
       </div>
 
-      <div class="prev-section" id="prev-gallery-bg">
-        <div class="p-divider"><span class="line"></span><span class="diamond"></span><span class="line"></span></div>
+      <div class="prev-section" style="background: var(--bg1);">
         <h2 class="serif">Our Gallery</h2>
-        <p class="sub">A few frames from the story that brought us here.</p>
-        <div class="prev-carousel">
-          <div class="prev-car-slide side" id="prev-g1"><span>📷</span></div>
-          <div class="prev-car-slide center" id="prev-g2"><span>📷</span></div>
-          <div class="prev-car-slide side" id="prev-g3"><span>📷</span></div>
+        <div class="carousel-container">
+          <img src="https://via.placeholder.com/250x350/ffe4e1/ff4d79?text=1" class="gallery-slide center" id="g-slide-0"/>
+          <img src="https://via.placeholder.com/250x350/ffe4e1/ff4d79?text=2" class="gallery-slide right" id="g-slide-1"/>
+          <img src="https://via.placeholder.com/250x350/ffe4e1/ff4d79?text=3" class="gallery-slide hidden" id="g-slide-2"/>
+          <img src="https://via.placeholder.com/250x350/ffe4e1/ff4d79?text=4" class="gallery-slide left" id="g-slide-3"/>
         </div>
-        <div style="display:none;">
-          <div id="prev-g4"></div><div id="prev-g5"></div><div id="prev-g6"></div>
-        </div>
-      </div>
-
-      <div class="prev-countdown" id="prev-cd-bg">
-        <h2 class="serif" id="prev-cd-heading">Counting Down To</h2>
-        <div class="sub" id="prev-cd-sub">Our Special Day</div>
-        <div class="prev-cd-grid">
-          <div class="prev-cd-box"><div class="num" id="pcd-days">0</div><div class="lbl">Days</div></div>
-          <div class="prev-cd-box"><div class="num" id="pcd-hours">0</div><div class="lbl">Hours</div></div>
-          <div class="prev-cd-box"><div class="num" id="pcd-min">0</div><div class="lbl">Minutes</div></div>
-          <div class="prev-cd-box"><div class="num" id="pcd-sec">0</div><div class="lbl">Seconds</div></div>
+        <div class="carousel-controls">
+          <button class="car-btn" onclick="moveGallery(-1)">❮</button>
+          <button class="car-btn" onclick="moveGallery(1)">❯</button>
         </div>
       </div>
-
-      <div class="prev-section" id="prev-events-bg">
-        <div class="p-divider"><span class="line"></span><span class="diamond"></span><span class="line"></span></div>
-        <h2 class="serif">The Celebration</h2>
-        <p class="sub">We would be honoured to have you join us on our special day.</p>
+      <div class="prev-section" style="background: var(--bg1);">
+        <h2 class="serif event-title">Event Details</h2>
         <div class="prev-events">
-          <div class="prev-event-card" id="prev-event-card-1">
-            <div class="ic">💍</div>
-            <h3 id="prev-ceremony-title">The Ceremony</h3>
-            <div class="prev-event-row"><b id="prev-ceremony-date">12th December 2026</b><span id="prev-ceremony-time">10:00 AM</span><br><span id="prev-ceremony-venue">Radhika Lawns</span><br><span id="prev-ceremony-address">Kopargaon, Maharashtra</span></div>
+          
+          <div class="prev-event-card">
+            <div class="card-icon-wrap"><svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z"></path></svg></div>
+            <h3 class="serif c-title">Ring Ceremony</h3>
+            <div class="event-detail-line">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <div><span class="c-date">Monday, April 27, 2026</span><br><b class="c-time">04:00 PM to 6:00 PM</b></div>
+            </div>
+            <div class="event-detail-line">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <div><span class="c-venue">Bhagwati Lawns, Kolhar-bableshwar road</span></div>
+            </div>
           </div>
-          <div class="prev-event-card" id="prev-event-card-2">
-            <div class="ic">🥂</div>
-            <h3 id="prev-reception-title">The Reception</h3>
-            <div class="prev-event-row"><b id="prev-reception-date">12th December 2026</b><span id="prev-reception-time">7:00 PM</span><br><span id="prev-reception-venue">The Grand Ballroom</span><br><span id="prev-reception-address">Kopargaon, Maharashtra</span></div>
+
+          <div class="prev-event-card">
+            <div class="card-icon-wrap"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></div>
+            <h3 class="serif r-title">Haldi Ceremony</h3>
+            <div class="event-detail-line">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <div><span class="r-date">Monday, April 27, 2026</span><br><b class="r-time">06:00 PM onwards</b></div>
+            </div>
+            <div class="event-detail-line">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <div><span class="r-venue">Bhagwati Lawns, Kolhar-bableshwar road</span></div>
+            </div>
           </div>
+
+          <div class="prev-event-card" id="card-wedding">
+        <div class="card-icon-wrap">
+          <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+        </div>
+        <h3 class="serif w-title" id="prev-wedding-title">Wedding Ceremony</h3>
+        
+        <div class="event-detail-line">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <div><span class="w-event-date" id="prev-wedding-date">Tuesday, April 28, 2026</span><br><b class="w-event-time" id="prev-wedding-time">12:28 PM onwards</b></div>
+        </div>
+        
+        <div class="event-detail-line">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <div><span class="w-venue" id="prev-wedding-venue">Bhagwati Lawns, Kolhar-bableshwar road</span></div>
         </div>
       </div>
 
-      <div class="prev-final" id="prev-final-bg">
-        <div class="p-divider"><span class="line"></span><span class="diamond"></span><span class="line"></span></div>
-        <img class="prev-final-photo" id="prev-fp" src="" alt=""/>
-        <h2 class="serif" id="prev-final-heading">With Love &amp; Gratitude</h2>
-        <p class="prev-final-msg" id="prev-final-msg">Your presence would mean the world to us as we begin this beautiful new chapter together. We can't wait to celebrate with you!</p>
-        <p class="prev-final-from serif" id="prev-final-from">Aisha &amp; Rohan</p>
+        </div>
       </div>
-
-      <div class="prev-brand">Made with love · Wishify</div>
 
     </div>
   </main>
 </div>
 
 <script>
-  var photos = {};
-  var currentBg1 = '#1a0010';
-  var currentBg2 = '#0a0a0a';
-  var currentAccent = '#d4af37';
-  var currentCardColor = '#140508';
-  var audioUrl = '';
+  let photos = { g: [] };
+  let audioUrl = '';
+  
+  // Set Initial CSS Variables
+  document.documentElement.style.setProperty('--bg1', '#fff0f5');
+  document.documentElement.style.setProperty('--accent', '#ff4d79');
+  document.documentElement.style.setProperty('--card', '#ffffff');
 
+  // Live Binding
+  function bindText(inputId, classQuery) {
+    document.getElementById(inputId).addEventListener('input', function(e) {
+      document.querySelectorAll(classQuery).forEach(el => el.textContent = e.target.value);
+    });
+  }
+  bindText('bride-name', '.b-name');
+  bindText('groom-name', '.g-name');
+  bindText('wedding-date', '.w-date');
+  bindText('ceremony-title', '.c-title');
+  bindText('ceremony-date', '.c-date');
+  bindText('ceremony-time', '.c-time');
+  bindText('ceremony-venue', '.c-venue');
+  
+  bindText('reception-title', '.r-title');
+  bindText('reception-date', '.r-date');
+  bindText('reception-time', '.r-time');
+  bindText('reception-venue', '.r-venue');
+
+  bindText('wedding-title', '.w-title');
+  bindText('wedding-date', '.w-event-date');
+  bindText('wedding-time', '.w-event-time');
+  bindText('wedding-venue', '.w-venue');
+  
+  document.getElementById('bride-parent').addEventListener('input', e => document.getElementById('prev-bride-parent').textContent = e.target.value);
+  document.getElementById('groom-parent').addEventListener('input', e => document.getElementById('prev-groom-parent').textContent = e.target.value);
+
+  // Color Listeners
+  document.getElementById('bg-color1').addEventListener('input', e => document.documentElement.style.setProperty('--bg1', e.target.value));
+  document.getElementById('accent-color').addEventListener('input', e => document.documentElement.style.setProperty('--accent', e.target.value));
+  document.getElementById('card-color').addEventListener('input', e => document.documentElement.style.setProperty('--card', e.target.value));
+
+  // Gallery 3D Logic (Preview)
+  let currIndex = 0;
+  function moveGallery(dir) {
+    const slides = document.querySelectorAll('.gallery-slide');
+    if(slides.length === 0) return;
+    currIndex = (currIndex + dir + slides.length) % slides.length;
+    
+    slides.forEach((s, i) => {
+      s.className = 'gallery-slide'; 
+      if (i === currIndex) s.classList.add('center');
+      else if (i === (currIndex - 1 + slides.length) % slides.length) s.classList.add('left');
+      else if (i === (currIndex + 1) % slides.length) s.classList.add('right');
+      else s.classList.add('hidden');
+    });
+  }
+
+  // File Uploads
   async function uploadToCloudinary(file){
-    return new Promise(function(resolve, reject){
-      var reader = new FileReader();
-      reader.onload = async function(e){
-        try{
-          var res = await fetch('https://wishify.onrender.com/api/upload', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ data: e.target.result })
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const res = await fetch('https://wishify.onrender.com/api/upload', {
+            method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ data: e.target.result })
           });
-          var result = await res.json();
+          const result = await res.json();
           if(result.success) resolve(result.url); else reject('Upload failed');
         } catch(err){ reject(err); }
       };
@@ -353,217 +390,97 @@
     });
   }
 
-  async function handleAudioUpload(input){
-    var file = input.files[0];
-    if(!file) return;
-    document.getElementById('audio-label').textContent = '⏳ Uploading...';
-    try{
-      audioUrl = await uploadToCloudinary(file);
-      document.getElementById('audio-label').textContent = '✅ Audio Uploaded';
-      document.getElementById('audio-filename').textContent = file.name;
-      document.getElementById('audio-filename').style.display = 'block';
-    } catch(err){
-      document.getElementById('audio-label').textContent = '❌ Upload failed';
-      console.error(err);
-    }
-  }
-
-  async function handlePhoto(input, key, previewId){
-    var file = input.files[0];
-    if(!file) return;
-
-    var reader = new FileReader();
+  async function handlePhoto(input, key, previewId, isBg = false) {
+    if(!input.files[0]) return;
+    const reader = new FileReader();
     reader.onload = function(e){
-      var box = document.getElementById(previewId);
-      if(!box) return;
-      if(key === 'fp'){
-        box.src = e.target.result;
-        box.style.display = 'block';
+      if(isBg) {
+        document.getElementById('prev-envelope').style.backgroundImage = `url('${e.target.result}')`;
+        document.getElementById('prev-hero-bg').style.backgroundImage = `url('${e.target.result}')`;
       } else {
-        box.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;">';
-        box.classList.remove('prev-couple-photo-empty');
+        document.getElementById(previewId).src = e.target.result;
       }
     };
-    reader.readAsDataURL(file);
-
-    var lbl = document.getElementById(key + '-label');
-    if(lbl) lbl.textContent = '⏳ Uploading...';
-
-    try{
-      var uploadedUrl = await uploadToCloudinary(file);
-      photos[key] = uploadedUrl;
-      if(lbl) lbl.textContent = '✅ Uploaded';
-    } catch(err){
-      if(lbl) lbl.textContent = '❌ Upload failed';
-      console.error(err);
-    }
+    reader.readAsDataURL(input.files[0]);
+    
+    let lbl = document.getElementById(key + '-label');
+    lbl.textContent = '⏳ Uploading...';
+    try {
+      photos[key] = await uploadToCloudinary(input.files[0]);
+      lbl.textContent = '✅ Uploaded';
+    } catch(err) { lbl.textContent = '❌ Error'; }
   }
 
-  function bind(inputId, previewId){
-    var el = document.getElementById(inputId);
-    if(!el) return;
-    el.addEventListener('input', function(){
-      document.getElementById(previewId).textContent = this.value;
-    });
-  }
-  bind('bride-name','prev-bride'); bind('bride-name','prev-bride-2');
-  bind('groom-name','prev-groom'); bind('groom-name','prev-groom-2');
-  bind('wedding-date','prev-date');
-  bind('wedding-location','prev-location');
-  bind('welcome-message','prev-welcome-msg');
-  bind('bride-parent','prev-bride-parent');
-  bind('bride-tagline','prev-bride-tagline');
-  bind('groom-parent','prev-groom-parent');
-  bind('groom-tagline','prev-groom-tagline');
-  bind('countdown-heading','prev-cd-heading');
-  bind('countdown-sub','prev-cd-sub');
-  bind('ceremony-title','prev-ceremony-title');
-  bind('ceremony-date','prev-ceremony-date');
-  bind('ceremony-time','prev-ceremony-time');
-  bind('ceremony-venue','prev-ceremony-venue');
-  bind('ceremony-address','prev-ceremony-address');
-  bind('reception-title','prev-reception-title');
-  bind('reception-date','prev-reception-date');
-  bind('reception-time','prev-reception-time');
-  bind('reception-venue','prev-reception-venue');
-  bind('reception-address','prev-reception-address');
-  bind('final-heading','prev-final-heading');
-  bind('final-message','prev-final-msg');
-  bind('final-from','prev-final-from');
-
-  function applyBg(){
-    document.getElementById('prev-hero-bg').style.background = 'linear-gradient(160deg,' + currentBg1 + ',' + currentBg2 + ')';
-    document.getElementById('prev-final-bg').style.background = 'linear-gradient(160deg,' + currentBg2 + ',' + currentBg1 + ')';
-    document.getElementById('prev-couple-bg').style.background = currentBg2;
-    document.getElementById('prev-gallery-bg').style.background = currentBg1;
-    document.getElementById('prev-events-bg').style.background = currentBg1;
-    document.getElementById('prev-cd-bg').style.background = 'linear-gradient(160deg,' + currentBg1 + ',' + currentBg2 + ')';
-  }
-  function applyAccent(){
-    document.querySelectorAll('.p-eyebrow, .prev-date, .prev-event-row b, .prev-final-from, .prev-couple-tagline').forEach(function(el){ el.style.color = currentAccent; });
-    document.querySelectorAll('.p-divider .line').forEach(function(el){ el.style.background = 'linear-gradient(90deg,transparent,' + currentAccent + ',transparent)'; });
-    document.querySelectorAll('.p-divider .diamond').forEach(function(el){ el.style.background = currentAccent; });
-    document.querySelectorAll('.prev-names').forEach(function(el){ el.style.background = 'linear-gradient(100deg,#f0dd9e,' + currentAccent + ',#fff6da,' + currentAccent + ',#f0dd9e)'; el.style.webkitBackgroundClip='text'; el.style.backgroundClip='text'; });
-    document.querySelectorAll('.prev-event-card').forEach(function(el){ el.style.borderColor = hexToRgba(currentAccent,.35); });
-    document.querySelectorAll('.prev-final-photo, .prev-car-slide.center').forEach(function(el){ el.style.borderColor = currentAccent; });
-  }
-  function applyCardColor(){
-    var dark = isColorDark(currentCardColor);
-    var textColor = dark ? '#f6efe2' : '#1a0010';
-    var subColor = dark ? 'rgba(246,239,226,.72)' : 'rgba(20,5,8,.65)';
-    document.querySelectorAll('.prev-event-card').forEach(function(c){ c.style.background = currentCardColor; c.style.color = textColor; });
-    document.querySelectorAll('.prev-event-row').forEach(function(c){ c.style.color = subColor; });
-  }
-  function isColorDark(hex){
-    var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-    return (r*.299+g*.587+b*.114) < 128;
-  }
-  function hexToRgba(hex, a){
-    var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-    return 'rgba('+r+','+g+','+b+','+a+')';
+  async function handleGallery(input, index) {
+    if(!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => { document.getElementById(`g-slide-${index}`).src = e.target.result; };
+    reader.readAsDataURL(input.files[0]);
+    
+    let lbl = document.getElementById(`g${index}-label`);
+    lbl.textContent = '⏳ ...';
+    try {
+      photos.g[index] = await uploadToCloudinary(input.files[0]);
+      lbl.textContent = '✅';
+    } catch(err) { lbl.textContent = '❌'; }
   }
 
-  document.getElementById('bg-color1').addEventListener('input', function(){ currentBg1=this.value; document.getElementById('hex-bg1').textContent=this.value; applyBg(); });
-  document.getElementById('bg-color2').addEventListener('input', function(){ currentBg2=this.value; document.getElementById('hex-bg2').textContent=this.value; applyBg(); });
-  document.getElementById('accent-color').addEventListener('input', function(){ currentAccent=this.value; document.getElementById('hex-accent').textContent=this.value; applyAccent(); });
-  document.getElementById('card-color').addEventListener('input', function(){ currentCardColor=this.value; document.getElementById('hex-card').textContent=this.value; applyCardColor(); });
+  async function handleAudioUpload(input){
+    if(!input.files[0]) return;
+    let lbl = document.getElementById('audio-label');
+    lbl.textContent = '⏳ Uploading...';
+    try {
+      audioUrl = await uploadToCloudinary(input.files[0]);
+      lbl.textContent = '✅ Audio Ready';
+    } catch(err) { lbl.textContent = '❌ Failed'; }
+  }
 
-  /* live countdown preview ticking off the datetime-local input */
-  var cdInterval = null;
-  document.getElementById('countdown-datetime').addEventListener('input', function(){
-    var val = this.value;
-    if(cdInterval) clearInterval(cdInterval);
-    if(!val) return;
-    var target = new Date(val).getTime();
-    function tick(){
-      var diff = Math.max(0, target - Date.now());
-      document.getElementById('pcd-days').textContent = Math.floor(diff/86400000);
-      document.getElementById('pcd-hours').textContent = Math.floor(diff/3600000)%24;
-      document.getElementById('pcd-min').textContent = Math.floor(diff/60000)%60;
-      document.getElementById('pcd-sec').textContent = Math.floor(diff/1000)%60;
-    }
-    tick();
-    cdInterval = setInterval(tick, 1000);
-  });
-
+  // Submit to DB
   document.getElementById('generate-btn').addEventListener('click', async function(){
-    var btn = this;
+    const btn = this;
     btn.textContent = 'Generating...';
-    var data = {
+    
+    const data = {
       template: 'wedding-invitation',
       data: {
         brideName: document.getElementById('bride-name').value,
         groomName: document.getElementById('groom-name').value,
         weddingDate: document.getElementById('wedding-date').value,
-        weddingLocation: document.getElementById('wedding-location').value,
-        welcomeMessage: document.getElementById('welcome-message').value,
-        bridePhotoUrl: photos['bride'] || '',
         brideParent: document.getElementById('bride-parent').value,
-        brideTagline: document.getElementById('bride-tagline').value,
-        groomPhotoUrl: photos['groom'] || '',
         groomParent: document.getElementById('groom-parent').value,
-        groomTagline: document.getElementById('groom-tagline').value,
-        countdownHeading: document.getElementById('countdown-heading').value,
-        countdownSub: document.getElementById('countdown-sub').value,
-        countdownDateTime: document.getElementById('countdown-datetime').value,
-        countdownBgUrl: photos['cdbg'] || '',
+        bgColor1: document.documentElement.style.getPropertyValue('--bg1').trim(),
+        accentColor: document.documentElement.style.getPropertyValue('--accent').trim(),
+        cardColor: document.documentElement.style.getPropertyValue('--card').trim(),
         ceremonyTitle: document.getElementById('ceremony-title').value,
         ceremonyDate: document.getElementById('ceremony-date').value,
         ceremonyTime: document.getElementById('ceremony-time').value,
         ceremonyVenue: document.getElementById('ceremony-venue').value,
-        ceremonyAddress: document.getElementById('ceremony-address').value,
         receptionTitle: document.getElementById('reception-title').value,
         receptionDate: document.getElementById('reception-date').value,
         receptionTime: document.getElementById('reception-time').value,
         receptionVenue: document.getElementById('reception-venue').value,
-        receptionAddress: document.getElementById('reception-address').value,
-        finalHeading: document.getElementById('final-heading').value,
-        finalMessage: document.getElementById('final-message').value,
-        finalFrom: document.getElementById('final-from').value,
-        finalPhotoUrl: photos['fp'] || '',
-        bgColor1: currentBg1,
-        bgColor2: currentBg2,
-        accentColor: currentAccent,
-        cardColor: currentCardColor,
+        weddingTitle: document.getElementById('wedding-title').value,
+        weddingDate: document.getElementById('wedding-date').value,
+        weddingTime: document.getElementById('wedding-time').value,
+        weddingVenue: document.getElementById('wedding-venue').value,
+        heroBgUrl: photos['hbg'] || '',
+        bridePhotoUrl: photos['bride'] || '',
+        groomPhotoUrl: photos['groom'] || '',
         audioUrl: audioUrl,
-        photos: [1,2,3,4,5,6].map(function(i){ return { url: photos['g'+i] || '' }; }).filter(function(p){ return p.url; })
+        photos: photos.g.map(url => ({ url })).filter(p => p.url) // Filter empty slots
       }
     };
-    try{
+
+    try {
       const res = await fetch('https://wishify.onrender.com/api/pages', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
       const result = await res.json();
-      if(result.success){
-        const link = window.location.origin + '/wedding/' + result.slug;
-        document.getElementById('result-link').textContent = link;
+      if(result.success) {
+        document.getElementById('result-link').textContent = window.location.origin + '/wedding/' + result.slug;
         document.getElementById('result-area').classList.add('show');
-        btn.textContent = '✅ Link Generated!';
-        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
-        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
-      } else { btn.textContent = '✨ Generate Shareable Link'; }
-    } catch(err){
-      document.getElementById('result-link').textContent = '⚠️ Server not running — start your backend first.';
-      document.getElementById('result-area').classList.add('show');
-      btn.textContent = '✨ Generate Shareable Link';
-    }
+        btn.textContent = '✅ Ready to Share!';
+      }
+    } catch(err) { alert('Server error'); btn.textContent = 'Try Again'; }
   });
-
-  function copyLink(){
-    var link = document.getElementById('result-link').textContent;
-    if(!link) return;
-    navigator.clipboard.writeText(link).then(function(){
-      var btn = document.getElementById('copy-btn');
-      btn.textContent = '✅ Copied!'; btn.classList.add('copied');
-      setTimeout(function(){ btn.textContent = '📋 Copy Link'; btn.classList.remove('copied'); }, 2000);
-    });
-  }
-  function shareWhatsApp(){
-    var link = document.getElementById('result-link').textContent;
-    var bride = document.getElementById('bride-name').value || 'Bride';
-    var groom = document.getElementById('groom-name').value || 'Groom';
-    window.open('https://wa.me/?text=' + encodeURIComponent('💍 You\'re invited to ' + bride + ' & ' + groom + '\'s wedding! ' + link), '_blank');
-  }
-
-  applyAccent();
 </script>
 </body>
 </html>

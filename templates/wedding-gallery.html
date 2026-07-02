@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishify — Choose a Wedding Template</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Nunito', sans-serif; 
+      background: #fdfaf6; /* Soft wedding cream */
+      color: #333; 
+      min-height: 100vh; 
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px; padding: 0 2rem;
+      background: rgba(255,255,255,.9);
+      border-bottom: 1px solid rgba(212,175,55,.2);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { font-size: 1.2rem; font-weight: 800; color: #d4af37; }
+    .nav-back { font-size: .9rem; color: #666; text-decoration: none; display: flex; align-items: center; gap: .5rem; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 5rem 2rem 3rem; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: 3rem; color: #2c3e50; margin-bottom: 1rem; }
+    .hero p { color: #888; font-size: 1.1rem; }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      padding: 3rem 2rem 5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Card */
+    .card {
+      background: #fff;
+      border: 1px solid rgba(212,175,55,.2);
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(212,175,55,.15);
+    }
+
+    .card-thumb {
+      width: 100%; height: 220px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; position: relative;
+    }
+    .thumb-royal { background: linear-gradient(135deg, #0d0d0d, #2a2a2a); color: #d4af37; }
+    .thumb-pastel { background: linear-gradient(135deg, #fff0f5, #ffd1dc); color: #ff4d79; }
+
+    .card-body { padding: 1.5rem; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .card-desc { font-size: 0.9rem; color: #666; line-height: 1.6; margin-bottom: 1.5rem; }
+    .card-btn { color: #d4af37; font-weight: 700; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">✨ Wishify</div>
+    <a href="../index.html" class="nav-back">← Back to Home</a>
+  </nav>
+
+  <div class="hero">
+    <h1>Wedding Invitations</h1>
+    <p>Elegant templates for your most special day.</p>
+  </div>
+
+  <div class="grid">
+    <a class="card" href="wedding-templates/wedding/preview.html">
+      <div class="card-thumb thumb-royal">💍</div>
+      <div class="card-body">
+        <div class="card-title">Pastel Blush</div>
+        <div class="card-desc">Soft, romantic aesthetic with 3D gallery and glassmorphism details.</div>
+        <span class="card-btn">See Preview →</span>
+      </div>
+    </a>
+
+    <a class="card" href="templates/wedding-invitation/editor.html">
+      <div class="card-thumb thumb-pastel">💐</div>
+      <div class="card-body">
+        <div class="card-title">comming soon </div>
+        <div class="card-desc">Not ready yet</div>
+        <span class="card-btn">→</span>
+      </div>
+    </a>
+  </div>
+
+</body>
+</html>
