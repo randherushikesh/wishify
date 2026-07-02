@@ -3,19 +3,23 @@
   "rewrites": [
     {
       "source": "/classic/:slug",
-      "destination": "/templates/birthday1/view?slug=:slug"
+      "destination": "/templates/birthday-templates/birthday1/view?slug=:slug"
     },
     {
       "source": "/timeline/:slug",
-      "destination": "/templates/birthday2/view?slug=:slug"
+      "destination": "/templates/birthday-templates/birthday2/view?slug=:slug"
     },
     {
       "source": "/quiz/:slug",
-      "destination": "/templates/birthday-quiz/view?slug=:slug"
+      "destination": "/templates/birthday-templates/birthday-quiz/view?slug=:slug"
     },
     {
       "source": "/journey/:slug",
-      "destination": "/templates/birthday-journey/view?slug=:slug"
+      "destination": "/templates/birthday-templates/birthday-journey/view?slug=:slug"
+    },
+    {
+      "source": "/wedding/:slug",
+      "destination": "/templates/wedding-templates/wedding-invitation/view?slug=:slug"
     }
   ]
 }
