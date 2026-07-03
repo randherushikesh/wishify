@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Happy Birthday!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg1: #fff0f5;
+      --bg2: #ffd1dc;
+      --accent: #ff4d79;
+      --text: #2c3e50;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh; /* fixes mobile browsers clipping content under the address bar */
+    }
+
+     /* FLOATING BUTTON — sticks to left side as user scrolls */
+    .floating-cta {
+  position: fixed;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+}
+.floating-cta a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  background: linear-gradient(135deg, #f4c842, #e8506a);
+  color: #1a0010;
+  font-family: 'Nunito', sans-serif;
+  font-size: .72rem;
+  font-weight: 800;
+  text-decoration: none;
+  padding: 1rem .6rem;
+  border-radius: 50px;
+  box-shadow: 0 8px 24px rgba(244,200,66,.3);
+  transition: transform .2s, box-shadow .2s;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: .05em;
+  min-width: 44px;
+  text-align: center;
+}
+.floating-cta a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(244,200,66,.45);
+}
+.floating-cta .cta-icon {
+  font-size: 1.1rem;
+  writing-mode: horizontal-tb;
+}
+.floating-cta .back-btn {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.5);
+  font-size: .65rem;
+  padding: .6rem .5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  writing-mode: vertical-rl;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,.1);
+  transition: background .2s, color .2s;
+}
+.floating-cta .back-btn:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .floating-cta {
+    position: fixed;
+    bottom: 0; left: 0; right: 0; top: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: center;
+    padding: 0.5rem 0.8rem;
+    background: rgba(12, 12, 20, 0.9);
+    backdrop-filter: blur(16px) saturate(1.2);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    gap: 0.6rem;
+    box-shadow: 0 -4px 30px rgba(0,0,0,.4);
+  }
+  .floating-cta a {
+    writing-mode: horizontal-tb;
+    flex-direction: row;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    border-radius: 30px;
+    min-width: auto;
+    gap: 0.4rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(244,200,66,.2);
+  }
+  .floating-cta .cta-icon {
+    writing-mode: horizontal-tb;
+    font-size: 0.85rem;
+  }
+  .floating-cta .back-btn {
+    writing-mode: horizontal-tb;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .floating-cta .back-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+  /* Push page content above the bottom bar */
+  .brand { padding-bottom: 5rem; }
+}
+    /* --- SCREEN MANAGEMENT --- */
+    .screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+      transform: translateY(20px);
+      z-index: 10;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto; /* Fixed for mobile Safari/Chrome */
+      transform: translateY(0);
+      z-index: 20; /* Forces the active screen to the very front */
+    }
+
+    h1, h2 { font-family: 'Playfair Display', serif; text-align: center; }
+
+    /* --- BUTTONS --- */
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 77, 121, 0.4);
+      transition: transform 0.2s;
+      font-family: 'Nunito', sans-serif;
+      width: 100%;
+      max-width: 250px;
+    }
+    .btn:hover { transform: scale(1.05); }
+    .btn-outline {
+      background: #fff;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    /* --- SCREEN 1: THE QUESTION --- */
+    #screen-1 h1 { font-size: clamp(1.5rem, 6vw, 3.5rem); margin-bottom: 2rem; max-width: 600px; color: var(--text); }
+    .btn-group { display: flex; gap: 1rem; flex-direction: column; width: 100%; align-items: center; }
+    @media (min-width: 600px) { .btn-group { flex-direction: row; justify-content: center; } }
+
+    #error-msg {
+      color: var(--accent);
+      font-weight: 800;
+      margin-top: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 1.1rem;
+      background: #fff;
+      padding: 0.5rem 1.5rem;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    /* --- SCREEN 2: GALLERY (COVERFLOW CAROUSEL) --- */
+    #screen-2 { justify-content: flex-start; padding-top: 3rem; overflow: hidden; }
+    #screen-2 h2 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 2rem; color: var(--text); }
+
+    .carousel-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      height: min(60vh, 420px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .carousel-card {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      margin: auto; /* centers the card inside .carousel-wrap before JS transforms are applied */
+      width: min(58vw, 230px);
+      height: min(78vw, 330px);
+      max-height: 90%;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 18px 35px rgba(44, 62, 80, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      will-change: transform, opacity;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .carousel-card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 22px;
+      position: absolute;
+      top: 0; left: 0;
+    }
+    .carousel-card .cam-icon { font-size: clamp(1.8rem, 6vw, 2.6rem); z-index: 1; }
+    .carousel-card .cam-number { font-size: clamp(2rem, 8vw, 3rem); font-weight: 800; color: #d9dde3; z-index: 1; }
+
+    .carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      margin: 1.5rem 0 2rem;
+    }
+    .carousel-arrow {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #fff;
+      border: none;
+      color: var(--accent);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+    .carousel-arrow:hover { transform: scale(1.08); }
+    .carousel-arrow:active { transform: scale(0.95); }
+
+    .carousel-dots { display: flex; align-items: center; gap: 0.5rem; }
+    .carousel-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #e0c3cb;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, width 0.2s;
+    }
+    .carousel-dot.active {
+      background: var(--accent);
+      width: 22px;
+      border-radius: 6px;
+    }
+
+    /* --- SCREEN 3: INTERACTIVE CLOTH --- */
+    #screen-3 { padding: 0; background: #eeebcf; } /* Soft cream background for strings */
+    #container {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      touch-action: none;
+    }
+    canvas { display: block; touch-action: none; width: 100%; height: 100%; }
+
+    .cloth-overlay {
+      position: absolute;
+      bottom: max(2rem, env(safe-area-inset-bottom) + 1rem);
+      left: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .cloth-overlay .btn { pointer-events: auto; }
+    .cloth-hint {
+      color: var(--accent);
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(5px);
+      padding: 0.7rem 1.5rem;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* --- SCREEN 4: FINAL WISH --- */
+    #screen-4 h1 { font-size: clamp(3rem, 10vw, 5rem); color: var(--accent); margin-bottom: 1rem; z-index: 2; }
+    #screen-4 p { font-size: 1.1rem; max-width: 600px; text-align: center; line-height: 1.8; margin-bottom: 2.5rem; font-weight: 600; color: #555; z-index: 2; }
+    .signature { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.6rem; color: var(--text); font-weight: 700; z-index: 2; }
+
+    #bday-text {
+      animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="floating-cta">
+  <a href="editor.html">
+    <span class="cta-icon">✏️</span>
+    Start Editing
+  </a>
+  <a href="../birthday-gallery.html" class="back-btn">← Gallery</a>
+
+</div>
+
+  <div id="screen-1" class="screen active">
+    <h1>I heard a little rumor... is it your birthday today? 🤔</h1>
+    <div class="btn-group">
+      <button class="btn" onclick="goToScreen(2)">Yes, it is! 🎉</button>
+      <button class="btn btn-outline" onclick="showLyingError()">No...</button>
+    </div>
+    <div id="error-msg">Stop lying! I know it is. Click Yes! 🤨</div>
+  </div>
+
+  <div id="screen-2" class="screen">
+    <h2>Our Gallery</h2>
+
+    <div class="carousel-wrap" id="carouselWrap">
+      <div id="carouselTrack"></div>
+    </div>
+
+    <div class="carousel-controls">
+      <button class="carousel-arrow" id="prevBtn" aria-label="Previous photo">&#10094;</button>
+      <div class="carousel-dots" id="carouselDots"></div>
+      <button class="carousel-arrow" id="nextBtn" aria-label="Next photo">&#10095;</button>
+    </div>
+
+    <button class="btn" style="max-width: 300px;" onclick="goToScreen(3)">I have a surprise for you ✨</button>
+  </div>
+
+  <div id="screen-3" class="screen">
+    <div id="container"></div>
+    <div class="cloth-overlay">
+      <div class="cloth-hint">👆 Drag and play with the strings!</div>
+      <button class="btn" onclick="goToScreen(4)">One last thing...</button>
+    </div>
+  </div>
+
+  <div id="screen-4" class="screen">
+    <canvas id="fireworkCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></canvas>
+    <canvas id="confettiCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></canvas>
+    
+    <h1 id="bday-text">Happy Birthday! 🎂</h1>
+    <p>Wishing you a day filled with happiness and a year filled with joy. You deserve all the wonderful things in the world. Keep smiling!</p>
+    <div class="signature">- With love, [Your Name]</div>
+  </div>
+
+  <script>
+    let isTransitioning = false; 
+
+    function goToScreen(screenNumber) {
+      if (isTransitioning) return;
+
+      isTransitioning = true;
+      setTimeout(() => { isTransitioning = false; }, 500);
+
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + screenNumber).classList.add('active');
+
+      if (screenNumber === 3) {
+        if (window.initPhysics) window.initPhysics();
+      }
+      if (screenNumber === 2 && window.refreshCarousel) {
+        requestAnimationFrame(() => window.refreshCarousel());
+      }
+    }
+
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const screen3 = document.getElementById('screen-3');
+        if (screen3 && screen3.classList.contains('active') && window.initPhysics) {
+          window.initPhysics();
+        }
+      }, 200);
+    });
+
+    function showLyingError() {
+      const msg = document.getElementById('error-msg');
+      msg.style.opacity = '1';
+
+      const btn = document.querySelector('.btn-outline');
+      btn.style.transform = 'translateX(10px)';
+      setTimeout(() => btn.style.transform = 'translateX(-10px)', 100);
+      setTimeout(() => btn.style.transform = 'translateX(0)', 200);
+
+      setTimeout(() => msg.style.opacity = '0', 3000);
+    }
+    const galleryPhotos = [
+      { src: '' },
+      { src: '' },
+      { src: '' },
+      { src: '' }
+    ];
+
+    (function setupCarousel() {
+      const wrap = document.getElementById('carouselWrap');
+      const track = document.getElementById('carouselTrack');
+      const dotsWrap = document.getElementById('carouselDots');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      let current = 0;
+      const cards = [];
+
+      galleryPhotos.forEach((photo, i) => {
+        const card = document.createElement('div');
+        card.className = 'carousel-card';
+        if (photo.src) {
+          card.innerHTML = `<img src="${photo.src}" alt="Memory ${i + 1}">`;
+        } else {
+          card.innerHTML = `<span class="cam-icon">📷</span><span class="cam-number">${i + 1}</span>`;
+        }
+        card.addEventListener('click', () => {
+          if (i !== current) goTo(i);
+        });
+        track.appendChild(card);
+        cards.push(card);
+      });
+
+      const dots = [];
+      galleryPhotos.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot';
+        dot.setAttribute('aria-label', 'Go to photo ' + (i + 1));
+        dot.addEventListener('click', () => goTo(i));
+        dotsWrap.appendChild(dot);
+        dots.push(dot);
+      });
+
+      function render() {
+        const wrapWidth = wrap.clientWidth || window.innerWidth;
+        const spacing = Math.max(90, Math.min(190, wrapWidth * 0.26));
+        const maxVisible = 2; 
+
+        cards.forEach((card, i) => {
+          const offset = i - current;
+          const abs = Math.abs(offset);
+
+          if (abs > maxVisible) {
+            card.style.opacity = '0';
+            card.style.pointerEvents = 'none';
+            card.style.transform = `translateX(${offset * spacing}px) scale(0.7)`;
+            return;
+          }
+
+          const scale = 1 - abs * 0.14;
+          const rotate = offset * 8; 
+          const translateX = offset * spacing;
+          const opacity = 1 - abs * 0.35;
+
+          card.style.zIndex = String(100 - abs);
+          card.style.opacity = String(Math.max(opacity, 0.35));
+          card.style.pointerEvents = 'auto';
+          card.style.transform = `translateX(${translateX}px) scale(${scale}) rotate(${rotate}deg)`;
+        });
+
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+      }
+
+      function goTo(index) {
+        const len = galleryPhotos.length;
+        current = (index + len) % len;
+        render();
+      }
+
+      prevBtn.addEventListener('click', () => goTo(current - 1));
+      nextBtn.addEventListener('click', () => goTo(current + 1));
+
+      wrap.setAttribute('tabindex', '0');
+      wrap.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') goTo(current - 1);
+        if (e.key === 'ArrowRight') goTo(current + 1);
+      });
+
+      let touchStartX = null;
+      wrap.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      wrap.addEventListener('touchend', (e) => {
+        if (touchStartX === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 40) {
+          if (dx < 0) goTo(current + 1); else goTo(current - 1);
+        }
+        touchStartX = null;
+      });
+
+      window.addEventListener('resize', render);
+      window.refreshCarousel = render;
+
+      render();
+    })();
+    const customClothText = "Happy Birthday My Sweetheart ";
+
+    let initialized = false;
+    let physicsRunId = 0; 
+
+    window.initPhysics = function() {
+      const container = document.getElementById('container');
+      container.innerHTML = ''; 
+      initialized = true;
+      physicsRunId++;
+      const myRunId = physicsRunId;
+
+      const dpr = window.devicePixelRatio || 1;
+      const c = document.createElement('canvas');
+      container.appendChild(c);
+
+      c.width = window.innerWidth * dpr;
+      c.height = window.innerHeight * dpr;
+      const ctx = c.getContext('2d');
+
+      const width = Math.min(window.innerWidth * 0.9, 800);
+      const height = Math.min(window.innerHeight * 0.65, 800);
+      const cellSize = Math.max(20, Math.min(30, window.innerWidth / 15));
+
+      const gridW = Math.floor(width / cellSize);
+      const gridH = Math.floor(height / cellSize);
+      const cellWidth = width / (gridW - 1);
+      const cellHeight = height / (gridH - 1);
+
+      const startX = (window.innerWidth - width) / 2;
+      const startY = (window.innerHeight - height) / 2 - 50;
+
+      const charCanvases = {};
+      const fontSize = Math.max(12, Math.min(cellHeight * 0.85, cellWidth * 1.4));
+      const boxSize = Math.ceil(fontSize * 2.5); 
+
+      for (const ch of new Set(customClothText)) {
+        if (ch === ' ') continue;
+        const off = document.createElement('canvas');
+        off.width = boxSize * dpr;
+        off.height = boxSize * dpr;
+        const octx = off.getContext('2d');
+        octx.scale(dpr, dpr);
+        octx.font = `900 ${fontSize}px 'Nunito', sans-serif`;
+        octx.textAlign = 'center';
+        octx.textBaseline = 'middle';
+        octx.fillStyle = '#ff4d79'; 
+        octx.fillText(ch, boxSize / 2, boxSize / 2);
+        charCanvases[ch] = off;
+        charCanvases[ch].logicalSize = boxSize;
+      }
+
+      class Vec2 {
+        constructor(x=0, y=0) { this.x = x; this.y = y; }
+        reset(x, y) { this.x = x; this.y = y; }
+        add(v) { this.x += v.x; this.y += v.y; return this; }
+        subtractNew(v) { return new Vec2(this.x - v.x, this.y - v.y); }
+        get lengthSquared() { return this.x**2 + this.y**2; }
+        get angle() { return Math.atan2(this.y, this.x); }
+      }
+
+      class Particle {
+        constructor(x, y, pinned, char) {
+          this.pos = new Vec2(x, y); this.oldPos = new Vec2(x, y);
+          this.velocity = new Vec2(); this.acceleration = new Vec2();
+          this.pinned = pinned; this.char = char;
+        }
+        update(deltaSq) {
+          if(this.pinned) { this.acceleration.reset(0,0); return; }
+          this.velocity.reset((this.pos.x - this.oldPos.x) * 0.99, (this.pos.y - this.oldPos.y) * 0.99);
+          this.oldPos.reset(this.pos.x, this.pos.y);
+          this.acceleration.add(new Vec2(0, 0.2 / deltaSq)); 
+          this.pos.x += this.velocity.x + this.acceleration.x * deltaSq;
+          this.pos.y += this.velocity.y + this.acceleration.y * deltaSq;
+          this.acceleration.reset(0,0);
+        }
+      }
+
+      class Constraint {
+        constructor(p1, p2, length, compress, stretch) {
+          this.p1 = p1; this.p2 = p2; this.length = length;
+          this.min = length * compress; this.max = length * stretch;
+        }
+        solve() {
+          const dx = this.p2.pos.x - this.p1.pos.x, dy = this.p2.pos.y - this.p1.pos.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist === 0) return;
+          let target = this.length;
+          if (dist < this.min) target = this.min;
+          else if (dist > this.max) target = this.max;
+          else return;
+          const diff = (target - dist) / dist / 2;
+          const ox = dx * diff, oy = dy * diff;
+          if (!this.p1.pinned) { this.p1.pos.x -= ox; this.p1.pos.y -= oy; }
+          if (!this.p2.pinned) { this.p2.pos.x += ox; this.p2.pos.y += oy; }
+        }
+      }
+
+      function smoothstep(min, max, value) {
+        const x = Math.max(0, Math.min(1, (value - min) / (max - min)));
+        return x * x * (3 - 2 * x);
+      }
+
+      const particles = [], constraints = [];
+      const getID = (i, j) => i * gridH + j;
+
+      for(let i=0; i<gridW; i++) {
+        for(let j=0; j<gridH; j++) {
+          const charIndex = (i + j * gridW) % customClothText.length;
+          particles[getID(i, j)] = new Particle(
+            startX + i * cellWidth,
+            startY + j * cellHeight,
+            (j === 0), 
+            customClothText[charIndex] || ' '
+          );
+        }
+      }
+
+      for(let i=0; i<gridW; i++) {
+        for(let j=0; j<gridH; j++) {
+          const p = particles[getID(i, j)];
+          if(j < gridH-1) {
+            const con = new Constraint(p, particles[getID(i, j+1)], cellHeight, 0.02, 1.1);
+            constraints.push(con); p.downConstraint = con;
+          }
+          if(i < gridW-1) {
+            constraints.push(new Constraint(p, particles[getID(i+1, j)], cellWidth, 0.6, 4));
+          }
+        }
+      }
+
+      const mousePos = new Vec2();
+      let grabbed = null;
+
+      function updateMouse(e) {
+        mousePos.x = e.clientX || (e.touches && e.touches[0].clientX);
+        mousePos.y = e.clientY || (e.touches && e.touches[0].clientY);
+      }
+
+      window.addEventListener('pointerdown', e => {
+        if(document.getElementById('screen-3').classList.contains('active') === false) return;
+        updateMouse(e);
+        for (const p of particles) {
+          if (mousePos.subtractNew(p.pos).lengthSquared < 1200) { 
+            grabbed = p; grabbed.origPinned = p.pinned; p.pinned = true; break;
+          }
+        }
+      });
+
+      window.addEventListener('pointermove', e => {
+        if(document.getElementById('screen-3').classList.contains('active') === false) return;
+        updateMouse(e);
+        if (grabbed) {
+          grabbed.pos.reset(mousePos.x, mousePos.y);
+          grabbed.oldPos.reset(mousePos.x, mousePos.y);
+        } else {
+          particles.forEach(p => {
+            const diff = mousePos.subtractNew(p.pos);
+            if(diff.lengthSquared < 5000) {
+              const strength = smoothstep(5000, 0, diff.lengthSquared) * 0.04;
+              p.acceleration.add(new Vec2(Math.cos(diff.angle-Math.PI)*strength, Math.sin(diff.angle-Math.PI)*strength));
+            }
+          });
+        }
+      });
+
+      window.addEventListener('pointerup', () => { if (grabbed) { grabbed.pinned = grabbed.origPinned; grabbed = null; } });
+
+      function runloop() {
+        if (myRunId !== physicsRunId) return; 
+        requestAnimationFrame(runloop);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, c.width, c.height);
+
+        const dtSq = 16 * 16;
+
+        particles.forEach(p => p.update(dtSq));
+        for(let i=0; i<5; i++) constraints.forEach(con => con.solve());
+
+        particles.forEach(p => {
+          if (p.char && p.char !== " ") {
+            const img = charCanvases[p.char];
+            if (!img) return;
+            let angle = 0, cos = 1, sin = 0;
+            if (p.downConstraint) {
+              const dx = p.downConstraint.p2.pos.x - p.downConstraint.p1.pos.x;
+              const dy = p.downConstraint.p2.pos.y - p.downConstraint.p1.pos.y;
+              angle = Math.atan2(dy, dx) - Math.PI / 2;
+              cos = Math.cos(angle); sin = Math.sin(angle);
+            }
+            ctx.setTransform(cos * dpr, sin * dpr, -sin * dpr, cos * dpr, p.pos.x * dpr, p.pos.y * dpr);
+            ctx.drawImage(img, -img.logicalSize/2, -img.logicalSize/2, img.logicalSize, img.logicalSize);
+          }
+        });
+      }
+      requestAnimationFrame(runloop);
+    }
+
+    // --- FIREWORK ANIMATION ---
+    const canvas = document.getElementById('fireworkCanvas');
+    const ctx = canvas.getContext('2d');
+    let fireworks = [];
+
+    function resizeFireworkCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeFireworkCanvas);
+    resizeFireworkCanvas();
+
+    class Firework {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height;
+        this.targetY = Math.random() * (canvas.height * 0.5);
+        this.speed = 5 + Math.random() * 5;
+        this.particles = [];
+        this.exploded = false;
+        this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+      }
+      update() {
+        if (!this.exploded) {
+          this.y -= this.speed;
+          if (this.y <= this.targetY) this.explode();
+        } else {
+          this.particles.forEach((p, i) => {
+            p.x += p.vx; p.y += p.vy; p.alpha -= 0.02;
+          });
+          this.particles = this.particles.filter(p => p.alpha > 0);
+        }
+      }
+      explode() {
+        this.exploded = true;
+        for (let i = 0; i < 50; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 4;
+          this.particles.push({
+            x: this.x, y: this.y, 
+            vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+            alpha: 1
+          });
+        }
+      }
+      draw() {
+        ctx.fillStyle = this.color;
+        if (!this.exploded) ctx.fillRect(this.x, this.y, 3, 10);
+        else this.particles.forEach(p => {
+          ctx.globalAlpha = p.alpha;
+          ctx.fillRect(p.x, p.y, 4, 4);
+        });
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (Math.random() < 0.05) fireworks.push(new Firework());
+      fireworks.forEach((f, i) => {
+        f.update(); f.draw();
+        if (f.exploded && f.particles.length === 0) fireworks.splice(i, 1);
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- PARTY POPPER & CONFETTI PILE ---
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const ctxC = confettiCanvas.getContext('2d');
+    let confetti = [];
+
+    function resizeConfetti() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeConfetti);
+    resizeConfetti();
+
+    class Confetti {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = window.innerWidth / 2;
+        this.y = window.innerHeight - 20;
+        this.vx = (Math.random() - 0.5) * 15;
+        this.vy = -(Math.random() * 15 + 10);
+        this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+        this.size = Math.random() * 8 + 4;
+        this.landed = false;
+      }
+      update() {
+        if (!this.landed) {
+          this.vy += 0.5; 
+          this.x += this.vx;
+          this.y += this.vy;
+          if (this.y > window.innerHeight - this.size) {
+            this.y = window.innerHeight - this.size;
+            this.landed = true;
+          }
+        }
+      }
+      draw() {
+        ctxC.fillStyle = this.color;
+        ctxC.fillRect(this.x, this.y, this.size, this.size);
+      }
+    }
+
+    function pop() {
+      for (let i = 0; i < 150; i++) confetti.push(new Confetti());
+    }
+
+    function animateConfetti() {
+      ctxC.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confetti.forEach(c => { c.update(); c.draw(); });
+      requestAnimationFrame(animateConfetti);
+    }
+    
+    const screen4Element = document.getElementById('screen-4');
+    const observer = new MutationObserver((mutations) => {
+      if(screen4Element.classList.contains('active')) {
+        pop();
+        observer.disconnect();
+      }
+    });
+    observer.observe(screen4Element, { attributes: true });
+    
+    animateConfetti();
+  </script>
+</body>
+</html>

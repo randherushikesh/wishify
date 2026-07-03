@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Birthday Surprise 🎂</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg1: #fff0f5;
+      --bg2: #ffd1dc;
+      --accent: #ff4d79;
+      --text: #2c3e50;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    .screen {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+      transform: translateY(20px);
+      z-index: 10;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      z-index: 20;
+    }
+
+    h1, h2 { font-family: 'Playfair Display', serif; text-align: center; }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 77, 121, 0.4);
+      transition: transform 0.2s;
+      font-family: 'Nunito', sans-serif;
+      width: 100%;
+      max-width: 250px;
+    }
+    .btn:hover { transform: scale(1.05); }
+    .btn-outline {
+      background: #fff;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    /* Screen 1 */
+    #screen-1 h1 { font-size: clamp(1.5rem, 6vw, 3.5rem); margin-bottom: 2rem; max-width: 600px; color: var(--text); }
+    .btn-group { display: flex; gap: 1rem; flex-direction: column; width: 100%; align-items: center; }
+    @media (min-width: 600px) { .btn-group { flex-direction: row; justify-content: center; } }
+    #error-msg {
+      color: var(--accent);
+      font-weight: 800;
+      margin-top: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 1.1rem;
+      background: #fff;
+      padding: 0.5rem 1.5rem;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    /* Screen 2: Gallery */
+    #screen-2 { justify-content: flex-start; padding-top: 3rem; overflow: hidden; }
+    #screen-2 h2 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 2rem; color: var(--text); }
+    .carousel-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      height: min(60vh, 420px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: pan-y;
+      user-select: none;
+    }
+    .carousel-card {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      margin: auto;
+      width: min(58vw, 230px);
+      height: min(78vw, 330px);
+      max-height: 90%;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 18px 35px rgba(44, 62, 80, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      will-change: transform, opacity;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .carousel-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 22px;
+      position: absolute;
+      top: 0; left: 0;
+    }
+    .carousel-card .cam-icon { font-size: clamp(1.8rem, 6vw, 2.6rem); z-index: 1; }
+    .carousel-card .cam-number { font-size: clamp(2rem, 8vw, 3rem); font-weight: 800; color: #d9dde3; z-index: 1; }
+
+    .carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      margin: 1.5rem 0 2rem;
+    }
+    .carousel-arrow {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #fff;
+      border: none;
+      color: var(--accent);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+    .carousel-arrow:hover { transform: scale(1.08); }
+    .carousel-arrow:active { transform: scale(0.95); }
+    .carousel-dots { display: flex; align-items: center; gap: 0.5rem; }
+    .carousel-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #e0c3cb;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, width 0.2s;
+    }
+    .carousel-dot.active { background: var(--accent); width: 22px; border-radius: 6px; }
+
+    /* Screen 3: Cloth */
+    #screen-3 { padding: 0; background: #eeebcf; }
+    #cloth-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      touch-action: none;
+    }
+    #cloth-container canvas { display: block; touch-action: none; width: 100%; height: 100%; }
+    .cloth-overlay {
+      position: absolute;
+      bottom: max(2rem, env(safe-area-inset-bottom) + 1rem);
+      left: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .cloth-overlay .btn { pointer-events: auto; }
+    .cloth-hint {
+      color: var(--accent);
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(5px);
+      padding: 0.7rem 1.5rem;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Screen 4: Final */
+    #screen-4 h1 { font-size: clamp(3rem, 10vw, 5rem); color: var(--accent); margin-bottom: 1rem; z-index: 2; }
+    #screen-4 p { font-size: 1.1rem; max-width: 600px; text-align: center; line-height: 1.8; margin-bottom: 2.5rem; font-weight: 600; color: #555; z-index: 2; }
+    .signature { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.6rem; color: var(--text); font-weight: 700; z-index: 2; }
+
+    #bday-text { animation: pulse 2s infinite ease-in-out; }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* Audio toggle */
+    #audio-toggle {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      z-index: 1000;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(12,12,20,.85);
+      backdrop-filter: blur(8px);
+      color: #f4c842;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,.4);
+      transition: transform .2s,opacity .2s;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="bg-music" loop preload="auto" style="display:none;"></audio>
+  <button id="audio-toggle" onclick="toggleMute()">🔇</button>
+
+  <div id="screen-1" class="screen active">
+    <h1 id="q-title">I heard a little rumor... is it your birthday today? 🤔</h1>
+    <div class="btn-group">
+      <button class="btn" id="yes-btn" onclick="goToScreen(2)">Yes, it is! 🎉</button>
+      <button class="btn btn-outline" id="no-btn" onclick="showLyingError()">No...</button>
+    </div>
+    <div id="error-msg">Stop lying! I know it is. Click Yes! 🤨</div>
+  </div>
+
+  <div id="screen-2" class="screen">
+    <h2 id="gallery-heading">Our Gallery</h2>
+    <div class="carousel-wrap" id="carouselWrap">
+      <div id="carouselTrack"></div>
+    </div>
+    <div class="carousel-controls">
+      <button class="carousel-arrow" id="prevBtn">&#10094;</button>
+      <div class="carousel-dots" id="carouselDots"></div>
+      <button class="carousel-arrow" id="nextBtn">&#10095;</button>
+    </div>
+    <button class="btn" id="gallery-next-btn" style="max-width:300px;" onclick="goToScreen(3)">I have a surprise for you ✨</button>
+  </div>
+
+  <div id="screen-3" class="screen">
+    <div id="cloth-container"></div>
+    <div class="cloth-overlay">
+      <div class="cloth-hint" id="cloth-hint">👆 Drag and play with the strings!</div>
+      <button class="btn" id="cloth-next-btn" onclick="goToScreen(4)">One last thing...</button>
+    </div>
+  </div>
+
+  <div id="screen-4" class="screen">
+    <canvas id="fireworkCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></canvas>
+    <canvas id="confettiCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></canvas>
+    <h1 id="bday-text">Happy Birthday! 🎂</h1>
+    <p id="final-msg">Wishing you a day filled with happiness and a year filled with joy. You deserve all the wonderful things in the world. Keep smiling!</p>
+    <div class="signature" id="final-sig">- With love, [Your Name]</div>
+  </div>
+
+  <script>
+    // ──────────────────────────────────────────────
+    //  DATA LOADING
+    // ──────────────────────────────────────────────
+
+    var pageData = null;
+    var audioEl = document.getElementById('bg-music');
+    var audioToggleBtn = document.getElementById('audio-toggle');
+
+    async function loadData() {
+      var params = new URLSearchParams(window.location.search);
+      var slug = params.get('slug');
+      // support clean URL: /surprise/xyz
+      if (!slug) {
+        var pathParts = window.location.pathname.split('/').filter(Boolean);
+        if (pathParts.length >= 2) {
+          slug = pathParts[pathParts.length - 1];
+        }
+      }
+      if (!slug) {
+        document.getElementById('screen-1').innerHTML = '<p style="color:var(--accent);">No surprise found.</p>';
+        return;
+      }
+
+      try {
+        var res = await fetch('https://wishify.onrender.com/api/pages/' + slug);
+        var result = await res.json();
+        if (!result.success || !result.page || !result.page.data) {
+          throw new Error('Invalid data');
+        }
+        pageData = result.page.data;
+        applyData();
+        initAudio();
+        initCarousel();
+        initCloth();
+        initFireworks();
+        initConfetti();
+      } catch(err) {
+        document.getElementById('screen-1').innerHTML = '<p style="color:var(--accent);">Could not load the surprise. Please check the link.</p>';
+        console.error(err);
+      }
+    }
+
+    function applyData() {
+      var d = pageData;
+      // Colors
+      var bg1 = d.colorBg1 || '#fff0f5';
+      var bg2 = d.colorBg2 || '#ffd1dc';
+      var accent = d.colorAccent || '#ff4d79';
+      var text = d.colorText || '#2c3e50';
+      document.documentElement.style.setProperty('--bg1', bg1);
+      document.documentElement.style.setProperty('--bg2', bg2);
+      document.documentElement.style.setProperty('--accent', accent);
+      document.documentElement.style.setProperty('--text', text);
+
+      // Screen 1
+      document.getElementById('q-title').textContent = d.questionTitle || 'I heard a little rumor... is it your birthday today? 🤔';
+      document.getElementById('yes-btn').textContent = d.yesButtonText || 'Yes, it is! 🎉';
+      document.getElementById('no-btn').textContent = d.noButtonText || 'No...';
+      document.getElementById('error-msg').textContent = d.lyingErrorText || 'Stop lying! I know it is. Click Yes! 🤨';
+
+      // Screen 2
+      document.getElementById('gallery-heading').textContent = d.galleryHeading || 'Our Gallery';
+      document.getElementById('gallery-next-btn').textContent = d.galleryNextButtonText || 'I have a surprise for you ✨';
+      // galleryImages will be used in initCarousel
+
+      // Screen 3
+      document.getElementById('cloth-hint').textContent = d.clothHint || '👆 Drag and play with the strings!';
+      document.getElementById('cloth-next-btn').textContent = d.clothNextButtonText || 'One last thing...';
+
+      // Screen 4
+      document.getElementById('bday-text').textContent = d.finalTitle || 'Happy Birthday! 🎂';
+      document.getElementById('final-msg').textContent = d.finalMessage || 'Wishing you a day filled with happiness and a year filled with joy. You deserve all the wonderful things in the world. Keep smiling!';
+      document.getElementById('final-sig').textContent = d.finalSignature || 'With love, [Your Name]';
+
+      // Audio
+      if (d.audioUrl) {
+        audioEl.src = d.audioUrl;
+        audioToggleBtn.style.display = 'flex';
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    //  AUDIO
+    // ──────────────────────────────────────────────
+
+    function initAudio() {
+      if (!pageData || !pageData.audioUrl) return;
+      audioEl.src = pageData.audioUrl;
+      audioEl.volume = 0.5;
+      audioToggleBtn.style.display = 'flex';
+      audioEl.play().then(() => {
+        audioToggleBtn.textContent = '🔊';
+      }).catch(() => {
+        audioToggleBtn.textContent = '🔇';
+        document.addEventListener('click', function enable() {
+          audioEl.play().catch(()=>{});
+          audioToggleBtn.textContent = '🔊';
+          document.removeEventListener('click', enable);
+        });
+      });
+    }
+
+    function toggleMute() {
+      if (audioEl.muted) {
+        audioEl.muted = false;
+        if (audioEl.paused) audioEl.play().catch(()=>{});
+        audioToggleBtn.textContent = '🔊';
+      } else {
+        if (audioEl.paused) {
+          audioEl.play().catch(()=>{});
+          audioToggleBtn.textContent = '🔊';
+        } else {
+          audioEl.pause();
+          audioToggleBtn.textContent = '🔇';
+        }
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    //  NAVIGATION
+    // ──────────────────────────────────────────────
+
+    let isTransitioning = false;
+
+    function goToScreen(num) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+      setTimeout(() => { isTransitioning = false; }, 500);
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + num).classList.add('active');
+      if (num === 3 && window._clothInit) window._clothInit();
+      if (num === 2 && window._carouselRefresh) window._carouselRefresh();
+    }
+
+    function showLyingError() {
+      var msg = document.getElementById('error-msg');
+      msg.style.opacity = '1';
+      var btn = document.querySelector('.btn-outline');
+      btn.style.transform = 'translateX(10px)';
+      setTimeout(() => btn.style.transform = 'translateX(-10px)', 100);
+      setTimeout(() => btn.style.transform = 'translateX(0)', 200);
+      setTimeout(() => msg.style.opacity = '0', 3000);
+    }
+
+    // ──────────────────────────────────────────────
+    //  CAROUSEL
+    // ──────────────────────────────────────────────
+
+    var carouselPhotos = [];
+    var carouselCurrent = 0;
+    var carouselCards = [];
+    var carouselDotsEl = [];
+
+    function initCarousel() {
+      var images = (pageData && pageData.galleryImages) || [];
+      carouselPhotos = images.map(function(item) { return item.src || ''; });
+      var track = document.getElementById('carouselTrack');
+      var dotsWrap = document.getElementById('carouselDots');
+      track.innerHTML = '';
+      dotsWrap.innerHTML = '';
+      carouselCards = [];
+      carouselDotsEl = [];
+
+      carouselPhotos.forEach(function(src, i) {
+        var card = document.createElement('div');
+        card.className = 'carousel-card';
+        if (src) {
+          card.innerHTML = '<img src="' + src + '" alt="Memory ' + (i+1) + '" />';
+        } else {
+          card.innerHTML = '<span class="cam-icon">📷</span><span class="cam-number">' + (i+1) + '</span>';
+        }
+        card.addEventListener('click', function() {
+          if (i !== carouselCurrent) goToCarousel(i);
+        });
+        track.appendChild(card);
+        carouselCards.push(card);
+
+        var dot = document.createElement('button');
+        dot.className = 'carousel-dot';
+        dot.setAttribute('aria-label', 'Go to photo ' + (i+1));
+        dot.addEventListener('click', function() { goToCarousel(i); });
+        dotsWrap.appendChild(dot);
+        carouselDotsEl.push(dot);
+      });
+
+      // Controls
+      document.getElementById('prevBtn').addEventListener('click', function() { goToCarousel(carouselCurrent - 1); });
+      document.getElementById('nextBtn').addEventListener('click', function() { goToCarousel(carouselCurrent + 1); });
+
+      // Touch
+      var wrap = document.getElementById('carouselWrap');
+      var touchStartX = null;
+      wrap.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
+      wrap.addEventListener('touchend', function(e) {
+        if (touchStartX === null) return;
+        var dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 40) {
+          if (dx < 0) goToCarousel(carouselCurrent + 1);
+          else goToCarousel(carouselCurrent - 1);
+        }
+        touchStartX = null;
+      });
+
+      window._carouselRefresh = renderCarousel;
+      renderCarousel();
+    }
+
+    function renderCarousel() {
+      var wrap = document.getElementById('carouselWrap');
+      var wrapWidth = wrap.clientWidth || window.innerWidth;
+      var spacing = Math.max(90, Math.min(190, wrapWidth * 0.26));
+      var maxVisible = 2;
+      var len = carouselPhotos.length;
+
+      carouselCards.forEach(function(card, i) {
+        var offset = i - carouselCurrent;
+        var abs = Math.abs(offset);
+        if (abs > maxVisible) {
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.style.transform = 'translateX(' + (offset * spacing) + 'px) scale(0.7)';
+          return;
+        }
+        var scale = 1 - abs * 0.14;
+        var rotate = offset * 8;
+        var translateX = offset * spacing;
+        var opacity = 1 - abs * 0.35;
+        card.style.zIndex = 100 - abs;
+        card.style.opacity = String(Math.max(opacity, 0.35));
+        card.style.pointerEvents = 'auto';
+        card.style.transform = 'translateX(' + translateX + 'px) scale(' + scale + ') rotate(' + rotate + 'deg)';
+      });
+
+      carouselDotsEl.forEach(function(dot, i) {
+        dot.classList.toggle('active', i === carouselCurrent);
+      });
+    }
+
+    function goToCarousel(idx) {
+      var len = carouselPhotos.length;
+      carouselCurrent = (idx + len) % len;
+      renderCarousel();
+    }
+
+    // ──────────────────────────────────────────────
+    //  CLOTH (canvas physics)
+    // ──────────────────────────────────────────────
+
+    function initCloth() {
+      var container = document.getElementById('cloth-container');
+      container.innerHTML = '';
+      var dpr = window.devicePixelRatio || 1;
+      var c = document.createElement('canvas');
+      container.appendChild(c);
+
+      var width = window.innerWidth;
+      var height = window.innerHeight;
+      c.width = width * dpr;
+      c.height = height * dpr;
+      var ctx = c.getContext('2d');
+
+      var clothText = (pageData && pageData.clothText) || 'Happy Birthday My Sweetheart';
+      var cellSize = Math.max(20, Math.min(30, width / 15));
+      var gridW = Math.floor(width * 0.9 / cellSize);
+      var gridH = Math.floor(height * 0.6 / cellSize);
+      var cellW = (width * 0.9) / (gridW - 1);
+      var cellH = (height * 0.6) / (gridH - 1);
+      var startX = (width - width * 0.9) / 2;
+      var startY = (height - height * 0.6) / 2 - 20;
+
+      // Pre-render characters
+      var charCanvases = {};
+      var fontSize = Math.max(12, Math.min(cellH * 0.85, cellW * 1.4));
+      var boxSize = Math.ceil(fontSize * 2.5);
+      for (var ch of new Set(clothText)) {
+        if (ch === ' ') continue;
+        var off = document.createElement('canvas');
+        off.width = boxSize * dpr;
+        off.height = boxSize * dpr;
+        var octx = off.getContext('2d');
+        octx.scale(dpr, dpr);
+        octx.font = '900 ' + fontSize + 'px Nunito, sans-serif';
+        octx.textAlign = 'center';
+        octx.textBaseline = 'middle';
+        octx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff4d79';
+        octx.fillText(ch, boxSize / 2, boxSize / 2);
+        charCanvases[ch] = off;
+        charCanvases[ch].logicalSize = boxSize;
+      }
+
+      // Physics
+      class Vec2 { constructor(x=0,y=0) { this.x=x; this.y=y; } }
+      class Particle {
+        constructor(x,y,pinned,ch) {
+          this.pos = new Vec2(x,y);
+          this.oldPos = new Vec2(x,y);
+          this.vel = new Vec2();
+          this.acc = new Vec2();
+          this.pinned = pinned;
+          this.char = ch;
+        }
+        update(dtSq) {
+          if (this.pinned) { this.acc.x=0; this.acc.y=0; return; }
+          this.vel.x = (this.pos.x - this.oldPos.x) * 0.99;
+          this.vel.y = (this.pos.y - this.oldPos.y) * 0.99;
+          this.oldPos.x = this.pos.x; this.oldPos.y = this.pos.y;
+          this.acc.y += 0.2 / dtSq;
+          this.pos.x += this.vel.x + this.acc.x * dtSq;
+          this.pos.y += this.vel.y + this.acc.y * dtSq;
+          this.acc.x = 0; this.acc.y = 0;
+        }
+      }
+      class Constraint {
+        constructor(p1,p2,length,compress,stretch) {
+          this.p1=p1; this.p2=p2; this.length=length;
+          this.min=length*compress; this.max=length*stretch;
+        }
+        solve() {
+          var dx = this.p2.pos.x - this.p1.pos.x;
+          var dy = this.p2.pos.y - this.p1.pos.y;
+          var dist = Math.hypot(dx,dy);
+          if (dist===0) return;
+          var target = this.length;
+          if (dist < this.min) target = this.min;
+          else if (dist > this.max) target = this.max;
+          else return;
+          var diff = (target - dist) / dist / 2;
+          var ox = dx * diff, oy = dy * diff;
+          if (!this.p1.pinned) { this.p1.pos.x -= ox; this.p1.pos.y -= oy; }
+          if (!this.p2.pinned) { this.p2.pos.x += ox; this.p2.pos.y += oy; }
+        }
+      }
+
+      var particles = [];
+      var constraints = [];
+      var getID = function(i,j) { return i * gridH + j; };
+      for (var i=0; i<gridW; i++) {
+        for (var j=0; j<gridH; j++) {
+          var chIdx = (i + j * gridW) % clothText.length;
+          particles[getID(i,j)] = new Particle(
+            startX + i * cellW,
+            startY + j * cellH,
+            (j === 0),
+            clothText[chIdx] || ' '
+          );
+        }
+      }
+      for (var i=0; i<gridW; i++) {
+        for (var j=0; j<gridH; j++) {
+          var p = particles[getID(i,j)];
+          if (j < gridH-1) {
+            var con = new Constraint(p, particles[getID(i,j+1)], cellH, 0.02, 1.1);
+            constraints.push(con);
+            p.downConstraint = con;
+          }
+          if (i < gridW-1) {
+            constraints.push(new Constraint(p, particles[getID(i+1,j)], cellW, 0.6, 4));
+          }
+        }
+      }
+
+      var mousePos = new Vec2();
+      var grabbed = null;
+
+      function updateMouse(e) {
+        mousePos.x = e.clientX || (e.touches && e.touches[0].clientX);
+        mousePos.y = e.clientY || (e.touches && e.touches[0].clientY);
+      }
+
+      document.addEventListener('pointerdown', function(e) {
+        if (!document.getElementById('screen-3').classList.contains('active')) return;
+        updateMouse(e);
+        for (var p of particles) {
+          if (mousePos.subtractNew(p.pos).lengthSquared < 1200) {
+            grabbed = p;
+            grabbed.origPinned = p.pinned;
+            p.pinned = true;
+            break;
+          }
+        }
+      });
+      document.addEventListener('pointermove', function(e) {
+        if (!document.getElementById('screen-3').classList.contains('active')) return;
+        updateMouse(e);
+        if (grabbed) {
+          grabbed.pos.x = mousePos.x;
+          grabbed.pos.y = mousePos.y;
+          grabbed.oldPos.x = mousePos.x;
+          grabbed.oldPos.y = mousePos.y;
+        } else {
+          for (var p of particles) {
+            var dx = mousePos.x - p.pos.x;
+            var dy = mousePos.y - p.pos.y;
+            var distSq = dx*dx + dy*dy;
+            if (distSq < 5000) {
+              var strength = Math.max(0, 1 - distSq/5000) * 0.04;
+              var angle = Math.atan2(dy, dx) + Math.PI;
+              p.acc.x += Math.cos(angle) * strength;
+              p.acc.y += Math.sin(angle) * strength;
+            }
+          }
+        }
+      });
+      document.addEventListener('pointerup', function() {
+        if (grabbed) { grabbed.pinned = grabbed.origPinned; grabbed = null; }
+      });
+
+      var animId = null;
+      function runloop() {
+        if (!document.getElementById('screen-3').classList.contains('active')) {
+          animId = requestAnimationFrame(runloop);
+          return;
+        }
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.clearRect(0,0,c.width,c.height);
+        var dtSq = 16 * 16;
+        for (var p of particles) p.update(dtSq);
+        for (var iter=0; iter<5; iter++) {
+          for (var con of constraints) con.solve();
+        }
+        for (var p of particles) {
+          if (p.char && p.char !== ' ') {
+            var img = charCanvases[p.char];
+            if (!img) continue;
+            var angle = 0;
+            if (p.downConstraint) {
+              var dx2 = p.downConstraint.p2.pos.x - p.downConstraint.p1.pos.x;
+              var dy2 = p.downConstraint.p2.pos.y - p.downConstraint.p1.pos.y;
+              angle = Math.atan2(dy2, dx2) - Math.PI/2;
+            }
+            ctx.setTransform(
+              Math.cos(angle)*dpr, Math.sin(angle)*dpr,
+              -Math.sin(angle)*dpr, Math.cos(angle)*dpr,
+              p.pos.x*dpr, p.pos.y*dpr
+            );
+            ctx.drawImage(img, -img.logicalSize/2, -img.logicalSize/2, img.logicalSize, img.logicalSize);
+          }
+        }
+        animId = requestAnimationFrame(runloop);
+      }
+      window._clothInit = function() {
+        // re-run if needed
+      };
+      runloop();
+    }
+
+    // ──────────────────────────────────────────────
+    //  FIREWORKS & CONFETTI (final screen)
+    // ──────────────────────────────────────────────
+
+    function initFireworks() {
+      var canvas = document.getElementById('fireworkCanvas');
+      var ctx = canvas.getContext('2d');
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      window.addEventListener('resize', resize);
+      resize();
+
+      var fireworks = [];
+      class Firework {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = canvas.height;
+          this.targetY = Math.random() * canvas.height * 0.5;
+          this.speed = 5 + Math.random() * 5;
+          this.particles = [];
+          this.exploded = false;
+          this.color = 'hsl(' + Math.random() * 360 + ', 100%, 60%)';
+        }
+        update() {
+          if (!this.exploded) {
+            this.y -= this.speed;
+            if (this.y <= this.targetY) this.explode();
+          } else {
+            for (var p of this.particles) {
+              p.x += p.vx; p.y += p.vy; p.alpha -= 0.02;
+            }
+            this.particles = this.particles.filter(function(p) { return p.alpha > 0; });
+          }
+        }
+        explode() {
+          this.exploded = true;
+          for (var i=0; i<50; i++) {
+            var angle = Math.random() * Math.PI * 2;
+            var speed = Math.random() * 4;
+            this.particles.push({
+              x: this.x, y: this.y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              alpha: 1
+            });
+          }
+        }
+        draw() {
+          ctx.fillStyle = this.color;
+          if (!this.exploded) ctx.fillRect(this.x, this.y, 3, 10);
+          else {
+            for (var p of this.particles) {
+              ctx.globalAlpha = p.alpha;
+              ctx.fillRect(p.x, p.y, 4, 4);
+            }
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+
+      function animateFireworks() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        if (Math.random() < 0.05) fireworks.push(new Firework());
+        for (var i=fireworks.length-1; i>=0; i--) {
+          var f = fireworks[i];
+          f.update();
+          f.draw();
+          if (f.exploded && f.particles.length === 0) fireworks.splice(i,1);
+        }
+        requestAnimationFrame(animateFireworks);
+      }
+      animateFireworks();
+    }
+
+    function initConfetti() {
+      var canvas = document.getElementById('confettiCanvas');
+      var ctx = canvas.getContext('2d');
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      window.addEventListener('resize', resize);
+      resize();
+
+      var confetti = [];
+      class Confetti {
+        constructor() {
+          this.reset();
+        }
+        reset() {
+          this.x = window.innerWidth / 2;
+          this.y = window.innerHeight - 20;
+          this.vx = (Math.random() - 0.5) * 15;
+          this.vy = -(Math.random() * 15 + 10);
+          this.color = 'hsl(' + Math.random() * 360 + ', 100%, 60%)';
+          this.size = Math.random() * 8 + 4;
+          this.landed = false;
+        }
+        update() {
+          if (!this.landed) {
+            this.vy += 0.5;
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.y > window.innerHeight - this.size) {
+              this.y = window.innerHeight - this.size;
+              this.landed = true;
+            }
+          }
+        }
+        draw() {
+          ctx.fillStyle = this.color;
+          ctx.fillRect(this.x, this.y, this.size, this.size);
+        }
+      }
+
+      function pop() {
+        for (var i=0; i<150; i++) confetti.push(new Confetti());
+      }
+
+      function animateConfetti() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for (var c of confetti) { c.update(); c.draw(); }
+        requestAnimationFrame(animateConfetti);
+      }
+
+      // Trigger pop when final screen becomes active
+      var screen4 = document.getElementById('screen-4');
+      var observer = new MutationObserver(function() {
+        if (screen4.classList.contains('active')) {
+          pop();
+          observer.disconnect();
+        }
+      });
+      observer.observe(screen4, { attributes: true });
+
+      animateConfetti();
+    }
+
+    // ──────────────────────────────────────────────
+    //  START
+    // ──────────────────────────────────────────────
+
+    loadData();
+
+    // Also refresh carousel on resize
+    window.addEventListener('resize', function() {
+      if (document.getElementById('screen-2').classList.contains('active')) {
+        if (window._carouselRefresh) window._carouselRefresh();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wishify — Birthday Surprise Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 1.5rem;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; }
+    .nav-badge {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #f4c842;
+      background: rgba(244,200,66,.12);
+      border: 1px solid rgba(244,200,66,.25);
+      padding: .25rem .75rem;
+      border-radius: 50px;
+    }
+    .nav-step { font-size: .8rem; color: rgba(255,255,255,.4); }
+
+    .editor-layout {
+      display: flex;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 380px;
+      flex-shrink: 0;
+      background: #111;
+      border-right: 1px solid rgba(255,255,255,.07);
+      padding: 1rem;
+      overflow-y: auto;
+      height: 100%;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
+    }
+    .left-panel::-webkit-scrollbar { width: 4px; }
+    .left-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+    .right-panel {
+      flex: 1;
+      background: #0d0d0d;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .panel-section {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: .85rem;
+    }
+    .section-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .75rem;
+    }
+    .field {
+      margin-bottom: .75rem;
+    }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .3rem;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: .55rem .75rem;
+      outline: none;
+      resize: none;
+      transition: border-color .2s;
+    }
+    .field textarea { height: 64px; line-height: 1.6; }
+    .field input:focus, .field textarea:focus { border-color: rgba(244,200,66,.5); }
+
+    .upload-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .65rem;
+      border: 2px dashed rgba(255,255,255,.15);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .78rem;
+      color: rgba(255,255,255,.4);
+      position: relative;
+      transition: border-color .2s;
+    }
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-zone:hover { border-color: rgba(244,200,66,.4); color: #f4c842; }
+
+    .gallery-item-editor {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: .8rem;
+      margin-bottom: .7rem;
+    }
+    .gallery-item-editor .field { margin-bottom: .5rem; }
+    .gallery-item-editor .field:last-child { margin-bottom: 0; }
+    .gallery-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .5rem;
+    }
+    .gallery-item-header span {
+      font-size: .7rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.3);
+      letter-spacing: .05em;
+    }
+    .gallery-item-header button {
+      background: none;
+      border: none;
+      color: #e8506a;
+      font-size: .8rem;
+      cursor: pointer;
+      font-weight: 700;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      transition: background .2s;
+    }
+    .gallery-item-header button:hover { background: rgba(232,80,106,.15); }
+
+    .add-gallery-btn {
+      width: 100%;
+      padding: .6rem;
+      background: rgba(244,200,66,.08);
+      border: 1.5px dashed rgba(244,200,66,.3);
+      border-radius: 10px;
+      color: #f4c842;
+      font-family: 'Nunito', sans-serif;
+      font-size: .8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background .2s;
+      margin-top: .2rem;
+    }
+    .add-gallery-btn:hover { background: rgba(244,200,66,.14); }
+
+    .color-row {
+      display: flex;
+      gap: .8rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .color-row input[type="color"] {
+      width: 48px;
+      height: 40px;
+      border: 2px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      padding: 2px;
+    }
+    .color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+    .color-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.3);
+      min-width: 60px;
+    }
+
+    .share-section {
+      background: linear-gradient(135deg, rgba(244,200,66,.08), rgba(232,80,106,.06));
+      border: 1.5px solid rgba(244,200,66,.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .share-section .section-label { color: #f4c842; }
+    #generate-btn {
+      width: 100%;
+      padding: .8rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244,200,66,.2);
+      transition: transform .15s, box-shadow .15s;
+    }
+    #generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,200,66,.3); }
+    .result-area {
+      display: none;
+      margin-top: .75rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .result-area.show { display: block; }
+    .result-url {
+      display: block;
+      padding: .6rem .8rem;
+      font-size: .7rem;
+      color: rgba(255,255,255,.5);
+      word-break: break-all;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .result-actions {
+      display: flex;
+    }
+    .result-btn {
+      flex: 1;
+      padding: .55rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.5);
+      cursor: pointer;
+    }
+    .result-btn:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .result-btn + .result-btn { border-left: 1px solid rgba(255,255,255,.07); }
+
+    /* ─── RIGHT PANEL PREVIEW ─── */
+    .preview-topbar {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+    .preview-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .live-dot {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .live-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .phone-wrap {
+      width: 100%;
+      max-width: 360px;
+      flex-shrink: 0;
+    }
+    .phone {
+      width: 100%;
+      background: #1a1a2e;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      min-height: 580px;
+      position: relative;
+    }
+    .phone-bar {
+      height: 28px;
+      background: rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-notch {
+      width: 80px;
+      height: 12px;
+      background: #000;
+      border-radius: 0 0 10px 10px;
+    }
+    .phone-screen {
+      padding: 1.2rem 1.2rem 1rem;
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      background: #fff0f5;
+      color: #2c3e50;
+      transition: background 0.3s;
+    }
+
+    /* Preview screens */
+    .prev-screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.5rem 0;
+    }
+    .prev-screen.active { display: flex; }
+
+    .prev-screen h1, .prev-screen h2 {
+      font-family: 'Playfair Display', serif;
+    }
+    .prev-screen .btn-preview {
+      background: #ff4d79;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255,77,121,0.3);
+      transition: transform 0.2s;
+      font-family: 'Nunito', sans-serif;
+      width: 100%;
+      max-width: 220px;
+    }
+    .prev-screen .btn-outline-preview {
+      background: #fff;
+      color: #ff4d79;
+      border: 2px solid #ff4d79;
+      box-shadow: none;
+    }
+    .prev-screen .btn-group {
+      display: flex;
+      gap: 0.8rem;
+      flex-direction: column;
+      width: 100%;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    .prev-error {
+      color: #ff4d79;
+      font-weight: 800;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      background: #fff;
+      padding: 0.4rem 1.2rem;
+      border-radius: 20px;
+    }
+    .prev-error.show { opacity: 1; }
+
+    /* gallery preview */
+    .prev-gallery h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: 1.2rem;
+    }
+    .prev-carousel-wrap {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.8rem;
+    }
+    .prev-carousel-card {
+      position: absolute;
+      width: min(58%, 150px);
+      height: min(78%, 200px);
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(44,62,80,0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
+      will-change: transform, opacity;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .prev-carousel-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+      position: absolute;
+      top: 0; left: 0;
+    }
+    .prev-carousel-card .cam-icon { font-size: 1.8rem; z-index: 1; }
+    .prev-carousel-card .cam-number { font-size: 2rem; font-weight: 800; color: #d9dde3; z-index: 1; }
+    .prev-carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .prev-carousel-arrow {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #fff;
+      border: none;
+      color: #ff4d79;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .prev-carousel-dots {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .prev-carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e0c3cb;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: background 0.2s, width 0.2s;
+    }
+    .prev-carousel-dot.active {
+      background: #ff4d79;
+      width: 20px;
+      border-radius: 6px;
+    }
+
+    /* cloth preview – simplified */
+    .prev-cloth {
+      background: #eeebcf;
+      border-radius: 16px;
+      padding: 1rem;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      color: #ff4d79;
+      font-size: 1.2rem;
+      flex-wrap: wrap;
+      gap: 0.2rem;
+      margin: 0.5rem 0;
+    }
+    .prev-cloth span {
+      display: inline-block;
+      transform: rotate(var(--rot, 0deg));
+      transition: transform 0.1s;
+    }
+    .prev-cloth-hint {
+      font-size: 0.8rem;
+      color: #ff4d79;
+      background: rgba(255,255,255,0.85);
+      padding: 0.4rem 1rem;
+      border-radius: 30px;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+
+    /* final preview */
+    .prev-final h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      color: #ff4d79;
+      margin-bottom: 0.5rem;
+    }
+    .prev-final p {
+      font-size: 0.9rem;
+      max-width: 280px;
+      line-height: 1.6;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+    .prev-final .signature {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.2rem;
+      color: #2c3e50;
+    }
+
+    /* screen nav dots */
+    .screen-nav {
+      display: flex;
+      gap: .4rem;
+      justify-content: center;
+      margin-top: .6rem;
+    }
+    .screen-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .screen-dot.active { background: #f4c842; }
+
+    @media (max-width: 768px) {
+      .editor-layout { flex-direction: column; height: auto; overflow: visible; }
+      .left-panel { width: 100%; height: auto; overflow-y: visible; border-right: none; border-bottom: 1px solid rgba(255,255,255,.07); }
+      .right-panel { height: auto; overflow-y: visible; padding: 1rem; }
+      .phone-wrap { max-width: 100%; }
+      .navbar { padding: 0 1rem; }
+      .nav-step { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo">✨ Wishify</div>
+  <div class="nav-badge">Birthday Surprise</div>
+  <div class="nav-step">Template 4</div>
+</nav>
+
+<div class="editor-layout">
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel">
+
+    <!-- Screen 1: Question -->
+    <div class="panel-section">
+      <div class="section-label">❓ Question Screen</div>
+      <div class="field">
+        <label>Question Title</label>
+        <input type="text" id="q-title" value="I heard a little rumor... is it your birthday today? 🤔" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Yes Button Text</label>
+        <input type="text" id="q-yes" value="Yes, it is! 🎉" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>No Button Text</label>
+        <input type="text" id="q-no" value="No..." oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Lying Error Text</label>
+        <input type="text" id="q-error" value="Stop lying! I know it is. Click Yes! 🤨" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Screen 2: Gallery -->
+    <div class="panel-section">
+      <div class="section-label">🖼 Gallery Screen</div>
+      <div class="field">
+        <label>Gallery Heading</label>
+        <input type="text" id="gallery-heading" value="Our Gallery" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Next Button Text</label>
+        <input type="text" id="gallery-next" value="I have a surprise for you ✨" oninput="updatePreview()" />
+      </div>
+
+      <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.3);margin:.5rem 0 .3rem;">Photos (max 6)</div>
+      <div id="gallery-editor-container"></div>
+      <button class="add-gallery-btn" onclick="addGalleryImage()">+ Add Photo</button>
+    </div>
+
+    <!-- Screen 3: Cloth -->
+    <div class="panel-section">
+      <div class="section-label">🧵 Interactive Cloth</div>
+      <div class="field">
+        <label>Cloth Text</label>
+        <input type="text" id="cloth-text" value="Happy Birthday My Sweetheart" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Hint Text</label>
+        <input type="text" id="cloth-hint" value="👆 Drag and play with the strings!" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Next Button Text</label>
+        <input type="text" id="cloth-next" value="One last thing..." oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Screen 4: Final -->
+    <div class="panel-section">
+      <div class="section-label">🎂 Final Wish</div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="final-title" value="Happy Birthday! 🎂" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <textarea id="final-msg">Wishing you a day filled with happiness and a year filled with joy. You deserve all the wonderful things in the world. Keep smiling!</textarea>
+      </div>
+      <div class="field">
+        <label>Signature</label>
+        <input type="text" id="final-sig" value="With love, [Your Name]" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Colors -->
+    <div class="panel-section">
+      <div class="section-label">🎨 Colors</div>
+      <div class="field">
+        <label>Background 1 (top)</label>
+        <div class="color-row">
+          <span class="color-label">Bg1</span>
+          <input type="color" id="color-bg1" value="#fff0f5" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Background 2 (bottom)</label>
+        <div class="color-row">
+          <span class="color-label">Bg2</span>
+          <input type="color" id="color-bg2" value="#ffd1dc" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Accent Color</label>
+        <div class="color-row">
+          <span class="color-label">Accent</span>
+          <input type="color" id="color-accent" value="#ff4d79" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Text Color</label>
+        <div class="color-row">
+          <span class="color-label">Text</span>
+          <input type="color" id="color-text" value="#2c3e50" oninput="updatePreview()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio -->
+    <div class="panel-section">
+      <div class="section-label">🎵 Background Music</div>
+      <p style="font-size:.7rem;color:rgba(255,255,255,.4);margin-bottom:.8rem;line-height:1.4;">Upload a song (max 15MB).</p>
+      <div class="field">
+        <label class="upload-zone">
+          <input type="file" accept="audio/*,.opus,.ogg,.m4a,.mp3,.wav,.aac" onchange="handleAudioUpload(this)" />
+          <span id="audio-label-text">🎵 Click to upload audio</span>
+        </label>
+        <div id="audio-filename" style="font-size:.7rem;color:#f4c842;margin-top:.4rem;font-weight:600;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Share -->
+    <div class="share-section">
+      <div class="section-label">🔗 Share</div>
+      <button id="generate-btn">✨ Generate Shareable Link</button>
+      <div class="result-area" id="result-area">
+        <span class="result-url" id="result-link"></span>
+        <div class="result-actions">
+          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL — PHONE PREVIEW -->
+  <main class="right-panel">
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <span class="live-dot">Live</span>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-bar"><div class="phone-notch"></div></div>
+        <div class="phone-screen" id="phone-screen">
+
+          <!-- Screen 1: Question -->
+          <div class="prev-screen active" id="prev-screen-1">
+            <h1 id="prev-q-title" style="font-size:1.4rem;">I heard a little rumor... is it your birthday today? 🤔</h1>
+            <div class="btn-group">
+              <button class="btn-preview" id="prev-yes-btn" style="background:var(--accent, #ff4d79);">Yes, it is! 🎉</button>
+              <button class="btn-preview btn-outline-preview" id="prev-no-btn" style="color:var(--accent, #ff4d79);border-color:var(--accent, #ff4d79);">No...</button>
+            </div>
+            <div class="prev-error" id="prev-error">Stop lying! I know it is. Click Yes! 🤨</div>
+          </div>
+
+          <!-- Screen 2: Gallery -->
+          <div class="prev-screen" id="prev-screen-2">
+            <h2 id="prev-gallery-heading" style="font-size:1.4rem;">Our Gallery</h2>
+            <div class="prev-carousel-wrap" id="prev-carousel-wrap">
+              <div id="prev-carousel-track"></div>
+            </div>
+            <div class="prev-carousel-controls">
+              <button class="prev-carousel-arrow" id="prev-carousel-prev">&#10094;</button>
+              <div class="prev-carousel-dots" id="prev-carousel-dots"></div>
+              <button class="prev-carousel-arrow" id="prev-carousel-next">&#10095;</button>
+            </div>
+            <button class="btn-preview" id="prev-gallery-next" style="background:var(--accent, #ff4d79);max-width:260px;">I have a surprise for you ✨</button>
+          </div>
+
+          <!-- Screen 3: Cloth -->
+          <div class="prev-screen" id="prev-screen-3">
+            <div class="prev-cloth-hint" id="prev-cloth-hint" style="color:var(--accent, #ff4d79);">👆 Drag and play with the strings!</div>
+            <div class="prev-cloth" id="prev-cloth" style="color:var(--accent, #ff4d79);"></div>
+            <button class="btn-preview" id="prev-cloth-next" style="background:var(--accent, #ff4d79);margin-top:0.8rem;">One last thing...</button>
+          </div>
+
+          <!-- Screen 4: Final -->
+          <div class="prev-screen" id="prev-screen-4">
+            <h1 id="prev-final-title" style="color:var(--accent, #ff4d79);">Happy Birthday! 🎂</h1>
+            <p id="prev-final-msg" style="color:var(--text, #2c3e50);">Wishing you a day filled with happiness and a year filled with joy. You deserve all the wonderful things in the world. Keep smiling!</p>
+            <div class="signature" id="prev-final-sig" style="color:var(--text, #2c3e50);">With love, [Your Name]</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Screen navigation dots -->
+      <div class="screen-nav" id="screen-nav">
+        <div class="screen-dot active" onclick="showPreviewScreen(0)"></div>
+        <div class="screen-dot" onclick="showPreviewScreen(1)"></div>
+        <div class="screen-dot" onclick="showPreviewScreen(2)"></div>
+        <div class="screen-dot" onclick="showPreviewScreen(3)"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ─── STATE ───
+  var galleryImages = [];
+  var audioUrl = '';
+  var audioName = '';
+  var pendingUploads = 0;
+  var currentPreviewScreen = 0;
+
+  // ─── INIT ───
+  window.addEventListener('load', function() {
+    // Add 3 default gallery items
+    for (var i = 0; i < 3; i++) {
+      galleryImages.push({ src: '', caption: '' });
+    }
+    renderGalleryEditor();
+    updatePreview();
+  });
+
+  // ─── UPLOAD HELPERS ───
+  function beginUpload() { pendingUploads++; document.getElementById('generate-btn').textContent = '⏳ Uploading...'; }
+  function endUpload() { pendingUploads = Math.max(0, pendingUploads - 1); if(pendingUploads === 0) document.getElementById('generate-btn').textContent = '✨ Generate Shareable Link'; }
+
+  function uploadToCloudinary(file, type) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result, type: type || 'image' })
+          });
+          var result = await res.json();
+          if (result.success) resolve(result.url);
+          else reject('Upload failed');
+        } catch(err) { reject(err); }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ─── GALLERY EDITOR ───
+  function renderGalleryEditor() {
+    var container = document.getElementById('gallery-editor-container');
+    container.innerHTML = '';
+    galleryImages.forEach(function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'gallery-item-editor';
+      div.innerHTML =
+        '<div class="gallery-item-header">' +
+          '<span>Photo ' + (idx+1) + '</span>' +
+          '<button onclick="removeGalleryImage(' + idx + ')">✕</button>' +
+        '</div>' +
+        '<div class="field"><label>Image</label>' +
+          '<label class="upload-zone">' +
+            '<input type="file" accept="image/*" onchange="handleGalleryUpload(this, ' + idx + ')" />' +
+            '<span id="gallery-upload-label-' + idx + '">' + (item.src ? '✅ Uploaded' : '📁 Click to upload') + '</span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="field"><label>Caption (optional)</label>' +
+          '<input type="text" id="gallery-caption-' + idx + '" value="' + (item.caption || '') + '" placeholder="e.g. Memory #' + (idx+1) + '" oninput="updateGalleryCaption(' + idx + ')" />' +
+        '</div>';
+      container.appendChild(div);
+    });
+  }
+
+  function addGalleryImage() {
+    if (galleryImages.length >= 6) { alert('Maximum 6 photos'); return; }
+    galleryImages.push({ src: '', caption: '' });
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function removeGalleryImage(idx) {
+    if (galleryImages.length <= 1) { alert('At least 1 photo required'); return; }
+    galleryImages.splice(idx, 1);
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function updateGalleryCaption(idx) {
+    var input = document.getElementById('gallery-caption-' + idx);
+    if (input) galleryImages[idx].caption = input.value;
+    updatePreview();
+  }
+
+  async function handleGalleryUpload(input, idx) {
+    if (!input.files || !input.files[0]) return;
+    var label = document.getElementById('gallery-upload-label-' + idx);
+    label.textContent = '⏳ Uploading...';
+    beginUpload();
+    try {
+      var url = await uploadToCloudinary(input.files[0], 'image');
+      galleryImages[idx].src = url;
+      label.textContent = '✅ Uploaded';
+      updatePreview();
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── AUDIO ───
+  async function handleAudioUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (file.size > 15 * 1024 * 1024) { alert('Audio too large (max 15MB)'); input.value = ''; return; }
+    audioName = file.name;
+    var label = document.getElementById('audio-filename');
+    label.textContent = '⏳ Uploading: ' + audioName;
+    label.style.display = 'block';
+    beginUpload();
+    try {
+      audioUrl = await uploadToCloudinary(file, 'audio');
+      label.textContent = '✅ ' + audioName;
+      document.getElementById('audio-label-text').textContent = '🎵 ' + audioName;
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── PREVIEW UPDATE ───
+  function updatePreview() {
+    var bg1 = document.getElementById('color-bg1').value;
+    var bg2 = document.getElementById('color-bg2').value;
+    var accent = document.getElementById('color-accent').value;
+    var textColor = document.getElementById('color-text').value;
+
+    var screen = document.getElementById('phone-screen');
+    screen.style.background = 'linear-gradient(135deg, ' + bg1 + ', ' + bg2 + ')';
+    screen.style.color = textColor;
+    screen.style.setProperty('--accent', accent);
+    screen.style.setProperty('--text', textColor);
+
+    // Screen 1
+    document.getElementById('prev-q-title').textContent = document.getElementById('q-title').value || 'Is it your birthday?';
+    var yesBtn = document.getElementById('prev-yes-btn');
+    yesBtn.textContent = document.getElementById('q-yes').value || 'Yes!';
+    yesBtn.style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+    var noBtn = document.getElementById('prev-no-btn');
+    noBtn.textContent = document.getElementById('q-no').value || 'No';
+    noBtn.style.color = accent;
+    noBtn.style.borderColor = accent;
+    document.getElementById('prev-error').textContent = document.getElementById('q-error').value || 'Stop lying!';
+
+    // Screen 2
+    document.getElementById('prev-gallery-heading').textContent = document.getElementById('gallery-heading').value || 'Our Gallery';
+    document.getElementById('prev-gallery-next').textContent = document.getElementById('gallery-next').value || 'I have a surprise for you ✨';
+    document.getElementById('prev-gallery-next').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+    renderCarousel();
+
+    // Screen 3
+    document.getElementById('prev-cloth-hint').textContent = document.getElementById('cloth-hint').value || '👆 Drag and play with the strings!';
+    document.getElementById('prev-cloth-hint').style.color = accent;
+    var clothText = document.getElementById('cloth-text').value || 'Happy Birthday';
+    var clothContainer = document.getElementById('prev-cloth');
+    clothContainer.innerHTML = '';
+    clothContainer.style.color = accent;
+    for (var i = 0; i < clothText.length; i++) {
+      var span = document.createElement('span');
+      span.textContent = clothText[i];
+      span.style.setProperty('--rot', (Math.random() - 0.5) * 8 + 'deg');
+      clothContainer.appendChild(span);
+    }
+    document.getElementById('prev-cloth-next').textContent = document.getElementById('cloth-next').value || 'One last thing...';
+    document.getElementById('prev-cloth-next').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+
+    // Screen 4
+    document.getElementById('prev-final-title').textContent = document.getElementById('final-title').value || 'Happy Birthday! 🎂';
+    document.getElementById('prev-final-title').style.color = accent;
+    document.getElementById('prev-final-msg').textContent = document.getElementById('final-msg').value || '';
+    document.getElementById('prev-final-msg').style.color = textColor;
+    document.getElementById('prev-final-sig').textContent = document.getElementById('final-sig').value || 'With love, [Your Name]';
+    document.getElementById('prev-final-sig').style.color = textColor;
+
+    // Update all buttons accent
+    document.querySelectorAll('.prev-screen .btn-preview:not(.btn-outline-preview)').forEach(function(b) {
+      b.style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+    });
+    document.querySelectorAll('.prev-screen .btn-outline-preview').forEach(function(b) {
+      b.style.color = accent;
+      b.style.borderColor = accent;
+    });
+    // carousel arrows/dots accent
+    document.querySelectorAll('.prev-carousel-arrow').forEach(function(b) {
+      b.style.color = accent;
+    });
+    document.querySelectorAll('.prev-carousel-dot.active').forEach(function(d) {
+      d.style.background = accent;
+    });
+  }
+
+  // ─── CAROUSEL PREVIEW ───
+  var carouselCurrent = 0;
+
+  function renderCarousel() {
+    var track = document.getElementById('prev-carousel-track');
+    var dotsContainer = document.getElementById('prev-carousel-dots');
+    var items = galleryImages || [];
+    var len = items.length;
+
+    // Build cards
+    track.innerHTML = '';
+    items.forEach(function(item, i) {
+      var card = document.createElement('div');
+      card.className = 'prev-carousel-card';
+      if (item.src) {
+        card.innerHTML = '<img src="' + item.src + '" alt="Memory ' + (i+1) + '" />';
+      } else {
+        card.innerHTML = '<span class="cam-icon">📷</span><span class="cam-number">' + (i+1) + '</span>';
+      }
+      card.style.transition = 'transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease';
+      track.appendChild(card);
+    });
+
+    // Dots
+    dotsContainer.innerHTML = '';
+    for (var j = 0; j < len; j++) {
+      var dot = document.createElement('button');
+      dot.className = 'prev-carousel-dot' + (j === carouselCurrent ? ' active' : '');
+      dot.setAttribute('aria-label', 'Go to photo ' + (j+1));
+      dot.addEventListener('click', function(idx) { return function() { goToCarousel(idx); }; }(j));
+      dotsContainer.appendChild(dot);
+    }
+
+    // Position cards
+    var cards = track.querySelectorAll('.prev-carousel-card');
+    var wrapWidth = document.getElementById('prev-carousel-wrap').clientWidth || 300;
+    var spacing = Math.min(120, wrapWidth * 0.32);
+    var maxVisible = 2;
+
+    cards.forEach(function(card, i) {
+      var offset = i - carouselCurrent;
+      var abs = Math.abs(offset);
+      if (abs > maxVisible) {
+        card.style.opacity = '0';
+        card.style.pointerEvents = 'none';
+        card.style.transform = 'translateX(' + (offset * spacing) + 'px) scale(0.7)';
+        return;
+      }
+      var scale = 1 - abs * 0.14;
+      var rotate = offset * 6;
+      var translateX = offset * spacing;
+      var opacity = 1 - abs * 0.35;
+      card.style.zIndex = 100 - abs;
+      card.style.opacity = String(Math.max(opacity, 0.3));
+      card.style.pointerEvents = 'auto';
+      card.style.transform = 'translateX(' + translateX + 'px) scale(' + scale + ') rotate(' + rotate + 'deg)';
+    });
+
+    // Update dots
+    var dots = dotsContainer.querySelectorAll('.prev-carousel-dot');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === carouselCurrent); });
+  }
+
+  function goToCarousel(idx) {
+    var len = galleryImages.length;
+    carouselCurrent = (idx + len) % len;
+    renderCarousel();
+  }
+
+  // Carousel controls
+  document.getElementById('prev-carousel-prev').addEventListener('click', function() {
+    goToCarousel(carouselCurrent - 1);
+  });
+  document.getElementById('prev-carousel-next').addEventListener('click', function() {
+    goToCarousel(carouselCurrent + 1);
+  });
+
+  // ─── PREVIEW SCREEN NAVIGATION ───
+  function showPreviewScreen(idx) {
+    var screens = document.querySelectorAll('.prev-screen');
+    screens.forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    var dots = document.querySelectorAll('.screen-dot');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+    currentPreviewScreen = idx;
+    if (idx === 1) { setTimeout(renderCarousel, 100); } // re-render carousel on show
+  }
+
+  // ─── GENERATE LINK ───
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    if (pendingUploads > 0) { alert('⏳ Still uploading files — please wait.'); return; }
+    var btn = this;
+    btn.textContent = 'Generating...';
+
+    var payload = {
+      template: 'Love-String',
+      data: {
+        questionTitle: document.getElementById('q-title').value,
+        yesButtonText: document.getElementById('q-yes').value,
+        noButtonText: document.getElementById('q-no').value,
+        lyingErrorText: document.getElementById('q-error').value,
+        galleryHeading: document.getElementById('gallery-heading').value,
+        galleryNextButtonText: document.getElementById('gallery-next').value,
+        galleryImages: galleryImages,
+        clothText: document.getElementById('cloth-text').value,
+        clothHint: document.getElementById('cloth-hint').value,
+        clothNextButtonText: document.getElementById('cloth-next').value,
+        finalTitle: document.getElementById('final-title').value,
+        finalMessage: document.getElementById('final-msg').value,
+        finalSignature: document.getElementById('final-sig').value,
+        colorBg1: document.getElementById('color-bg1').value,
+        colorBg2: document.getElementById('color-bg2').value,
+        colorAccent: document.getElementById('color-accent').value,
+        colorText: document.getElementById('color-text').value,
+        audioUrl: audioUrl,
+        audioName: audioName,
+      }
+    };
+
+    try {
+      var res = await fetch('https://wishify.onrender.com/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      var result = await res.json();
+      if (result.success) {
+        var link = window.location.origin + '/surprise/' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
+      } else {
+        btn.textContent = '✨ Generate Shareable Link';
+        alert('❌ Failed to generate link.');
+      }
+    } catch(err) {
+      document.getElementById('result-link').textContent = '⚠️ Server error.';
+      document.getElementById('result-area').classList.add('show');
+      btn.textContent = '✨ Generate Shareable Link';
+    }
+  });
+
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    navigator.clipboard.writeText(link).then(function() {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!';
+      setTimeout(function(){ btn.textContent = '📋 Copy Link'; }, 2000);
+    });
+  }
+
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    var name = document.getElementById('q-title').value || 'Friend';
+    window.open('https://wa.me/?text=' + encodeURIComponent('🎂 A birthday surprise for you! ' + link), '_blank');
+  }
+
+  // ─── INITIAL RENDER ───
+  updatePreview();
+  setTimeout(renderCarousel, 200);
+</script>
+</body>
+</html>
