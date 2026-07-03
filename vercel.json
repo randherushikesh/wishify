@@ -16,7 +16,11 @@
     {
       "source": "/journey/:slug",
       "destination": "/templates/birthday-templates/birthday-journey/view?slug=:slug"
+    },{
+  "source": "/Love-String/:slug",
+  "destination": "/templates/birthday-templates/Love-String/view?slug=:slug"
     },
+
     {
       "source": "/wedding/:slug",
       "destination": "/templates/wedding-templates/wedding/view?slug=:slug"
