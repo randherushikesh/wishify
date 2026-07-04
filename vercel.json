@@ -16,9 +16,18 @@
     {
       "source": "/journey/:slug",
       "destination": "/templates/birthday-templates/birthday-journey/view?slug=:slug"
-    },{
-  "source": "/Love-String/:slug",
-  "destination": "/templates/birthday-templates/Love-String/view?slug=:slug"
+    },
+    {
+    "source": "/Love-String/:slug",
+    "destination": "/templates/birthday-templates/Love-String/view?slug=:slug"
+    },
+    {
+    "source": "/password-special/:slug",
+    "destination": "/templates/birthday-templates/Password-special/view?slug=:slug"
+    },
+    {
+    "source": "/cinematic-surprise/:slug",
+    "destination": "/templates/birthday-templates/Cinematic-surprice/view?slug=:slug"
     },
 
     {

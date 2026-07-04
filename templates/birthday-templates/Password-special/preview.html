@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For You · Typing & Unlock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .floating-cta {
+  position: fixed;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+}
+.floating-cta a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  background: linear-gradient(135deg, #f4c842, #e8506a);
+  color: #1a0010;
+  font-family: 'Nunito', sans-serif;
+  font-size: .72rem;
+  font-weight: 800;
+  text-decoration: none;
+  padding: 1rem .6rem;
+  border-radius: 50px;
+  box-shadow: 0 8px 24px rgba(244,200,66,.3);
+  transition: transform .2s, box-shadow .2s;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: .05em;
+  min-width: 44px;
+  text-align: center;
+}
+.floating-cta a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(244,200,66,.45);
+}
+.floating-cta .cta-icon {
+  font-size: 1.1rem;
+  writing-mode: horizontal-tb;
+}
+.floating-cta .back-btn {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.5);
+  font-size: .65rem;
+  padding: .6rem .5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  writing-mode: vertical-rl;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,.1);
+  transition: background .2s, color .2s;
+}
+.floating-cta .back-btn:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+@media (max-width: 640px) {
+  .floating-cta {
+    position: fixed;
+    bottom: 0; left: 0; right: 0; top: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: center;
+    padding: 0.5rem 0.8rem;
+    background: rgba(12, 12, 20, 0.9);
+    backdrop-filter: blur(16px) saturate(1.2);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    gap: 0.6rem;
+    box-shadow: 0 -4px 30px rgba(0,0,0,.4);
+  }
+  .floating-cta a {
+    writing-mode: horizontal-tb;
+    flex-direction: row;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    border-radius: 30px;
+    min-width: auto;
+    gap: 0.4rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(244,200,66,.2);
+  }
+  .floating-cta .cta-icon {
+    writing-mode: horizontal-tb;
+    font-size: 0.85rem;
+  }
+  .floating-cta .back-btn {
+    writing-mode: horizontal-tb;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .floating-cta .back-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+  /* Push page content above the bottom bar */
+  .brand { padding-bottom: 5rem; }
+}
+
+        
+
+        .preview-container {
+            background: #0d0d0d;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ─── ANIMATED GRADIENT BACKGROUND ────────── */
+        .preview-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ff1a1a 0%, #1a0000 60%, #0d0d0d 100%);
+            background-size: 300% 300%;
+            animation: meltGradient 8s ease-in-out infinite alternate;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes meltGradient {
+            0% {
+                background-position: 0% 0%;
+            }
+            50% {
+                background-position: 80% 100%;
+            }
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+        /* ─── PAGES ─────────────────────────────────── */
+        .page {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: scale(0.96);
+            background: transparent;
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        .page.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .page.exit {
+            opacity: 0;
+            transform: scale(0.94);
+            pointer-events: none;
+        }
+
+        .page::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ─── UNLOCK PAGE (with password field) ────── */
+        #page-unlock {
+            gap: 20px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .unlock-icon {
+            font-size: 72px;
+            animation: pulse-heart 2s ease-in-out infinite;
+        }
+
+        .unlock-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #f0f0f0;
+        }
+
+        .unlock-sub {
+            font-size: 16px;
+            color: #888;
+            max-width: 300px;
+            line-height: 1.6;
+        }
+
+        /* Password field – style like a secret input */
+        .password-field {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(22, 22, 22, 0.85);
+            border: 1px solid #2a2a2a;
+            border-radius: 60px;
+            padding: 4px 6px 4px 22px;
+            backdrop-filter: blur(4px);
+            max-width: 320px;
+            width: 100%;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .password-field:focus-within {
+            border-color: #ff4d7a;
+            box-shadow: 0 0 20px rgba(255, 77, 122, 0.15);
+        }
+
+        .password-field input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            padding: 16px 0;
+            width: 100%;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .password-field input::placeholder {
+            color: #555;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        .password-field .lock-icon {
+            font-size: 22px;
+            color: #777;
+            transition: color 0.3s;
+            padding-right: 8px;
+        }
+
+        .password-field:focus-within .lock-icon {
+            color: #ff4d7a;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #ff4d7a, #e83a6b);
+            border: none;
+            color: #fff;
+            padding: 18px 56px;
+            border-radius: 60px;
+            font-size: 22px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            font-family: inherit;
+            letter-spacing: 2px;
+            box-shadow: 0 8px 32px rgba(255, 77, 122, 0.3);
+            margin-top: 6px;
+            z-index: 2;
+        }
+
+        .unlock-btn:active {
+            transform: scale(0.94);
+            box-shadow: 0 4px 16px rgba(255, 77, 122, 0.4);
+        }
+
+        /* ─── LOADING ──────────────────────────────── */
+        #page-loading {
+            gap: 18px;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #1a1a1a;
+            border-top-color: #ff4d7a;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: 300;
+            color: #aaa;
+            letter-spacing: 2px;
+        }
+
+        .loading-text strong {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .loading-sub {
+            font-size: 26px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #ff4d7a, #ff8a9e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ─── BIRTHDAY ──────────────────────────────── */
+        #page-birthday {
+            gap: 10px;
+            text-align: center;
+        }
+
+        .birthday-emoji {
+            font-size: 48px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .birthday-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .birthday-title span {
+            color: #ff4d7a;
+        }
+
+        .birthday-counter {
+            display: flex;
+            gap: 24px;
+            margin: 18px 0 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .counter-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(22, 22, 22, 0.85);
+            border-radius: 20px;
+            padding: 18px 22px;
+            min-width: 80px;
+            border: 1px solid #242424;
+            backdrop-filter: blur(4px);
+        }
+
+        .counter-item .number {
+            font-size: 44px;
+            font-weight: 700;
+            color: #ff4d7a;
+            line-height: 1;
+        }
+
+        .counter-item .label {
+            font-size: 12px;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+
+        .birthday-next {
+            background: transparent;
+            border: 1.5px solid #ff4d7a;
+            color: #ff4d7a;
+            padding: 14px 44px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.25s, transform 0.15s;
+            font-family: inherit;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        .birthday-next:active {
+            background: #ff4d7a22;
+            transform: scale(0.94);
+        }
+
+        /* ─── GALLERY ────────────────────────────────── */
+        #page-gallery {
+            gap: 12px;
+            justify-content: flex-start;
+            padding-top: 30px;
+        }
+
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 2px;
+        }
+
+        .gallery-header h2 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .gallery-header p {
+            font-size: 14px;
+            color: #777;
+            margin-top: 2px;
+        }
+
+        .card-stack {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto 10px;
+        }
+
+        .card-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.5s ease;
+            will-change: transform, opacity;
+            cursor: pointer;
+        }
+
+        .card-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card-item .heart-overlay {
+            position: absolute;
+            bottom: 12px;
+            right: 14px;
+            font-size: 28px;
+            opacity: 0.8;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .gallery-nav-btn {
+            background: linear-gradient(135deg, #ff4d7a, #e83a6b);
+            border: none;
+            color: #fff;
+            padding: 14px 40px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-family: inherit;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 32px rgba(255, 77, 122, 0.25);
+            margin-top: 4px;
+        }
+
+        .gallery-nav-btn:active {
+            transform: scale(0.94);
+        }
+
+        .gallery-go-btn {
+            background: linear-gradient(135deg, #ff4d7a, #e83a6b);
+            border: none;
+            color: #fff;
+            padding: 14px 48px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            font-family: inherit;
+            letter-spacing: 1.5px;
+            box-shadow: 0 8px 32px rgba(255, 77, 122, 0.25);
+            margin-top: 8px;
+        }
+
+        .gallery-go-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* ─── LETTER (with typing effect) ────────────── */
+        #page-letter {
+            gap: 18px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .letter-envelope {
+            font-size: 72px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .letter-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        /* typing container */
+        .typing-container {
+            max-width: 340px;
+            width: 100%;
+            background: rgba(18, 18, 18, 0.7);
+            border-radius: 24px;
+            padding: 18px 22px;
+            border: 1px solid #282828;
+            backdrop-filter: blur(4px);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px 0;
+        }
+
+        .typing-message {
+            font-size: 17px;
+            color: #f0f0f0;
+            line-height: 1.7;
+            font-weight: 300;
+            text-align: left;
+            width: 100%;
+            min-height: 80px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.1em;
+            background: #ff4d7a;
+            margin-left: 3px;
+            vertical-align: text-bottom;
+            animation: blinkCursor 0.9s step-end infinite;
+        }
+
+        @keyframes blinkCursor {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .letter-open-btn {
+            background: linear-gradient(135deg, #ff4d7a, #e83a6b);
+            border: none;
+            color: #fff;
+            padding: 16px 52px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            font-family: inherit;
+            letter-spacing: 1.5px;
+            box-shadow: 0 8px 32px rgba(255, 77, 122, 0.25);
+            margin-top: 4px;
+        }
+
+        .letter-open-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* ─── FINAL ──────────────────────────────────── */
+        #page-final {
+            gap: 10px;
+            text-align: center;
+            padding: 32px 28px;
+        }
+
+        .final-heart {
+            font-size: 56px;
+            animation: pulse-heart 1.8s ease-in-out infinite;
+        }
+
+        .final-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .final-title .love {
+            color: #ff4d7a;
+        }
+
+        .final-from {
+            font-size: 15px;
+            color: #888;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .final-divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff4d7a, transparent);
+            margin: 10px auto 12px;
+            border-radius: 4px;
+        }
+
+        .final-message {
+            font-size: 17px;
+            color: #ddd;
+            max-width: 360px;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .final-message strong {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .final-footer {
+            margin-top: 18px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            font-size: 13px;
+            color: #555;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        .final-footer .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #333;
+        }
+
+        /* ─── PAGE DOTS ──────────────────────────────── */
+        .page-dots {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .page-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .page-dots span.active {
+            background: #ff4d7a;
+            transform: scale(1.2);
+            box-shadow: 0 0 16px rgba(255, 77, 122, 0.3);
+        }
+
+        /* ─── ANIMATIONS ─────────────────────────────── */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse-heart {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.12);
+            }
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* ─── RESPONSIVE ─────────────────────────────── */
+        @media (max-width: 500px) {
+            .page {
+                padding: 24px 16px;
+            }
+            .counter-item .number {
+                font-size: 34px;
+            }
+            .counter-item {
+                padding: 14px 16px;
+                min-width: 64px;
+            }
+            .birthday-counter {
+                gap: 14px;
+            }
+            .unlock-btn {
+                padding: 16px 40px;
+                font-size: 18px;
+            }
+            .card-stack {
+                max-width: 300px;
+            }
+            .password-field {
+                padding: 4px 6px 4px 16px;
+            }
+            .password-field input {
+                font-size: 16px;
+                padding: 14px 0;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .counter-item {
+                padding: 10px 14px;
+                min-width: 56px;
+            }
+            .counter-item .number {
+                font-size: 28px;
+            }
+            .birthday-counter {
+                gap: 10px;
+            }
+            .gallery-header h2 {
+                font-size: 20px;
+            }
+            .unlock-icon {
+                font-size: 56px;
+            }
+            .card-stack {
+                max-width: 260px;
+            }
+            .gallery-nav-btn {
+                padding: 10px 28px;
+                font-size: 15px;
+            }
+            .gallery-go-btn {
+                padding: 10px 32px;
+                font-size: 15px;
+            }
+            .typing-container {
+                min-height: 90px;
+                padding: 14px 16px;
+            }
+            .typing-message {
+                font-size: 15px;
+                min-height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="floating-cta">
+  <a href="editor.html">
+    <span class="cta-icon">✏️</span>
+    Start Editing
+  </a>
+  <a href="../birthday-gallery.html" class="back-btn">← Gallery</a>
+
+</div>
+
+    <div class="preview-container">
+
+        <!-- ═══ PAGE 0 — UNLOCK (with password field) ═══ -->
+        <div class="page active" id="page-unlock" data-index="0">
+            <div class="unlock-icon">🔐</div>
+            <div class="unlock-title">A Surprise Awaits</div>
+            <div class="unlock-sub">Enter the secret code (no password set, just type)</div>
+
+            <div class="password-field">
+                <input type="password" id="passwordInput" placeholder="• • • • • •" maxlength="20" autocomplete="off" />
+                <span class="lock-icon">🔒</span>
+            </div>
+
+            <button class="unlock-btn" id="unlockBtn">UNLOCK</button>
+        </div>
+
+        <!-- ═══ PAGE 1 — LOADING ═══ -->
+        <div class="page" id="page-loading" data-index="1">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading something <strong>special</strong>...</div>
+            <div class="loading-sub">JUST FOR YOU</div>
+        </div>
+
+        <!-- ═══ PAGE 2 — BIRTHDAY COUNTER ═══ -->
+        <div class="page" id="page-birthday" data-index="2">
+            <div class="birthday-emoji">🎂</div>
+            <div class="birthday-title">Happy Birthday <span>My Girl</span></div>
+            <div class="birthday-counter">
+                <div class="counter-item">
+                    <span class="number">19</span>
+                    <span class="label">Years</span>
+                </div>
+                <div class="counter-item">
+                    <span class="number">0</span>
+                    <span class="label">Months</span>
+                </div>
+                <div class="counter-item">
+                    <span class="number">23</span>
+                    <span class="label">Days</span>
+                </div>
+            </div>
+            <button class="birthday-next" id="birthdayNext">NEXT 🎂</button>
+        </div>
+
+        <!-- ═══ PAGE 3 — GALLERY ═══ -->
+        <div class="page" id="page-gallery" data-index="3">
+            <div class="gallery-header">
+                <h2>✨ Special Memories</h2>
+                <p>tap a photo to feel the love</p>
+            </div>
+            <div class="card-stack" id="cardStack"></div>
+            <button class="gallery-nav-btn" id="galleryNextBtn">Next photo ➜</button>
+            <button class="gallery-go-btn" id="galleryGoBtn">Go ahead ➜</button>
+        </div>
+
+        <!-- ═══ PAGE 4 — LETTER (with typing effect) ═══ -->
+        <div class="page" id="page-letter" data-index="4">
+            <div class="letter-envelope">💌</div>
+            <div class="letter-title">A LETTER, JUST FOR YOU</div>
+
+            <div class="typing-container">
+                <div class="typing-message" id="typingMessage">
+                    <span class="typing-cursor"></span>
+                </div>
+            </div>
+
+            <button class="letter-open-btn" id="letterOpenBtn">TAP TO OPEN</button>
+        </div>
+
+        <!-- ═══ PAGE 5 — FINAL ═══ -->
+        <div class="page" id="page-final" data-index="5">
+            <div class="final-heart">❤️</div>
+            <div class="final-title">JUST FOR YOU <span class="love">❤️</span></div>
+            <div class="final-from">From my heart &amp; prayers</div>
+            <div class="final-divider"></div>
+            <div class="final-message">
+                <strong>Happy Birthday, Love ❤️</strong><br /><br />
+                You are the most beautiful part of my life, and I'm so lucky to have you.
+                Your smile makes my days better.
+            </div>
+            <div class="final-footer" id="restartBtn">
+                <span>CELEBRATE</span>
+                <span class="dot"></span>
+                <span>RESTART 0</span>
+            </div>
+        </div>
+
+        <!-- ═══ PAGE DOTS ═══ -->
+        <div class="page-dots" id="pageDots">
+            <span class="active"></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── GALLERY DATA ──────────────────────────────────────
+            const GALLERY_DATA = [
+                { emoji: '🏛️', seed: 101 },
+                { emoji: '⌨️', seed: 102 },
+                { emoji: '🌿', seed: 103 },
+                { emoji: '🍓', seed: 104 },
+                { emoji: '🪂', seed: 105 },
+                { emoji: '🧺', seed: 106 },
+            ];
+
+            // ─── LETTER TYPING TEXT ──────────────────────────────
+            const LETTER_TEXT = `"From my heart & prayers — you are the most beautiful part of my life, and I'm so lucky to have you. Your smile makes my days better."`;
+
+            // ─── STATE ─────────────────────────────────────────────
+            let currentPage = 0;
+            const totalPages = 6;
+            let isTransitioning = false;
+            let currentCardIndex = 0;
+            let typingInterval = null;
+            let isTypingComplete = false;
+            let typingCharIndex = 0;
+
+            // ─── DOM REFS ──────────────────────────────────────────
+            const pages = document.querySelectorAll('.page');
+            const dots = document.querySelectorAll('#pageDots span');
+            const unlockBtn = document.getElementById('unlockBtn');
+            const passwordInput = document.getElementById('passwordInput');
+            const birthdayNext = document.getElementById('birthdayNext');
+            const galleryGoBtn = document.getElementById('galleryGoBtn');
+            const letterOpenBtn = document.getElementById('letterOpenBtn');
+            const cardStack = document.getElementById('cardStack');
+            const galleryNextBtn = document.getElementById('galleryNextBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const typingMessageEl = document.getElementById('typingMessage');
+
+            // ─── TYPING ENGINE ─────────────────────────────────────
+            function startTyping() {
+                if (typingInterval) {
+                    clearInterval(typingInterval);
+                    typingInterval = null;
+                }
+                typingCharIndex = 0;
+                isTypingComplete = false;
+                // Clear the message but keep the cursor
+                typingMessageEl.innerHTML = '<span class="typing-cursor"></span>';
+
+                typingInterval = setInterval(() => {
+                    if (typingCharIndex < LETTER_TEXT.length) {
+                        // Insert next char before the cursor
+                        const cursorSpan = typingMessageEl.querySelector('.typing-cursor');
+                        const textNode = document.createTextNode(LETTER_TEXT[typingCharIndex]);
+                        typingMessageEl.insertBefore(textNode, cursorSpan);
+                        typingCharIndex++;
+                    } else {
+                        // Typing complete
+                        clearInterval(typingInterval);
+                        typingInterval = null;
+                        isTypingComplete = true;
+                        // Remove cursor after a moment? keep it blinking.
+                    }
+                }, 45); // speed: 45ms per char
+            }
+
+            function stopTyping() {
+                if (typingInterval) {
+                    clearInterval(typingInterval);
+                    typingInterval = null;
+                }
+            }
+
+            // ─── CARD STACK RENDER ────────────────────────────────
+            function renderCardStack() {
+                cardStack.innerHTML = '';
+                GALLERY_DATA.forEach((item, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'card-item';
+                    const imgUrl = `https://picsum.photos/seed/${item.seed}/400/400`;
+                    div.innerHTML = `
+                        <img src="${imgUrl}" alt="memory ${i+1}" loading="lazy" />
+                        <div class="heart-overlay">${item.emoji}</div>
+                    `;
+                    div.addEventListener('click', function() {
+                        this.style.transform = 'scale(0.94)';
+                        setTimeout(() => { this.style.transform = ''; }, 200);
+                    });
+                    cardStack.appendChild(div);
+                });
+                updateCardPositions(0);
+            }
+
+            function updateCardPositions(offset) {
+                const cards = cardStack.querySelectorAll('.card-item');
+                cards.forEach((card, idx) => {
+                    const newIndex = (idx + offset) % cards.length;
+                    const scale = 1 - newIndex * 0.05;
+                    const translateX = newIndex * 12;
+                    const translateY = newIndex * 12;
+                    const opacity = 1 - newIndex * 0.15;
+                    card.style.transform =
+                        `translate(${translateX}px, ${translateY}px) scale(${Math.max(scale, 0.7)})`;
+                    card.style.opacity = Math.max(opacity, 0.1);
+                    card.style.zIndex = 6 - newIndex;
+                });
+            }
+
+            // ─── PAGE NAVIGATION ──────────────────────────────────
+            function goToPage(index) {
+                if (isTransitioning) return;
+                if (index === currentPage) return;
+                if (index < 0 || index >= totalPages) return;
+
+                isTransitioning = true;
+
+                pages[currentPage].classList.remove('active');
+                pages[currentPage].classList.add('exit');
+                dots[currentPage].classList.remove('active');
+
+                const target = pages[index];
+                target.classList.remove('exit');
+                target.classList.add('active');
+                dots[index].classList.add('active');
+
+                // If entering letter page, start typing
+                if (index === 4) {
+                    // small delay to let the page render
+                    setTimeout(() => {
+                        startTyping();
+                    }, 300);
+                } else {
+                    stopTyping();
+                }
+
+                currentPage = index;
+
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 550);
+            }
+
+            // ─── EVENT LISTENERS ──────────────────────────────────
+
+            // Unlock – no password check, just proceed
+            unlockBtn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.94)';
+                setTimeout(() => { this.style.transform = ''; }, 200);
+                goToPage(1);
+                setTimeout(() => {
+                    goToPage(2);
+                }, 2200);
+            });
+
+            // Allow Enter key on password field to trigger unlock
+            passwordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    unlockBtn.click();
+                }
+            });
+
+            // Birthday → Gallery
+            birthdayNext.addEventListener('click', function() {
+                this.style.transform = 'scale(0.94)';
+                setTimeout(() => { this.style.transform = ''; }, 200);
+                goToPage(3);
+            });
+
+            // Gallery → Letter
+            galleryGoBtn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.94)';
+                setTimeout(() => { this.style.transform = ''; }, 200);
+                goToPage(4);
+            });
+
+            // Letter Open → Final (but only if typing is complete or we force it)
+            letterOpenBtn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.94)';
+                setTimeout(() => { this.style.transform = ''; }, 200);
+                // If typing not complete, we complete it instantly
+                if (!isTypingComplete && typingInterval) {
+                    stopTyping();
+                    // fill remaining text
+                    const remaining = LETTER_TEXT.substring(typingCharIndex);
+                    const cursorSpan = typingMessageEl.querySelector('.typing-cursor');
+                    if (cursorSpan) {
+                        const textNode = document.createTextNode(remaining);
+                        typingMessageEl.insertBefore(textNode, cursorSpan);
+                    } else {
+                        // fallback
+                        typingMessageEl.textContent = LETTER_TEXT;
+                    }
+                    isTypingComplete = true;
+                }
+                goToPage(5);
+            });
+
+            // Restart (Final → Unlock)
+            restartBtn.addEventListener('click', function() {
+                if (currentPage === 5) {
+                    goToPage(0);
+                }
+            });
+
+            // Gallery next photo
+            galleryNextBtn.addEventListener('click', function() {
+                currentCardIndex = (currentCardIndex + 1) % GALLERY_DATA.length;
+                updateCardPositions(currentCardIndex);
+                this.style.transform = 'scale(0.94)';
+                setTimeout(() => { this.style.transform = ''; }, 200);
+            });
+
+            // ─── SWIPE SUPPORT ─────────────────────────────────────
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isSwiping = false;
+
+            document.querySelector('.preview-container').addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                isSwiping = true;
+            }, { passive: true });
+
+            document.querySelector('.preview-container').addEventListener('touchend', (e) => {
+                if (!isSwiping) return;
+                isSwiping = false;
+                const touch = e.changedTouches[0];
+                const dx = touch.clientX - touchStartX;
+                const dy = touch.clientY - touchStartY;
+
+                if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 0.6) return;
+
+                if (dx < 0 && currentPage < totalPages - 1) {
+                    if (currentPage === 0 || currentPage === 1) return;
+                    goToPage(currentPage + 1);
+                } else if (dx > 0 && currentPage > 0) {
+                    if (currentPage === 1) return;
+                    goToPage(currentPage - 1);
+                }
+            }, { passive: true });
+
+            // ─── KEYBOARD NAV ──────────────────────────────────────
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    if (currentPage < totalPages - 1 && currentPage !== 0 && currentPage !== 1) {
+                        goToPage(currentPage + 1);
+                    }
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    if (currentPage > 0 && currentPage !== 1) {
+                        goToPage(currentPage - 1);
+                    }
+                }
+            });
+
+            // ─── INIT ──────────────────────────────────────────────
+            renderCardStack();
+
+            pages.forEach((p, i) => {
+                if (i === 0) {
+                    p.classList.add('active');
+                    p.classList.remove('exit');
+                } else {
+                    p.classList.remove('active');
+                    p.classList.add('exit');
+                }
+            });
+            dots.forEach((d, i) => {
+                d.classList.toggle('active', i === 0);
+            });
+
+            // Pre-fill typing message with cursor only
+            typingMessageEl.innerHTML = '<span class="typing-cursor"></span>';
+
+            console.log('💕 Preview ready — typing & password field added!');
+        })();
+    </script>
+
+</body>
+</html>

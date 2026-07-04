@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wishify — Love‑String Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 1.5rem;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; }
+    .nav-badge {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #f4c842;
+      background: rgba(244,200,66,.12);
+      border: 1px solid rgba(244,200,66,.25);
+      padding: .25rem .75rem;
+      border-radius: 50px;
+    }
+    .nav-step { font-size: .8rem; color: rgba(255,255,255,.4); }
+
+    .editor-layout {
+      display: flex;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 380px;
+      flex-shrink: 0;
+      background: #111;
+      border-right: 1px solid rgba(255,255,255,.07);
+      padding: 1rem;
+      overflow-y: auto;
+      height: 100%;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
+    }
+    .left-panel::-webkit-scrollbar { width: 4px; }
+    .left-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+    .right-panel {
+      flex: 1;
+      background: #0d0d0d;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .panel-section {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: .85rem;
+    }
+    .section-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .75rem;
+    }
+    .field {
+      margin-bottom: .75rem;
+    }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .3rem;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: .55rem .75rem;
+      outline: none;
+      resize: none;
+      transition: border-color .2s;
+    }
+    .field textarea { height: 64px; line-height: 1.6; }
+    .field input:focus, .field textarea:focus { border-color: rgba(244,200,66,.5); }
+
+    .upload-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .65rem;
+      border: 2px dashed rgba(255,255,255,.15);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .78rem;
+      color: rgba(255,255,255,.4);
+      position: relative;
+      transition: border-color .2s;
+    }
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-zone:hover { border-color: rgba(244,200,66,.4); color: #f4c842; }
+
+    .gallery-item-editor {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: .8rem;
+      margin-bottom: .7rem;
+    }
+    .gallery-item-editor .field { margin-bottom: .5rem; }
+    .gallery-item-editor .field:last-child { margin-bottom: 0; }
+    .gallery-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .5rem;
+    }
+    .gallery-item-header span {
+      font-size: .7rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.3);
+      letter-spacing: .05em;
+    }
+    .gallery-item-header button {
+      background: none;
+      border: none;
+      color: #e8506a;
+      font-size: .8rem;
+      cursor: pointer;
+      font-weight: 700;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      transition: background .2s;
+    }
+    .gallery-item-header button:hover { background: rgba(232,80,106,.15); }
+
+    .add-gallery-btn {
+      width: 100%;
+      padding: .6rem;
+      background: rgba(244,200,66,.08);
+      border: 1.5px dashed rgba(244,200,66,.3);
+      border-radius: 10px;
+      color: #f4c842;
+      font-family: 'Nunito', sans-serif;
+      font-size: .8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background .2s;
+      margin-top: .2rem;
+    }
+    .add-gallery-btn:hover { background: rgba(244,200,66,.14); }
+
+    .color-row {
+      display: flex;
+      gap: .8rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .color-row input[type="color"] {
+      width: 48px;
+      height: 40px;
+      border: 2px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      padding: 2px;
+    }
+    .color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+    .color-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.3);
+      min-width: 60px;
+    }
+
+    .share-section {
+      background: linear-gradient(135deg, rgba(244,200,66,.08), rgba(232,80,106,.06));
+      border: 1.5px solid rgba(244,200,66,.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .share-section .section-label { color: #f4c842; }
+    #generate-btn {
+      width: 100%;
+      padding: .8rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244,200,66,.2);
+      transition: transform .15s, box-shadow .15s;
+    }
+    #generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,200,66,.3); }
+    .result-area {
+      display: none;
+      margin-top: .75rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .result-area.show { display: block; }
+    .result-url {
+      display: block;
+      padding: .6rem .8rem;
+      font-size: .7rem;
+      color: rgba(255,255,255,.5);
+      word-break: break-all;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .result-actions {
+      display: flex;
+    }
+    .result-btn {
+      flex: 1;
+      padding: .55rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.5);
+      cursor: pointer;
+    }
+    .result-btn:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .result-btn + .result-btn { border-left: 1px solid rgba(255,255,255,.07); }
+
+    /* ─── PREVIEW PHONE ─── */
+    .preview-topbar {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+    .preview-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .live-dot {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .live-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .phone-wrap {
+      width: 100%;
+      max-width: 360px;
+      flex-shrink: 0;
+    }
+    .phone {
+      width: 100%;
+      background: #1a1a2e;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      min-height: 580px;
+      position: relative;
+    }
+    .phone-bar {
+      height: 28px;
+      background: rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-notch {
+      width: 80px;
+      height: 12px;
+      background: #000;
+      border-radius: 0 0 10px 10px;
+    }
+    .phone-screen {
+      padding: 1.2rem 1.2rem 1rem;
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0a;
+      color: #fff;
+      transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ─── PREVIEW SCREENS ─── */
+    .prev-screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.5rem 0;
+      gap: 8px;
+    }
+    .prev-screen.active { display: flex; }
+
+    .prev-screen .unlock-icon { font-size: 64px; }
+    .prev-screen .unlock-title { font-size: 26px; font-weight: 700; color: #fff; }
+    .prev-screen .unlock-sub { font-size: 14px; color: #888; max-width: 280px; }
+    .prev-screen .password-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(22,22,22,0.85);
+      border: 1px solid #2a2a2a;
+      border-radius: 60px;
+      padding: 4px 6px 4px 18px;
+      backdrop-filter: blur(4px);
+      max-width: 300px;
+      width: 100%;
+    }
+    .prev-screen .password-field input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 18px;
+      padding: 14px 0;
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+    }
+    .prev-screen .password-field .lock-icon { font-size: 20px; color: #777; }
+    .prev-screen .unlock-btn {
+      background: linear-gradient(135deg, #ff4d7a, #e83a6b);
+      border: none;
+      color: #fff;
+      padding: 16px 48px;
+      border-radius: 60px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s;
+      font-family: 'Nunito', sans-serif;
+      box-shadow: 0 8px 32px rgba(255,77,122,0.3);
+    }
+
+    .prev-screen .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid #1a1a1a;
+      border-top-color: #ff4d7a;
+      animation: spin 0.9s linear infinite;
+    }
+    .prev-screen .loading-text { font-size: 16px; color: #aaa; }
+    .prev-screen .loading-sub { font-size: 22px; font-weight: 600; background: linear-gradient(135deg, #ff4d7a, #ff8a9e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    .prev-screen .birthday-emoji { font-size: 44px; }
+    .prev-screen .birthday-title { font-size: 24px; font-weight: 700; color: #fff; }
+    .prev-screen .birthday-title span { color: #ff4d7a; }
+    .prev-screen .birthday-counter { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+    .prev-screen .counter-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(22,22,22,0.85);
+      border-radius: 16px;
+      padding: 14px 18px;
+      min-width: 70px;
+      border: 1px solid #242424;
+    }
+    .prev-screen .counter-item .number { font-size: 36px; font-weight: 700; color: #ff4d7a; line-height: 1; }
+    .prev-screen .counter-item .label { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+    .prev-screen .birthday-next {
+      background: transparent;
+      border: 1.5px solid #ff4d7a;
+      color: #ff4d7a;
+      padding: 12px 36px;
+      border-radius: 60px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      transition: background 0.25s;
+      margin-top: 4px;
+    }
+
+    .prev-screen .gallery-header h2 { font-size: 24px; font-weight: 600; color: #fff; }
+    .prev-screen .gallery-header p { font-size: 13px; color: #777; }
+    .prev-screen .card-stack {
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+      aspect-ratio: 1/1;
+      margin: 8px auto;
+    }
+    .prev-screen .card-item {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s ease;
+    }
+    .prev-screen .card-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .prev-screen .card-item .heart-overlay {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      font-size: 24px;
+      opacity: 0.8;
+      text-shadow: 0 0 20px rgba(0,0,0,0.8);
+    }
+    .prev-screen .gallery-nav-btn,
+    .prev-screen .gallery-go-btn,
+    .prev-screen .letter-open-btn {
+      background: linear-gradient(135deg, #ff4d7a, #e83a6b);
+      border: none;
+      color: #fff;
+      padding: 12px 32px;
+      border-radius: 60px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      box-shadow: 0 8px 32px rgba(255,77,122,0.25);
+      transition: transform 0.2s;
+    }
+    .prev-screen .gallery-go-btn { margin-top: 4px; }
+    .prev-screen .gallery-nav-btn:active,
+    .prev-screen .gallery-go-btn:active,
+    .prev-screen .letter-open-btn:active { transform: scale(0.94); }
+
+    .prev-screen .letter-envelope { font-size: 64px; }
+    .prev-screen .letter-title { font-size: 20px; font-weight: 600; color: #fff; }
+    .prev-screen .typing-container {
+      max-width: 300px;
+      width: 100%;
+      background: rgba(18,18,18,0.7);
+      border-radius: 20px;
+      padding: 14px 18px;
+      border: 1px solid #282828;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .prev-screen .typing-message {
+      font-size: 15px;
+      color: #f0f0f0;
+      line-height: 1.6;
+      font-weight: 300;
+      text-align: left;
+      width: 100%;
+      min-height: 70px;
+      white-space: pre-wrap;
+    }
+    .prev-screen .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: #ff4d7a;
+      margin-left: 3px;
+      vertical-align: text-bottom;
+      animation: blinkCursor 0.9s step-end infinite;
+    }
+    @keyframes blinkCursor { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .prev-screen .final-heart { font-size: 48px; }
+    .prev-screen .final-title { font-size: 24px; font-weight: 700; color: #fff; }
+    .prev-screen .final-title .love { color: #ff4d7a; }
+    .prev-screen .final-from { font-size: 14px; color: #888; }
+    .prev-screen .final-divider { width: 50px; height: 2px; background: linear-gradient(90deg, transparent, #ff4d7a, transparent); margin: 8px auto; }
+    .prev-screen .final-message { font-size: 15px; color: #ddd; max-width: 320px; line-height: 1.7; font-weight: 300; }
+    .prev-screen .final-footer { font-size: 12px; color: #555; display: flex; gap: 14px; margin-top: 12px; cursor: pointer; }
+
+    .page-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .page-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .page-dots span.active { background: #ff4d7a; transform: scale(1.2); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .editor-layout { flex-direction: column; height: auto; overflow: visible; }
+      .left-panel { width: 100%; height: auto; overflow-y: visible; border-right: none; border-bottom: 1px solid rgba(255,255,255,.07); }
+      .right-panel { height: auto; overflow-y: visible; padding: 1rem; }
+      .phone-wrap { max-width: 100%; }
+      .navbar { padding: 0 1rem; }
+      .nav-step { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo">✨ Wishify</div>
+  <div class="nav-badge">Love‑String</div>
+  <div class="nav-step">Template 5</div>
+</nav>
+
+<div class="editor-layout">
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel">
+
+    <!-- UNLOCK SCREEN -->
+    <div class="panel-section">
+      <div class="section-label">🔐 Unlock Screen</div>
+      <div class="field">
+        <label>Correct Password</label>
+        <input type="text" id="password-value" value="love" placeholder="e.g. love" oninput="updatePreview()" />
+        <div style="font-size:.65rem;color:rgba(255,255,255,.3);margin-top:2px;">Users must type this to unlock</div>
+      </div>
+      <div class="field">
+        <label>Password Hint</label>
+        <input type="text" id="password-hint" value="Enter the secret code (no password set, just type)" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="unlock-title" value="A Surprise Awaits" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Subtitle</label>
+        <input type="text" id="unlock-sub" value="Enter the secret code to unlock" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Text</label>
+        <input type="text" id="unlock-btn-text" value="UNLOCK" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="panel-section">
+      <div class="section-label">⏳ Loading Screen</div>
+      <div class="field">
+        <label>Loading Text</label>
+        <input type="text" id="loading-text" value="Loading something special..." oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Loading Subtitle</label>
+        <input type="text" id="loading-sub" value="JUST FOR YOU" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- BIRTHDAY -->
+    <div class="panel-section">
+      <div class="section-label">🎂 Birthday Counter</div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="bday-title" value="Happy Birthday My Girl" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Years</label>
+        <input type="number" id="bday-years" value="19" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Months</label>
+        <input type="number" id="bday-months" value="0" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Days</label>
+        <input type="number" id="bday-days" value="23" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Text</label>
+        <input type="text" id="bday-btn" value="NEXT 🎂" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="panel-section">
+      <div class="section-label">🖼 Gallery</div>
+      <div class="field">
+        <label>Heading</label>
+        <input type="text" id="gallery-heading" value="✨ Special Memories" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Subtext</label>
+        <input type="text" id="gallery-sub" value="tap a photo to feel the love" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Next Photo Button</label>
+        <input type="text" id="gallery-next-btn" value="Next photo ➜" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Go Ahead Button</label>
+        <input type="text" id="gallery-go-btn" value="Go ahead ➜" oninput="updatePreview()" />
+      </div>
+      <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.3);margin:.5rem 0 .3rem;">Photos (max 6)</div>
+      <div id="gallery-editor-container"></div>
+      <button class="add-gallery-btn" onclick="addGalleryImage()">+ Add Photo</button>
+    </div>
+
+    <!-- LETTER -->
+    <div class="panel-section">
+      <div class="section-label">💌 Letter (Typing)</div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="letter-title" value="A LETTER, JUST FOR YOU" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Letter Text (will type out)</label>
+        <textarea id="letter-text" rows="3" oninput="updatePreview()">"From my heart & prayers — you are the most beautiful part of my life, and I'm so lucky to have you. Your smile makes my days better."</textarea>
+      </div>
+      <div class="field">
+        <label>Open Button</label>
+        <input type="text" id="letter-btn" value="TAP TO OPEN" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- FINAL -->
+    <div class="panel-section">
+      <div class="section-label">❤️ Final Screen</div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="final-title" value="JUST FOR YOU ❤️" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>From Text</label>
+        <input type="text" id="final-from" value="From my heart & prayers" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <textarea id="final-msg" rows="3" oninput="updatePreview()">Happy Birthday, Love ❤️
+
+You are the most beautiful part of my life, and I'm so lucky to have you. Your smile makes my days better.</textarea>
+      </div>
+    </div>
+
+    <!-- COLORS -->
+    <div class="panel-section">
+      <div class="section-label">🎨 Colors</div>
+      <div class="field">
+        <label>Background Gradient Start</label>
+        <div class="color-row">
+          <span class="color-label">Start</span>
+          <input type="color" id="color-bg1" value="#ff1a1a" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Background Gradient End</label>
+        <div class="color-row">
+          <span class="color-label">End</span>
+          <input type="color" id="color-bg2" value="#1a0000" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Accent Color</label>
+        <div class="color-row">
+          <span class="color-label">Accent</span>
+          <input type="color" id="color-accent" value="#ff4d7a" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Text Color</label>
+        <div class="color-row">
+          <span class="color-label">Text</span>
+          <input type="color" id="color-text" value="#ffffff" oninput="updatePreview()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIO -->
+    <div class="panel-section">
+      <div class="section-label">🎵 Background Music</div>
+      <p style="font-size:.7rem;color:rgba(255,255,255,.4);margin-bottom:.8rem;line-height:1.4;">Upload a song (max 15MB).</p>
+      <div class="field">
+        <label class="upload-zone">
+          <input type="file" accept="audio/*,.opus,.ogg,.m4a,.mp3,.wav,.aac" onchange="handleAudioUpload(this)" />
+          <span id="audio-label-text">🎵 Click to upload audio</span>
+        </label>
+        <div id="audio-filename" style="font-size:.7rem;color:#f4c842;margin-top:.4rem;font-weight:600;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- SHARE -->
+    <div class="share-section">
+      <div class="section-label">🔗 Share</div>
+      <button id="generate-btn">✨ Generate Shareable Link</button>
+      <div class="result-area" id="result-area">
+        <span class="result-url" id="result-link"></span>
+        <div class="result-actions">
+          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL — PHONE PREVIEW -->
+  <main class="right-panel">
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <span class="live-dot">Live</span>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-bar"><div class="phone-notch"></div></div>
+        <div class="phone-screen" id="phone-screen">
+
+          <!-- SCREEN 0: UNLOCK -->
+          <div class="prev-screen active" id="prev-screen-0">
+            <div class="unlock-icon">🔐</div>
+            <div class="unlock-title" id="prev-unlock-title">A Surprise Awaits</div>
+            <div class="unlock-sub" id="prev-unlock-sub">Enter the secret code to unlock</div>
+            <div class="password-field">
+              <input type="password" id="prev-password-input" placeholder="• • • • • •" disabled />
+              <span class="lock-icon">🔒</span>
+            </div>
+            <button class="unlock-btn" id="prev-unlock-btn">UNLOCK</button>
+          </div>
+
+          <!-- SCREEN 1: LOADING -->
+          <div class="prev-screen" id="prev-screen-1">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="prev-loading-text">Loading something special...</div>
+            <div class="loading-sub" id="prev-loading-sub">JUST FOR YOU</div>
+          </div>
+
+          <!-- SCREEN 2: BIRTHDAY -->
+          <div class="prev-screen" id="prev-screen-2">
+            <div class="birthday-emoji">🎂</div>
+            <div class="birthday-title" id="prev-bday-title">Happy Birthday <span>My Girl</span></div>
+            <div class="birthday-counter">
+              <div class="counter-item"><span class="number" id="prev-bday-years">19</span><span class="label">Years</span></div>
+              <div class="counter-item"><span class="number" id="prev-bday-months">0</span><span class="label">Months</span></div>
+              <div class="counter-item"><span class="number" id="prev-bday-days">23</span><span class="label">Days</span></div>
+            </div>
+            <button class="birthday-next" id="prev-bday-btn">NEXT 🎂</button>
+          </div>
+
+          <!-- SCREEN 3: GALLERY -->
+          <div class="prev-screen" id="prev-screen-3">
+            <div class="gallery-header">
+              <h2 id="prev-gallery-heading">✨ Special Memories</h2>
+              <p id="prev-gallery-sub">tap a photo to feel the love</p>
+            </div>
+            <div class="card-stack" id="prev-card-stack"></div>
+            <button class="gallery-nav-btn" id="prev-gallery-next-btn">Next photo ➜</button>
+            <button class="gallery-go-btn" id="prev-gallery-go-btn">Go ahead ➜</button>
+          </div>
+
+          <!-- SCREEN 4: LETTER -->
+          <div class="prev-screen" id="prev-screen-4">
+            <div class="letter-envelope">💌</div>
+            <div class="letter-title" id="prev-letter-title">A LETTER, JUST FOR YOU</div>
+            <div class="typing-container">
+              <div class="typing-message" id="prev-typing-message">
+                <span class="typing-cursor"></span>
+              </div>
+            </div>
+            <button class="letter-open-btn" id="prev-letter-btn">TAP TO OPEN</button>
+          </div>
+
+          <!-- SCREEN 5: FINAL -->
+          <div class="prev-screen" id="prev-screen-5">
+            <div class="final-heart">❤️</div>
+            <div class="final-title" id="prev-final-title">JUST FOR YOU <span class="love">❤️</span></div>
+            <div class="final-from" id="prev-final-from">From my heart &amp; prayers</div>
+            <div class="final-divider"></div>
+            <div class="final-message" id="prev-final-msg">Happy Birthday, Love ❤️
+
+You are the most beautiful part of my life, and I'm so lucky to have you. Your smile makes my days better.</div>
+            <div class="final-footer" id="prev-restart-btn">CELEBRATE <span class="dot">·</span> RESTART 0</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Page dots -->
+      <div class="page-dots" id="page-dots">
+        <span class="active"></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ─── STATE ──────────────────────────────────────────────────
+  var galleryImages = [];
+  var audioUrl = '';
+  var audioName = '';
+  var pendingUploads = 0;
+  var currentPreviewScreen = 0;
+  var totalPreviewScreens = 6;
+
+  // ─── INIT ──────────────────────────────────────────────────
+  window.addEventListener('load', function() {
+    // Add default 4 gallery images
+    for (var i = 0; i < 4; i++) {
+      galleryImages.push({ src: '', emoji: ['🏛️','⌨️','🌿','🍓','🪂','🧺'][i] || '❤️' });
+    }
+    renderGalleryEditor();
+    updatePreview();
+    updateCardPositions(0);
+  });
+
+  // ─── UPLOAD HELPERS ────────────────────────────────────────
+  function beginUpload() { pendingUploads++; document.getElementById('generate-btn').textContent = '⏳ Uploading...'; }
+  function endUpload() { pendingUploads = Math.max(0, pendingUploads - 1); if(pendingUploads === 0) document.getElementById('generate-btn').textContent = '✨ Generate Shareable Link'; }
+
+  function uploadToCloudinary(file, type) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result, type: type || 'image' })
+          });
+          var result = await res.json();
+          if (result.success) resolve(result.url);
+          else reject('Upload failed');
+        } catch(err) { reject(err); }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ─── GALLERY EDITOR ────────────────────────────────────────
+  function renderGalleryEditor() {
+    var container = document.getElementById('gallery-editor-container');
+    container.innerHTML = '';
+    galleryImages.forEach(function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'gallery-item-editor';
+      div.innerHTML =
+        '<div class="gallery-item-header">' +
+          '<span>Photo ' + (idx+1) + '</span>' +
+          '<button onclick="removeGalleryImage(' + idx + ')">✕</button>' +
+        '</div>' +
+        '<div class="field"><label>Image</label>' +
+          '<label class="upload-zone">' +
+            '<input type="file" accept="image/*" onchange="handleGalleryUpload(this, ' + idx + ')" />' +
+            '<span id="gallery-upload-label-' + idx + '">' + (item.src ? '✅ Uploaded' : '📁 Click to upload') + '</span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="field"><label>Emoji Overlay</label>' +
+          '<input type="text" id="gallery-emoji-' + idx + '" value="' + (item.emoji || '❤️') + '" placeholder="❤️" oninput="updateGalleryEmoji(' + idx + ')" />' +
+        '</div>';
+      container.appendChild(div);
+    });
+  }
+
+  function addGalleryImage() {
+    if (galleryImages.length >= 6) { alert('Maximum 6 photos'); return; }
+    galleryImages.push({ src: '', emoji: '❤️' });
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function removeGalleryImage(idx) {
+    if (galleryImages.length <= 1) { alert('At least 1 photo required'); return; }
+    galleryImages.splice(idx, 1);
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function updateGalleryEmoji(idx) {
+    var input = document.getElementById('gallery-emoji-' + idx);
+    if (input) galleryImages[idx].emoji = input.value || '❤️';
+    updatePreview();
+  }
+
+  async function handleGalleryUpload(input, idx) {
+    if (!input.files || !input.files[0]) return;
+    var label = document.getElementById('gallery-upload-label-' + idx);
+    label.textContent = '⏳ Uploading...';
+    beginUpload();
+    try {
+      var url = await uploadToCloudinary(input.files[0], 'image');
+      galleryImages[idx].src = url;
+      label.textContent = '✅ Uploaded';
+      updatePreview();
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── AUDIO ──────────────────────────────────────────────────
+  async function handleAudioUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (file.size > 15 * 1024 * 1024) { alert('Audio too large (max 15MB)'); input.value = ''; return; }
+    audioName = file.name;
+    var label = document.getElementById('audio-filename');
+    label.textContent = '⏳ Uploading: ' + audioName;
+    label.style.display = 'block';
+    beginUpload();
+    try {
+      audioUrl = await uploadToCloudinary(file, 'audio');
+      label.textContent = '✅ ' + audioName;
+      document.getElementById('audio-label-text').textContent = '🎵 ' + audioName;
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── PREVIEW UPDATE ────────────────────────────────────────
+  function updatePreview() {
+    // Colors
+    var bg1 = document.getElementById('color-bg1').value;
+    var bg2 = document.getElementById('color-bg2').value;
+    var accent = document.getElementById('color-accent').value;
+    var textColor = document.getElementById('color-text').value;
+
+    var phoneScreen = document.getElementById('phone-screen');
+    phoneScreen.style.background = 'linear-gradient(135deg, ' + bg1 + ', ' + bg2 + ')';
+    phoneScreen.style.color = textColor;
+
+    // Set accent color on various elements via CSS variable
+    phoneScreen.style.setProperty('--accent', accent);
+    phoneScreen.style.setProperty('--text', textColor);
+
+    // Unlock
+    document.getElementById('prev-unlock-title').textContent = document.getElementById('unlock-title').value || 'A Surprise Awaits';
+    document.getElementById('prev-unlock-sub').textContent = document.getElementById('unlock-sub').value || 'Enter the secret code to unlock';
+    document.getElementById('prev-unlock-btn').textContent = document.getElementById('unlock-btn-text').value || 'UNLOCK';
+    document.getElementById('prev-unlock-btn').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+    document.querySelector('#prev-screen-0 .password-field').style.borderColor = 'rgba(255,255,255,.1)';
+
+    // Loading
+    document.getElementById('prev-loading-text').textContent = document.getElementById('loading-text').value || 'Loading something special...';
+    document.getElementById('prev-loading-sub').textContent = document.getElementById('loading-sub').value || 'JUST FOR YOU';
+
+    // Birthday
+    document.getElementById('prev-bday-title').innerHTML = (document.getElementById('bday-title').value || 'Happy Birthday My Girl').replace(/\n/g, '<br>');
+    document.getElementById('prev-bday-years').textContent = document.getElementById('bday-years').value || '0';
+    document.getElementById('prev-bday-months').textContent = document.getElementById('bday-months').value || '0';
+    document.getElementById('prev-bday-days').textContent = document.getElementById('bday-days').value || '0';
+    document.getElementById('prev-bday-btn').textContent = document.getElementById('bday-btn').value || 'NEXT 🎂';
+
+    // Gallery
+    document.getElementById('prev-gallery-heading').textContent = document.getElementById('gallery-heading').value || '✨ Special Memories';
+    document.getElementById('prev-gallery-sub').textContent = document.getElementById('gallery-sub').value || 'tap a photo to feel the love';
+    document.getElementById('prev-gallery-next-btn').textContent = document.getElementById('gallery-next-btn').value || 'Next photo ➜';
+    document.getElementById('prev-gallery-go-btn').textContent = document.getElementById('gallery-go-btn').value || 'Go ahead ➜';
+
+    // Letter
+    document.getElementById('prev-letter-title').textContent = document.getElementById('letter-title').value || 'A LETTER, JUST FOR YOU';
+    document.getElementById('prev-letter-btn').textContent = document.getElementById('letter-btn').value || 'TAP TO OPEN';
+    // Update typing message text (will be re-rendered on page switch)
+    // We'll update the stored letter text and re-trigger typing on screen switch
+
+    // Final
+    document.getElementById('prev-final-title').innerHTML = (document.getElementById('final-title').value || 'JUST FOR YOU ❤️').replace(/\n/g, '<br>');
+    document.getElementById('prev-final-from').textContent = document.getElementById('final-from').value || 'From my heart & prayers';
+    document.getElementById('prev-final-msg').textContent = document.getElementById('final-msg').value || 'Happy Birthday, Love ❤️\n\nYou are the most beautiful part of my life, and I\'m so lucky to have you. Your smile makes my days better.';
+
+    // Apply accent color to all accent elements
+    var accentElements = document.querySelectorAll('.prev-screen .unlock-btn, .prev-screen .birthday-next, .prev-screen .gallery-nav-btn, .prev-screen .gallery-go-btn, .prev-screen .letter-open-btn, .prev-screen .final-title .love, .prev-screen .final-divider, .prev-screen .counter-item .number, .prev-screen .loading-sub');
+    accentElements.forEach(function(el) {
+      if (el.tagName === 'BUTTON' || el.classList.contains('unlock-btn') || el.classList.contains('birthday-next') || el.classList.contains('gallery-nav-btn') || el.classList.contains('gallery-go-btn') || el.classList.contains('letter-open-btn')) {
+        el.style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+        el.style.borderColor = accent;
+      } else if (el.classList.contains('love') || el.classList.contains('number')) {
+        el.style.color = accent;
+      } else if (el.classList.contains('loading-sub')) {
+        el.style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+        el.style.webkitBackgroundClip = 'text';
+        el.style.webkitTextFillColor = 'transparent';
+      } else if (el.classList.contains('final-divider')) {
+        el.style.background = 'linear-gradient(90deg, transparent, ' + accent + ', transparent)';
+      }
+    });
+
+    // Update card stack
+    renderCardStack();
+  }
+
+  // ─── CARD STACK (preview) ──────────────────────────────────
+  var cardItems = [];
+  var cardCurrent = 0;
+
+  function renderCardStack() {
+    var stack = document.getElementById('prev-card-stack');
+    stack.innerHTML = '';
+    cardItems = [];
+    galleryImages.forEach(function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'card-item';
+      if (item.src) {
+        div.innerHTML = '<img src="' + item.src + '" alt="memory" /><div class="heart-overlay">' + (item.emoji || '❤️') + '</div>';
+      } else {
+        div.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#1a1a1a;color:#555;font-size:40px;">📷</div><div class="heart-overlay">' + (item.emoji || '❤️') + '</div>';
+      }
+      stack.appendChild(div);
+      cardItems.push(div);
+    });
+    updateCardPositions(0);
+  }
+
+  function updateCardPositions(offset) {
+    var len = cardItems.length;
+    cardItems.forEach(function(card, idx) {
+      var newIndex = (idx + offset) % len;
+      var scale = 1 - newIndex * 0.05;
+      var translateX = newIndex * 12;
+      var translateY = newIndex * 12;
+      var opacity = 1 - newIndex * 0.15;
+      card.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + Math.max(scale, 0.7) + ')';
+      card.style.opacity = Math.max(opacity, 0.1);
+      card.style.zIndex = 6 - newIndex;
+    });
+  }
+
+  // ─── PREVIEW NAVIGATION ────────────────────────────────────
+  function showPreviewScreen(idx) {
+    var screens = document.querySelectorAll('.prev-screen');
+    screens.forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    var dots = document.querySelectorAll('#page-dots span');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+    currentPreviewScreen = idx;
+
+    // If entering letter screen, start typing
+    if (idx === 4) {
+      startTyping();
+    } else {
+      stopTyping();
+    }
+    // If gallery, update cards
+    if (idx === 3) {
+      setTimeout(renderCardStack, 100);
+    }
+  }
+
+  // ─── TYPING PREVIEW ────────────────────────────────────────
+  var typingInterval = null;
+  var typingCharIndex = 0;
+  var typingMessageEl = document.getElementById('prev-typing-message');
+  var letterText = '';
+
+  function startTyping() {
+    stopTyping();
+    letterText = document.getElementById('letter-text').value || '"From my heart & prayers — you are the most beautiful part of my life, and I\'m so lucky to have you. Your smile makes my days better."';
+    typingCharIndex = 0;
+    typingMessageEl.innerHTML = '<span class="typing-cursor"></span>';
+
+    typingInterval = setInterval(function() {
+      if (typingCharIndex < letterText.length) {
+        var cursorSpan = typingMessageEl.querySelector('.typing-cursor');
+        var textNode = document.createTextNode(letterText[typingCharIndex]);
+        typingMessageEl.insertBefore(textNode, cursorSpan);
+        typingCharIndex++;
+      } else {
+        stopTyping();
+      }
+    }, 45);
+  }
+
+  function stopTyping() {
+    if (typingInterval) {
+      clearInterval(typingInterval);
+      typingInterval = null;
+    }
+  }
+
+  // ─── INTERACTIVE PREVIEW (click handlers) ──────────────────
+  document.getElementById('prev-unlock-btn').addEventListener('click', function() {
+    showPreviewScreen(1);
+    setTimeout(function() { showPreviewScreen(2); }, 2200);
+  });
+
+  document.getElementById('prev-bday-btn').addEventListener('click', function() {
+    showPreviewScreen(3);
+  });
+
+  document.getElementById('prev-gallery-go-btn').addEventListener('click', function() {
+    showPreviewScreen(4);
+  });
+
+  document.getElementById('prev-letter-btn').addEventListener('click', function() {
+    // Complete typing if not done
+    if (typingInterval) {
+      stopTyping();
+      var remaining = letterText.substring(typingCharIndex);
+      var cursorSpan = typingMessageEl.querySelector('.typing-cursor');
+      if (cursorSpan) {
+        var textNode = document.createTextNode(remaining);
+        typingMessageEl.insertBefore(textNode, cursorSpan);
+      } else {
+        typingMessageEl.textContent = letterText;
+      }
+    }
+    showPreviewScreen(5);
+  });
+
+  document.getElementById('prev-gallery-next-btn').addEventListener('click', function() {
+    cardCurrent = (cardCurrent + 1) % galleryImages.length;
+    updateCardPositions(cardCurrent);
+  });
+
+  document.getElementById('prev-restart-btn').addEventListener('click', function() {
+    if (currentPreviewScreen === 5) {
+      showPreviewScreen(0);
+    }
+  });
+
+  // ─── GENERATE LINK ─────────────────────────────────────────
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    if (pendingUploads > 0) { alert('⏳ Still uploading files — please wait.'); return; }
+    var btn = this;
+    btn.textContent = 'Generating...';
+
+    // Collect data
+    var data = {
+      password: document.getElementById('password-value').value || 'love',
+      passwordHint: document.getElementById('password-hint').value || 'Enter the secret code (no password set, just type)',
+      unlockTitle: document.getElementById('unlock-title').value,
+      unlockSub: document.getElementById('unlock-sub').value,
+      unlockBtnText: document.getElementById('unlock-btn-text').value,
+      loadingText: document.getElementById('loading-text').value,
+      loadingSub: document.getElementById('loading-sub').value,
+      bdayTitle: document.getElementById('bday-title').value,
+      bdayYears: document.getElementById('bday-years').value,
+      bdayMonths: document.getElementById('bday-months').value,
+      bdayDays: document.getElementById('bday-days').value,
+      bdayBtn: document.getElementById('bday-btn').value,
+      galleryHeading: document.getElementById('gallery-heading').value,
+      gallerySub: document.getElementById('gallery-sub').value,
+      galleryNextBtn: document.getElementById('gallery-next-btn').value,
+      galleryGoBtn: document.getElementById('gallery-go-btn').value,
+      galleryImages: galleryImages,
+      letterTitle: document.getElementById('letter-title').value,
+      letterText: document.getElementById('letter-text').value,
+      letterBtn: document.getElementById('letter-btn').value,
+      finalTitle: document.getElementById('final-title').value,
+      finalFrom: document.getElementById('final-from').value,
+      finalMsg: document.getElementById('final-msg').value,
+      colorBg1: document.getElementById('color-bg1').value,
+      colorBg2: document.getElementById('color-bg2').value,
+      colorAccent: document.getElementById('color-accent').value,
+      colorText: document.getElementById('color-text').value,
+      audioUrl: audioUrl,
+      audioName: audioName,
+    };
+
+    var payload = {
+      template: 'password-special',
+      data: data
+    };
+
+    try {
+      var res = await fetch('https://wishify.onrender.com/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      var result = await res.json();
+      if (result.success) {
+        var link = window.location.origin + '/Password-special/' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
+      } else {
+        btn.textContent = '✨ Generate Shareable Link';
+        alert('❌ Failed to generate link.');
+      }
+    } catch(err) {
+      document.getElementById('result-link').textContent = '⚠️ Server error.';
+      document.getElementById('result-area').classList.add('show');
+      btn.textContent = '✨ Generate Shareable Link';
+    }
+  });
+
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    navigator.clipboard.writeText(link).then(function() {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!';
+      setTimeout(function(){ btn.textContent = '📋 Copy Link'; }, 2000);
+    });
+  }
+
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    window.open('https://wa.me/?text=' + encodeURIComponent('❤️ A special surprise for you! ' + link), '_blank');
+  }
+
+  // ─── SWIPE / KEYBOARD PREVIEW NAV ─────────────────────────
+  // Simple page navigation for preview (simulate the real flow)
+  // We'll just use the buttons as above.
+
+  console.log('Love‑String Editor ready!');
+</script>
+</body>
+</html>

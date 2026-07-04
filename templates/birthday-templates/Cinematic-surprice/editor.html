@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wishify — Cinematic Surprise Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 1.5rem;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; }
+    .nav-badge {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #f4c842;
+      background: rgba(244,200,66,.12);
+      border: 1px solid rgba(244,200,66,.25);
+      padding: .25rem .75rem;
+      border-radius: 50px;
+    }
+    .nav-step { font-size: .8rem; color: rgba(255,255,255,.4); }
+
+    .editor-layout {
+      display: flex;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 380px;
+      flex-shrink: 0;
+      background: #111;
+      border-right: 1px solid rgba(255,255,255,.07);
+      padding: 1rem;
+      overflow-y: auto;
+      height: 100%;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
+    }
+    .left-panel::-webkit-scrollbar { width: 4px; }
+    .left-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+    .right-panel {
+      flex: 1;
+      background: #0d0d0d;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .panel-section {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: .85rem;
+    }
+    .section-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .75rem;
+    }
+    .field {
+      margin-bottom: .75rem;
+    }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .3rem;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: .55rem .75rem;
+      outline: none;
+      resize: none;
+      transition: border-color .2s;
+    }
+    .field textarea { height: 64px; line-height: 1.6; }
+    .field input:focus, .field textarea:focus { border-color: rgba(244,200,66,.5); }
+
+    .upload-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .65rem;
+      border: 2px dashed rgba(255,255,255,.15);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .78rem;
+      color: rgba(255,255,255,.4);
+      position: relative;
+      transition: border-color .2s;
+    }
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-zone:hover { border-color: rgba(244,200,66,.4); color: #f4c842; }
+
+    .gallery-item-editor {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: .8rem;
+      margin-bottom: .7rem;
+    }
+    .gallery-item-editor .field { margin-bottom: .5rem; }
+    .gallery-item-editor .field:last-child { margin-bottom: 0; }
+    .gallery-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .5rem;
+    }
+    .gallery-item-header span {
+      font-size: .7rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.3);
+      letter-spacing: .05em;
+    }
+    .gallery-item-header button {
+      background: none;
+      border: none;
+      color: #e8506a;
+      font-size: .8rem;
+      cursor: pointer;
+      font-weight: 700;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      transition: background .2s;
+    }
+    .gallery-item-header button:hover { background: rgba(232,80,106,.15); }
+
+    .add-gallery-btn {
+      width: 100%;
+      padding: .6rem;
+      background: rgba(244,200,66,.08);
+      border: 1.5px dashed rgba(244,200,66,.3);
+      border-radius: 10px;
+      color: #f4c842;
+      font-family: 'Nunito', sans-serif;
+      font-size: .8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background .2s;
+      margin-top: .2rem;
+    }
+    .add-gallery-btn:hover { background: rgba(244,200,66,.14); }
+
+    .color-row {
+      display: flex;
+      gap: .8rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .color-row input[type="color"] {
+      width: 48px;
+      height: 40px;
+      border: 2px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      padding: 2px;
+    }
+    .color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+    .color-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.3);
+      min-width: 60px;
+    }
+
+    .share-section {
+      background: linear-gradient(135deg, rgba(244,200,66,.08), rgba(232,80,106,.06));
+      border: 1.5px solid rgba(244,200,66,.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .share-section .section-label { color: #f4c842; }
+    #generate-btn {
+      width: 100%;
+      padding: .8rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244,200,66,.2);
+      transition: transform .15s, box-shadow .15s;
+    }
+    #generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,200,66,.3); }
+    .result-area {
+      display: none;
+      margin-top: .75rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .result-area.show { display: block; }
+    .result-url {
+      display: block;
+      padding: .6rem .8rem;
+      font-size: .7rem;
+      color: rgba(255,255,255,.5);
+      word-break: break-all;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .result-actions {
+      display: flex;
+    }
+    .result-btn {
+      flex: 1;
+      padding: .55rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.5);
+      cursor: pointer;
+    }
+    .result-btn:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .result-btn + .result-btn { border-left: 1px solid rgba(255,255,255,.07); }
+
+    /* ─── PREVIEW PHONE ─── */
+    .preview-topbar {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+    .preview-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .live-dot {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .live-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .phone-wrap {
+      width: 100%;
+      max-width: 360px;
+      flex-shrink: 0;
+    }
+    .phone {
+      width: 100%;
+      background: #1a1a2e;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      min-height: 580px;
+      position: relative;
+    }
+    .phone-bar {
+      height: 28px;
+      background: rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-notch {
+      width: 80px;
+      height: 12px;
+      background: #000;
+      border-radius: 0 0 10px 10px;
+    }
+    .phone-screen {
+      padding: 1.2rem 1.2rem 1rem;
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0b;
+      color: #fff;
+      transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ─── PREVIEW SCREENS ─── */
+    .prev-screen {
+      display: none !important;
+      flex-direction: column;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.5rem 0;
+      gap: 8px;
+      width: 100%;
+    }
+    .prev-screen.active { display: flex !important; }
+
+    .prev-hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      font-style: italic;
+      background: linear-gradient(to right, #fff, var(--accent, #ff2d55), #fff);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 4s linear infinite;
+    }
+    @keyframes shine { to { background-position: 200% center; } }
+    .prev-hero-sub {
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+    }
+    .prev-btn-neon {
+      padding: 12px 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      background: transparent;
+      border: 1px solid var(--accent, #ff2d55);
+      border-radius: 50px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: 0.4s;
+      animation: neonPulse 2s infinite;
+      font-family: 'Nunito', sans-serif;
+    }
+    .prev-btn-neon:hover { background: var(--accent, #ff2d55); box-shadow: 0 0 30px var(--accent, #ff2d55); }
+    @keyframes neonPulse {
+      0% { box-shadow: 0 0 5px var(--accent, #ff2d55), 0 0 10px var(--accent, #ff2d55); }
+      50% { box-shadow: 0 0 20px var(--accent, #ff2d55), 0 0 40px var(--accent, #ff2d55); }
+      100% { box-shadow: 0 0 5px var(--accent, #ff2d55), 0 0 10px var(--accent, #ff2d55); }
+    }
+
+    .prev-slider-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      padding: 30px 20px;
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+      max-width: 300px;
+      width: 100%;
+    }
+    .prev-step-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .prev-slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .prev-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: 0.3s;
+    }
+    .prev-dot.active { background: var(--accent, #ff2d55); transform: scale(1.5); }
+
+    .prev-celeb-hint { font-size: 1rem; margin-bottom: 20px; letter-spacing: 2px; }
+
+    .prev-curtain {
+      width: 100%;
+      height: 80px;
+      background: repeating-linear-gradient(to right, #6e0000, #4a0000 10%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      margin: 8px 0;
+      color: #fff;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      transition: transform 0.8s;
+      border: 2px solid var(--gold, #d4af37);
+    }
+    .prev-curtain.open { transform: scaleX(0.8); }
+    .prev-typing {
+      font-size: 0.7rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.7);
+      text-align: left;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      min-height: 60px;
+      max-width: 300px;
+      width: 100%;
+      font-weight: 300;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'Nunito', sans-serif;
+    }
+    .prev-typing .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--accent, #ff2d55);
+      vertical-align: text-bottom;
+      animation: blinkCursor 0.8s step-end infinite;
+    }
+    @keyframes blinkCursor { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .prev-gallery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      width: 100%;
+      max-width: 300px;
+    }
+    .prev-gallery-item {
+      aspect-ratio: 1/1;
+      background: #222;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #555;
+    }
+    .prev-gallery-item img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+
+    .page-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+    .page-dots span {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      transition: background 0.3s, transform 0.3s;
+      cursor: pointer;
+    }
+    .page-dots span.active { background: var(--accent, #ff2d55); transform: scale(1.2); }
+    .page-dots span:hover { background: rgba(255,255,255,0.3); }
+
+    .prev-gallery-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6rem;
+      color: var(--accent, #ff2d55);
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .editor-layout { flex-direction: column; height: auto; overflow: visible; }
+      .left-panel { width: 100%; height: auto; overflow-y: visible; border-right: none; border-bottom: 1px solid rgba(255,255,255,.07); }
+      .right-panel { height: auto; overflow-y: visible; padding: 1rem; }
+      .phone-wrap { max-width: 100%; }
+      .navbar { padding: 0 1rem; }
+      .nav-step { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo">✨ Wishify</div>
+  <div class="nav-badge">Cinematic Surprise</div>
+  <div class="nav-step">Template 6</div>
+</nav>
+
+<div class="editor-layout">
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel">
+
+    <!-- HERO -->
+    <div class="panel-section">
+      <div class="section-label">🎬 Hero Page</div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="hero-title" value="Happy Birthday, friend" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Subtitle</label>
+        <input type="text" id="hero-sub" value="A Cinematic Journey Created Just For You" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Text</label>
+        <input type="text" id="hero-btn" value="Open Your Gift" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- MESSAGE SLIDER -->
+    <div class="panel-section">
+      <div class="section-label">📝 Message Slider</div>
+      <div class="field">
+        <label>Step 1 Text</label>
+        <input type="text" id="slider-step1" value="It's Your Special Day" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Step 2 Text</label>
+        <input type="text" id="slider-step2" value="Have a look" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Step 3 Text</label>
+        <input type="text" id="slider-step3" value="Ready for your surprise?" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Text (each step)</label>
+        <input type="text" id="slider-btn" value="Next" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Final Button Text</label>
+        <input type="text" id="slider-final-btn" value="Let's Go" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- CELEBRATION -->
+    <div class="panel-section">
+      <div class="section-label">🎉 Celebration</div>
+      <div class="field">
+        <label>Hint Text</label>
+        <input type="text" id="celeb-hint" value="The Stage is Set..." oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Label (step 1)</label>
+        <input type="text" id="celeb-btn1" value="💡 Turn On Lights" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Label (step 2)</label>
+        <input type="text" id="celeb-btn2" value="🎵 Play Music" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Label (step 3)</label>
+        <input type="text" id="celeb-btn3" value="🎈 Fly Balloons" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Label (step 4)</label>
+        <input type="text" id="celeb-btn4" value="✨ Show The Message" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- CURTAIN MESSAGE -->
+    <div class="panel-section">
+      <div class="section-label">🎭 Curtain Message (Typing)</div>
+      <div class="field">
+        <label>Message Text</label>
+        <textarea id="curtain-msg" rows="3" oninput="updatePreview()">Today isn't just a date on the calendar; it's a celebration of the light you bring into my life. Every moment with you is like a frame from a beautiful movie, and I'm so lucky to be your co-star. May this year be filled with as much magic as you give to everyone around you.</textarea>
+      </div>
+      <div class="field">
+        <label>Gallery Button Text</label>
+        <input type="text" id="curtain-gallery-btn" value="Our Memories" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="panel-section">
+      <div class="section-label">🖼 Gallery (max 6)</div>
+      <div class="field">
+        <label>Gallery Title</label>
+        <input type="text" id="gallery-title" value="Moments in Time" oninput="updatePreview()" />
+      </div>
+      <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.3);margin:.5rem 0 .3rem;">Photos &amp; Captions</div>
+      <div id="gallery-editor-container"></div>
+      <button class="add-gallery-btn" onclick="addGalleryItem()">+ Add Memory</button>
+    </div>
+
+    <!-- COLORS -->
+    <div class="panel-section">
+      <div class="section-label">🎨 Colors</div>
+      <div class="field">
+        <label>Accent Color</label>
+        <div class="color-row">
+          <span class="color-label">Accent</span>
+          <input type="color" id="color-accent" value="#ff2d55" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Gold / Secondary</label>
+        <div class="color-row">
+          <span class="color-label">Gold</span>
+          <input type="color" id="color-gold" value="#d4af37" oninput="updatePreview()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIO -->
+    <div class="panel-section">
+      <div class="section-label">🎵 Background Music</div>
+      <p style="font-size:.7rem;color:rgba(255,255,255,.4);margin-bottom:.8rem;line-height:1.4;">Upload a song (max 15MB).</p>
+      <div class="field">
+        <label class="upload-zone">
+          <input type="file" accept="audio/*,.opus,.ogg,.m4a,.mp3,.wav,.aac" onchange="handleAudioUpload(this)" />
+          <span id="audio-label-text">🎵 Click to upload audio</span>
+        </label>
+        <div id="audio-filename" style="font-size:.7rem;color:#f4c842;margin-top:.4rem;font-weight:600;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- SHARE -->
+    <div class="share-section">
+      <div class="section-label">🔗 Share</div>
+      <button id="generate-btn">✨ Generate Shareable Link</button>
+      <div class="result-area" id="result-area">
+        <span class="result-url" id="result-link"></span>
+        <div class="result-actions">
+          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL — PHONE PREVIEW -->
+  <main class="right-panel">
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <span class="live-dot">Live</span>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-bar"><div class="phone-notch"></div></div>
+        <div class="phone-screen" id="phone-screen">
+
+          <!-- SCREEN 0: HERO -->
+          <div class="prev-screen active" id="prev-screen-0">
+            <div class="prev-hero-title" id="prev-hero-title">Happy Birthday, friend</div>
+            <div class="prev-hero-sub" id="prev-hero-sub">A Cinematic Journey Created Just For You</div>
+            <button class="prev-btn-neon" id="prev-hero-btn">Open Your Gift</button>
+          </div>
+
+          <!-- SCREEN 1: SLIDER -->
+          <div class="prev-screen" id="prev-screen-1">
+            <div class="prev-slider-card">
+              <div class="prev-step-text" id="prev-step-text-display">It's Your Special Day</div>
+              <button class="prev-btn-neon" id="prev-slider-btn" style="font-size:0.8rem;padding:8px 24px;">Next</button>
+              <div class="prev-slider-dots">
+                <span class="prev-dot active" data-step="1"></span>
+                <span class="prev-dot" data-step="2"></span>
+                <span class="prev-dot" data-step="3"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SCREEN 2: CELEBRATION -->
+          <div class="prev-screen" id="prev-screen-2">
+            <div class="prev-celeb-hint" id="prev-celeb-hint">The Stage is Set...</div>
+            <button class="prev-btn-neon" id="prev-celeb-btn">💡 Turn On Lights</button>
+          </div>
+
+          <!-- SCREEN 3: CURTAIN -->
+          <div class="prev-screen" id="prev-screen-3">
+            <div class="prev-curtain" id="prev-curtain">🎭 Curtain</div>
+            <div class="prev-typing" id="prev-typing"><span class="typing-cursor"></span></div>
+            <button class="prev-btn-neon" id="prev-curtain-btn" style="font-size:0.8rem;padding:8px 20px;margin-top:10px;">Our Memories</button>
+          </div>
+
+          <!-- SCREEN 4: GALLERY -->
+          <div class="prev-screen" id="prev-screen-4">
+            <div class="prev-gallery-title" id="prev-gallery-title">Moments in Time</div>
+            <div class="prev-gallery-grid" id="prev-gallery-grid"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Page dots -->
+      <div class="page-dots" id="page-dots">
+        <span class="active" data-screen="0"></span>
+        <span data-screen="1"></span>
+        <span data-screen="2"></span>
+        <span data-screen="3"></span>
+        <span data-screen="4"></span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ─── STATE ──────────────────────────────────────────────────
+  var galleryItems = [];
+  var audioUrl = '';
+  var audioName = '';
+  var pendingUploads = 0;
+  var currentPreviewScreen = 0;
+  var totalPreviewScreens = 5;
+  var sliderStep = 1;
+  var sliderStepsText = [];
+  var sliderFinalBtnText = 'Let\'s Go';
+
+  // ─── INIT ──────────────────────────────────────────────────
+  window.addEventListener('load', function() {
+    // Add default 4 gallery items
+    for (var i = 0; i < 4; i++) {
+      galleryItems.push({ src: '', caption: 'Memory ' + (i+1) });
+    }
+    renderGalleryEditor();
+    updatePreview();
+    setupNavigation();
+    setupSlider();
+    setupCelebration();
+    setupCurtain();
+    setupHero();
+  });
+
+  // ─── SETUP: HERO BUTTON ──────────────────────────────────
+  function setupHero() {
+    document.getElementById('prev-hero-btn').addEventListener('click', function() {
+      showPreviewScreen(1);
+    });
+  }
+
+  // ─── SETUP: SLIDER ──────────────────────────────────────
+  function setupSlider() {
+    var btn = document.getElementById('prev-slider-btn');
+    btn.addEventListener('click', function() {
+      if (sliderStep < 3) {
+        sliderStep++;
+        updateSliderDisplay();
+      } else {
+        // Go to celebration screen
+        showPreviewScreen(2);
+      }
+    });
+  }
+
+  function updateSliderDisplay() {
+    var steps = [
+      document.getElementById('slider-step1').value || "It's Your Special Day",
+      document.getElementById('slider-step2').value || 'Have a look',
+      document.getElementById('slider-step3').value || 'Ready for your surprise?'
+    ];
+    var display = document.getElementById('prev-step-text-display');
+    display.textContent = steps[sliderStep - 1];
+
+    var dots = document.querySelectorAll('#prev-screen-1 .prev-dot');
+    dots.forEach(function(d, i) {
+      d.classList.toggle('active', i === sliderStep - 1);
+    });
+
+    var btn = document.getElementById('prev-slider-btn');
+    if (sliderStep === 3) {
+      btn.textContent = document.getElementById('slider-final-btn').value || "Let's Go";
+    } else {
+      btn.textContent = document.getElementById('slider-btn').value || 'Next';
+    }
+  }
+
+  // ─── SETUP: CELEBRATION ──────────────────────────────────
+  function setupCelebration() {
+    var btn = document.getElementById('prev-celeb-btn');
+    btn.addEventListener('click', function() {
+      showPreviewScreen(3);
+    });
+  }
+
+  // ─── SETUP: CURTAIN ──────────────────────────────────────
+  function setupCurtain() {
+    var btn = document.getElementById('prev-curtain-btn');
+    btn.addEventListener('click', function() {
+      showPreviewScreen(4);
+    });
+  }
+
+  // ─── SETUP: PAGE DOTS NAVIGATION ────────────────────────
+  function setupNavigation() {
+    var dots = document.querySelectorAll('#page-dots span');
+    dots.forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        var idx = parseInt(this.getAttribute('data-screen'));
+        if (!isNaN(idx) && idx >= 0 && idx < totalPreviewScreens) {
+          showPreviewScreen(idx);
+        }
+      });
+    });
+  }
+
+  // ─── SHOW PREVIEW SCREEN ─────────────────────────────────
+  function showPreviewScreen(idx) {
+    if (idx < 0 || idx >= totalPreviewScreens) return;
+    currentPreviewScreen = idx;
+
+    var screens = document.querySelectorAll('.prev-screen');
+    screens.forEach(function(s, i) {
+      s.classList.toggle('active', i === idx);
+    });
+
+    var dots = document.querySelectorAll('#page-dots span');
+    dots.forEach(function(d, i) {
+      d.classList.toggle('active', i === idx);
+    });
+  }
+
+  // ─── UPLOAD HELPERS ────────────────────────────────────────
+  function beginUpload() { pendingUploads++; document.getElementById('generate-btn').textContent = '⏳ Uploading...'; }
+  function endUpload() { pendingUploads = Math.max(0, pendingUploads - 1); if(pendingUploads === 0) document.getElementById('generate-btn').textContent = '✨ Generate Shareable Link'; }
+
+  function uploadToCloudinary(file, type) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var res = await fetch('https://wishify.onrender.com/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: e.target.result, type: type || 'image' })
+          });
+          var result = await res.json();
+          if (result.success) resolve(result.url);
+          else reject('Upload failed');
+        } catch(err) { reject(err); }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ─── GALLERY EDITOR ────────────────────────────────────────
+  function renderGalleryEditor() {
+    var container = document.getElementById('gallery-editor-container');
+    container.innerHTML = '';
+    galleryItems.forEach(function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'gallery-item-editor';
+      div.innerHTML =
+        '<div class="gallery-item-header">' +
+          '<span>Memory ' + (idx+1) + '</span>' +
+          '<button onclick="removeGalleryItem(' + idx + ')">✕</button>' +
+        '</div>' +
+        '<div class="field"><label>Image</label>' +
+          '<label class="upload-zone">' +
+            '<input type="file" accept="image/*" onchange="handleGalleryUpload(this, ' + idx + ')" />' +
+            '<span id="gallery-upload-label-' + idx + '">' + (item.src ? '✅ Uploaded' : '📁 Click to upload') + '</span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="field"><label>Caption (hover text)</label>' +
+          '<input type="text" id="gallery-caption-' + idx + '" value="' + (item.caption || '') + '" placeholder="e.g. You make my world beautiful" oninput="updateGalleryCaption(' + idx + ')" />' +
+        '</div>';
+      container.appendChild(div);
+    });
+  }
+
+  function addGalleryItem() {
+    if (galleryItems.length >= 6) { alert('Maximum 6 memories'); return; }
+    galleryItems.push({ src: '', caption: 'Memory ' + (galleryItems.length+1) });
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function removeGalleryItem(idx) {
+    if (galleryItems.length <= 1) { alert('At least 1 memory required'); return; }
+    galleryItems.splice(idx, 1);
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function updateGalleryCaption(idx) {
+    var input = document.getElementById('gallery-caption-' + idx);
+    if (input) galleryItems[idx].caption = input.value;
+    updatePreview();
+  }
+
+  async function handleGalleryUpload(input, idx) {
+    if (!input.files || !input.files[0]) return;
+    var label = document.getElementById('gallery-upload-label-' + idx);
+    label.textContent = '⏳ Uploading...';
+    beginUpload();
+    try {
+      var url = await uploadToCloudinary(input.files[0], 'image');
+      galleryItems[idx].src = url;
+      label.textContent = '✅ Uploaded';
+      updatePreview();
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── AUDIO ──────────────────────────────────────────────────
+  async function handleAudioUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (file.size > 15 * 1024 * 1024) { alert('Audio too large (max 15MB)'); input.value = ''; return; }
+    audioName = file.name;
+    var label = document.getElementById('audio-filename');
+    label.textContent = '⏳ Uploading: ' + audioName;
+    label.style.display = 'block';
+    beginUpload();
+    try {
+      audioUrl = await uploadToCloudinary(file, 'audio');
+      label.textContent = '✅ ' + audioName;
+      document.getElementById('audio-label-text').textContent = '🎵 ' + audioName;
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── PREVIEW UPDATE ────────────────────────────────────────
+  function updatePreview() {
+    var accent = document.getElementById('color-accent').value;
+    var gold = document.getElementById('color-gold').value;
+    var phoneScreen = document.getElementById('phone-screen');
+    phoneScreen.style.setProperty('--accent', accent);
+    phoneScreen.style.setProperty('--gold', gold);
+
+    // Hero
+    document.getElementById('prev-hero-title').textContent = document.getElementById('hero-title').value || 'Happy Birthday, friend';
+    document.getElementById('prev-hero-sub').textContent = document.getElementById('hero-sub').value || 'A Cinematic Journey Created Just For You';
+    document.getElementById('prev-hero-btn').textContent = document.getElementById('hero-btn').value || 'Open Your Gift';
+    document.getElementById('prev-hero-btn').style.borderColor = accent;
+    document.getElementById('prev-hero-btn').style.setProperty('--accent', accent);
+
+    // Slider - update display
+    var steps = [
+      document.getElementById('slider-step1').value || "It's Your Special Day",
+      document.getElementById('slider-step2').value || 'Have a look',
+      document.getElementById('slider-step3').value || 'Ready for your surprise?'
+    ];
+    var display = document.getElementById('prev-step-text-display');
+    display.textContent = steps[sliderStep - 1];
+
+    var btn = document.getElementById('prev-slider-btn');
+    if (sliderStep === 3) {
+      btn.textContent = document.getElementById('slider-final-btn').value || "Let's Go";
+    } else {
+      btn.textContent = document.getElementById('slider-btn').value || 'Next';
+    }
+    btn.style.borderColor = accent;
+    btn.style.setProperty('--accent', accent);
+
+    // Celebration
+    document.getElementById('prev-celeb-hint').textContent = document.getElementById('celeb-hint').value || 'The Stage is Set...';
+    var celebBtn = document.getElementById('prev-celeb-btn');
+    celebBtn.textContent = document.getElementById('celeb-btn1').value || '💡 Turn On Lights';
+    celebBtn.style.borderColor = accent;
+    celebBtn.style.setProperty('--accent', accent);
+
+    // Curtain
+    document.getElementById('prev-curtain').style.borderColor = gold;
+    var msg = document.getElementById('curtain-msg').value || "Today isn't just a date on the calendar; it's a celebration of the light you bring into my life.";
+    document.getElementById('prev-typing').innerHTML = msg + '<span class="typing-cursor"></span>';
+    document.getElementById('prev-curtain-btn').textContent = document.getElementById('curtain-gallery-btn').value || 'Our Memories';
+    document.getElementById('prev-curtain-btn').style.borderColor = accent;
+    document.getElementById('prev-curtain-btn').style.setProperty('--accent', accent);
+
+    // Gallery
+    document.getElementById('prev-gallery-title').textContent = document.getElementById('gallery-title').value || 'Moments in Time';
+    document.getElementById('prev-gallery-title').style.color = accent;
+    renderGalleryPreview();
+
+    // Update dots colors
+    var dots = document.querySelectorAll('#page-dots span');
+    dots.forEach(function(d) {
+      if (d.classList.contains('active')) {
+        d.style.background = accent;
+      } else {
+        d.style.background = '#2a2a2a';
+      }
+    });
+  }
+
+  function renderGalleryPreview() {
+    var grid = document.getElementById('prev-gallery-grid');
+    grid.innerHTML = '';
+    var items = galleryItems.slice(0, 6);
+    items.forEach(function(item) {
+      var div = document.createElement('div');
+      div.className = 'prev-gallery-item';
+      if (item.src) {
+        div.innerHTML = '<img src="' + item.src + '" alt="memory" />';
+      } else {
+        div.textContent = '📷';
+      }
+      grid.appendChild(div);
+    });
+    while (grid.children.length < 6) {
+      var div = document.createElement('div');
+      div.className = 'prev-gallery-item';
+      div.textContent = '📷';
+      grid.appendChild(div);
+    }
+  }
+
+  // ─── GENERATE LINK ─────────────────────────────────────────
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    if (pendingUploads > 0) { alert('⏳ Still uploading files — please wait.'); return; }
+    var btn = this;
+    btn.textContent = 'Generating...';
+
+    var data = {
+      heroTitle: document.getElementById('hero-title').value,
+      heroSub: document.getElementById('hero-sub').value,
+      heroBtn: document.getElementById('hero-btn').value,
+      sliderStep1: document.getElementById('slider-step1').value,
+      sliderStep2: document.getElementById('slider-step2').value,
+      sliderStep3: document.getElementById('slider-step3').value,
+      sliderBtn: document.getElementById('slider-btn').value,
+      sliderFinalBtn: document.getElementById('slider-final-btn').value,
+      celebHint: document.getElementById('celeb-hint').value,
+      celebBtn1: document.getElementById('celeb-btn1').value,
+      celebBtn2: document.getElementById('celeb-btn2').value,
+      celebBtn3: document.getElementById('celeb-btn3').value,
+      celebBtn4: document.getElementById('celeb-btn4').value,
+      curtainMsg: document.getElementById('curtain-msg').value,
+      curtainGalleryBtn: document.getElementById('curtain-gallery-btn').value,
+      galleryTitle: document.getElementById('gallery-title').value,
+      galleryItems: galleryItems,
+      colorAccent: document.getElementById('color-accent').value,
+      colorGold: document.getElementById('color-gold').value,
+      audioUrl: audioUrl,
+      audioName: audioName,
+    };
+
+    var payload = {
+      template: 'cinematic-surprise',
+      data: data
+    };
+
+    try {
+      var res = await fetch('https://wishify.onrender.com/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      var result = await res.json();
+      if (result.success) {
+        var link = window.location.origin + '/cinematic-surprise/' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
+      } else {
+        btn.textContent = '✨ Generate Shareable Link';
+        alert('❌ Failed to generate link.');
+      }
+    } catch(err) {
+      document.getElementById('result-link').textContent = '⚠️ Server error.';
+      document.getElementById('result-area').classList.add('show');
+      btn.textContent = '✨ Generate Shareable Link';
+    }
+  });
+
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    navigator.clipboard.writeText(link).then(function() {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!';
+      setTimeout(function(){ btn.textContent = '📋 Copy Link'; }, 2000);
+    });
+  }
+
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    window.open('https://wa.me/?text=' + encodeURIComponent('🎬 A cinematic birthday surprise for you! ' + link), '_blank');
+  }
+
+  // ─── INIT PREVIEW ──────────────────────────────────────────
+  updatePreview();
+  console.log('Cinematic Surprise Editor ready — live preview fully functional!');
+</script>
+</body>
+</html>
