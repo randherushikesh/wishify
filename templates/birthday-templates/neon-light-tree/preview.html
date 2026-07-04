@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎂 Happy Birthday!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet" />
+    <style>
+        /* ── RESET & BASE ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            font-family: 'Nunito', sans-serif;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* ── PAGES ── */
+        .page {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.96);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .page.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+        .page.exit {
+            opacity: 0;
+            transform: scale(0.94);
+        }
+
+        /* ── PAGE 1: GREETING ── */
+        #greeting-page {
+            background: radial-gradient(ellipse at 30% 40%, #1a0a1e, #0a0a0a 80%);
+            justify-content: center;
+            gap: 24px;
+            text-align: center;
+        }
+        #greeting-page .bg-hearts {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        #greeting-page .bg-hearts span {
+            position: absolute;
+            font-size: 28px;
+            animation: floatHeart 6s ease-in infinite;
+            opacity: 0;
+        }
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(110vh) rotate(0deg) scale(0.4);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .greeting-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.6rem, 9vw, 5.5rem);
+            font-weight: 700;
+            font-style: italic;
+            background: linear-gradient(135deg, #ff6b8a, #ff2d55, #ff6b8a);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradShift 4s ease infinite;
+            z-index: 2;
+            line-height: 1.2;
+        }
+        @keyframes gradShift {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .greeting-sub {
+            font-size: clamp(1rem, 2.2vw, 1.6rem);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+            letter-spacing: 4px;
+            z-index: 2;
+        }
+        .greeting-emoji {
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            z-index: 2;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+        }
+
+         .floating-cta {
+  position: fixed;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+}
+.floating-cta a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  background: linear-gradient(135deg, #f4c842, #e8506a);
+  color: #1a0010;
+  font-family: 'Nunito', sans-serif;
+  font-size: .72rem;
+  font-weight: 800;
+  text-decoration: none;
+  padding: 1rem .6rem;
+  border-radius: 50px;
+  box-shadow: 0 8px 24px rgba(244,200,66,.3);
+  transition: transform .2s, box-shadow .2s;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: .05em;
+  min-width: 44px;
+  text-align: center;
+}
+.floating-cta a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(244,200,66,.45);
+}
+.floating-cta .cta-icon {
+  font-size: 1.1rem;
+  writing-mode: horizontal-tb;
+}
+.floating-cta .back-btn {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.5);
+  font-size: .65rem;
+  padding: .6rem .5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  writing-mode: vertical-rl;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,.1);
+  transition: background .2s, color .2s;
+}
+.floating-cta .back-btn:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+@media (max-width: 640px) {
+  .floating-cta {
+    position: fixed;
+    bottom: 0; left: 0; right: 0; top: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: center;
+    padding: 0.5rem 0.8rem;
+    background: rgba(12, 12, 20, 0.9);
+    backdrop-filter: blur(16px) saturate(1.2);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    gap: 0.6rem;
+    box-shadow: 0 -4px 30px rgba(0,0,0,.4);
+  }
+  .floating-cta a {
+    writing-mode: horizontal-tb;
+    flex-direction: row;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    border-radius: 30px;
+    min-width: auto;
+    gap: 0.4rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(244,200,66,.2);
+  }
+  .floating-cta .cta-icon {
+    writing-mode: horizontal-tb;
+    font-size: 0.85rem;
+  }
+  .floating-cta .back-btn {
+    writing-mode: horizontal-tb;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .floating-cta .back-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+  /* Push page content above the bottom bar */
+  .brand { padding-bottom: 5rem; }
+}
+
+        .btn-primary {
+            padding: 16px 52px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #fff;
+            background: linear-gradient(135deg, #ff2d55, #ff6b8a);
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(255, 45, 85, 0.4);
+            transition: transform 0.25s, box-shadow 0.3s;
+            z-index: 2;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 48px rgba(255, 45, 85, 0.6);
+        }
+        .btn-primary:hover::after {
+            opacity: 1;
+        }
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        /* ── PAGE 2: GALLERY (SCROLLING NEON) ── */
+        #gallery-page {
+            background: radial-gradient(ellipse at center, #120a18, #050505);
+            padding: 40px 20px 30px;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+        .gallery-header h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            color: #ff6b8a;
+            text-shadow: 0 0 30px rgba(255, 45, 85, 0.3);
+        }
+        .gallery-header p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+
+        /* horizontal scroll container */
+        .gallery-scroll {
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            padding: 10px 0;
+        }
+        .gallery-track {
+            display: flex;
+            gap: 24px;
+            width: max-content;
+            animation: scrollGallery 20s linear infinite;
+        }
+        .gallery-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scrollGallery {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .gallery-card {
+            width: 200px;
+            height: 260px;
+            border-radius: 24px;
+            perspective: 800px;
+            flex-shrink: 0;
+            position: relative;
+            border: 2px solid rgba(255, 45, 85, 0.3);
+            animation: neonPulse 2s ease-in-out infinite alternate;
+            box-shadow: 0 0 20px rgba(255, 45, 85, 0.1);
+        }
+        @keyframes neonPulse {
+            0% {
+                border-color: rgba(255, 45, 85, 0.3);
+                box-shadow: 0 0 10px rgba(255, 45, 85, 0.1);
+            }
+            100% {
+                border-color: #ff6b8a;
+                box-shadow: 0 0 40px rgba(255, 45, 85, 0.8), 0 0 80px rgba(255, 45, 85, 0.4);
+            }
+        }
+
+        .gallery-card-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        .gallery-card:hover .gallery-card-inner {
+            transform: rotateY(180deg);
+        }
+        .gallery-card-front,
+        .gallery-card-back {
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .gallery-card-front {
+            background: #1a1a2e;
+        }
+        .gallery-card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .gallery-card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(145deg, #1a0a1e, #2d0a18);
+            padding: 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 45, 85, 0.2);
+        }
+        .gallery-card-back .msg {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.1rem;
+            color: #ffb6c1;
+            line-height: 1.5;
+        }
+        .gallery-card-back .heart-icon {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .gallery-nav {
+            display: flex;
+            gap: 20px;
+            margin-top: 24px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+        .gallery-nav .btn-secondary {
+            padding: 12px 34px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ff6b8a;
+            background: transparent;
+            border: 1.5px solid #ff6b8a;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .gallery-nav .btn-secondary:hover {
+            background: #ff6b8a;
+            color: #0a0a0a;
+            box-shadow: 0 0 30px rgba(255, 45, 85, 0.3);
+        }
+        .gallery-nav .btn-secondary:active {
+            transform: scale(0.94);
+        }
+
+        /* ── PAGE 3: TREE ── */
+        #tree-page {
+            background: #0a0a0a;
+            padding: 0;
+            overflow: hidden;
+        }
+        #tree-page canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ── REPLAY BUTTON ── */
+        #replayBtn {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 28px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffb6c1;
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 40px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease, background 0.3s;
+            font-family: 'Nunito', sans-serif;
+            backdrop-filter: blur(8px);
+            z-index: 50;
+        }
+        #replayBtn.show {
+            opacity: 0.85;
+            pointer-events: auto;
+        }
+        #replayBtn:hover {
+            background: rgba(255, 182, 193, 0.15);
+            border-color: #ffb6c1;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 600px) {
+            .gallery-card {
+                width: 150px;
+                height: 200px;
+            }
+            .gallery-card-back .msg {
+                font-size: 0.9rem;
+            }
+            .gallery-nav {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .gallery-nav .btn-secondary {
+                padding: 10px 28px;
+                font-size: 0.8rem;
+            }
+            .gallery-track {
+                gap: 16px;
+            }
+        }
+        @media (max-width: 420px) {
+            .gallery-card {
+                width: 120px;
+                height: 160px;
+            }
+            .gallery-card-back .msg {
+                font-size: 0.7rem;
+            }
+            .gallery-card-back .heart-icon {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="floating-cta">
+  <a href="editor.html">
+    <span class="cta-icon">✏️</span>
+    Start Editing
+  </a>
+  <a href="../../birthday-gallery.html" class="back-btn">← Gallery</a>
+
+</div>
+
+    <!-- ═══ PAGE 1: GREETING ═══ -->
+    <section id="greeting-page" class="page active">
+        <div class="bg-hearts" id="bgHearts"></div>
+        <div class="greeting-emoji">🎂</div>
+        <h1 class="greeting-title">It's Your Birthday Today!</h1>
+        <p class="greeting-sub">A magical journey awaits you ✨</p>
+        <button class="btn-primary" id="greetingBtn">Let's Go</button>
+    </section>
+
+    <!-- ═══ PAGE 2: GALLERY (SCROLLING NEON) ═══ -->
+    <section id="gallery-page" class="page">
+        <div class="gallery-header">
+            <h2>✨ Moments with You</h2>
+            <p>hover to reveal the love — auto‑scroll with neon glow</p>
+        </div>
+        <div class="gallery-scroll">
+            <div class="gallery-track" id="galleryTrack">
+                <!-- cards will be inserted here and doubled for seamless loop -->
+            </div>
+        </div>
+        <div class="gallery-nav">
+            <button class="btn-secondary" id="galleryBack">← Back</button>
+            <button class="btn-secondary" id="galleryNext">View Surprise →</button>
+        </div>
+    </section>
+
+    <!-- ═══ PAGE 3: TREE ═══ -->
+    <section id="tree-page" class="page">
+        <canvas id="treeCanvas"></canvas>
+        <button id="replayBtn">Replay ↺</button>
+    </section>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        //  PAGE NAVIGATION
+        // ═══════════════════════════════════════════════════════════════
+
+        const pages = document.querySelectorAll('.page');
+        let currentPage = 0;
+
+        function goToPage(index) {
+            if (index === currentPage) return;
+            pages.forEach((p, i) => {
+                p.classList.remove('active', 'exit');
+                if (i === index) p.classList.add('active');
+                else p.classList.add('exit');
+            });
+            currentPage = index;
+            if (index === 2) {
+                setTimeout(initTree, 400);
+            }
+        }
+
+        document.getElementById('greetingBtn').addEventListener('click', () => goToPage(1));
+        document.getElementById('galleryBack').addEventListener('click', () => goToPage(0));
+        document.getElementById('galleryNext').addEventListener('click', () => goToPage(2));
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PAGE 1: FLOATING HEARTS
+        // ═══════════════════════════════════════════════════════════════
+
+        (function initHearts() {
+            const container = document.getElementById('bgHearts');
+            const emojis = ['❤️', '💖', '💕', '💗', '✨', '🌸', '🌺'];
+            for (let i = 0; i < 30; i++) {
+                const span = document.createElement('span');
+                span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                span.style.left = Math.random() * 100 + '%';
+                span.style.fontSize = (Math.random() * 22 + 12) + 'px';
+                span.style.animationDuration = (Math.random() * 6 + 4) + 's';
+                span.style.animationDelay = (Math.random() * 8) + 's';
+                container.appendChild(span);
+            }
+        })();
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PAGE 2: GALLERY — SCROLLING NEON
+        // ═══════════════════════════════════════════════════════════════
+
+        const galleryData = [
+            { img: 'https://picsum.photos/seed/birthday1/400/400', msg: 'You light up my world 🌟' },
+            { img: 'https://picsum.photos/seed/birthday2/400/400', msg: 'Every moment with you is magic ✨' },
+            { img: 'https://picsum.photos/seed/birthday3/400/400', msg: 'Your smile is my sunshine ☀️' },
+            { img: 'https://picsum.photos/seed/birthday4/400/400', msg: 'Forever grateful for you 💖' },
+            { img: 'https://picsum.photos/seed/birthday5/400/400', msg: 'You make life beautiful 🌹' },
+            { img: 'https://picsum.photos/seed/birthday6/400/400', msg: 'My favorite person ever 💕' },
+        ];
+
+        const track = document.getElementById('galleryTrack');
+
+        // build cards and double them for seamless loop
+        function buildGallery() {
+            track.innerHTML = '';
+            // create two sets for infinite loop
+            for (let rep = 0; rep < 2; rep++) {
+                galleryData.forEach((item) => {
+                    const card = document.createElement('div');
+                    card.className = 'gallery-card';
+                    card.innerHTML = `
+                        <div class="gallery-card-inner">
+                            <div class="gallery-card-front">
+                                <img src="${item.img}" alt="memory" loading="lazy" />
+                            </div>
+                            <div class="gallery-card-back">
+                                <div class="heart-icon">❤️</div>
+                                <div class="msg">${item.msg}</div>
+                            </div>
+                        </div>
+                    `;
+                    track.appendChild(card);
+                });
+            }
+        }
+        buildGallery();
+
+        // Pause animation on hover
+        const scrollContainer = document.querySelector('.gallery-scroll');
+        scrollContainer.addEventListener('mouseenter', () => {
+            track.style.animationPlayState = 'paused';
+        });
+        scrollContainer.addEventListener('mouseleave', () => {
+            track.style.animationPlayState = 'running';
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PAGE 3: TREE ANIMATION (fixed clipping)
+        // ═══════════════════════════════════════════════════════════════
+
+        let treeState = 0;
+        let fallingY = -50;
+        let fallingX = 0;
+        let trunkHeight = 0;
+        const maxTrunkHeightPct = 0.20;
+        let branchSegs = [];
+        let currentDepthStage = 1;
+        const MAX_DEPTH = 4;
+        let canopy = { cx: 0, cy: 0, rx: 100, ry: 100 };
+        let leaves = [];
+        const maxLeaves = 800;
+        const colors = ['#FF69B4', '#FF1493', '#FF2D55', '#FFD700', '#FFA500', '#FFFFFF', '#FF8C00', '#FFB6C1', '#F08080',
+            '#FF6B8A'
+        ];
+        let treeOffsetX = 0;
+        // no shift needed → set to 0
+        const targetOffsetX = 0;
+        const message = "Hey you 💕\nHappy Birthday 🎂\nMay God bless you 🍀";
+        let typedText = "";
+        let charIndex = 0;
+        let frameCount = 0;
+        let treeAnimId = null;
+
+        let fairyLights = [];
+        const NUM_FAIRY_LIGHTS = 60;
+        let sparkles = [];
+
+        const canvas = document.getElementById('treeCanvas');
+        const ctx = canvas.getContext('2d');
+        let W = 0,
+            H = 0;
+
+        function resizeCanvas() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+            if (branchSegs.length > 0) {
+                repositionFairyLights();
+            }
+        }
+
+        // ── Heart drawing ──
+        function drawHeart(c, x, y, size, color, glow, glowIntensity) {
+            c.save();
+            c.translate(x, y);
+            c.scale(size / 20, size / 20);
+            c.globalAlpha = 0.92;
+            c.fillStyle = color;
+            if (glow) {
+                c.shadowColor = color;
+                c.shadowBlur = glowIntensity || 12;
+            }
+            c.beginPath();
+            c.moveTo(0, 5);
+            c.bezierCurveTo(0, 0, -5, 0, -10, 5);
+            c.bezierCurveTo(-15, 10, -10, 20, 0, 30);
+            c.bezierCurveTo(10, 20, 15, 10, 10, 5);
+            c.bezierCurveTo(5, 0, 0, 0, 0, 5);
+            c.fill();
+            c.restore();
+        }
+
+        // ── Tree generation ──
+        function generateTree(baseX, baseY) {
+            const segs = [];
+
+            function grow(x, y, angle, length, depth) {
+                const rad = angle * Math.PI / 180;
+                const x2 = x + length * Math.sin(rad);
+                const y2 = y - length * Math.cos(rad);
+                const width = Math.max(1.6, 9 * Math.pow(0.68, depth - 1));
+                segs.push({ x1: x, y1: y, x2, y2, depth, width, progress: 0 });
+                if (depth < MAX_DEPTH) {
+                    const newLen = length * (0.65 + Math.random() * 0.1);
+                    const spread = 20 + Math.random() * 16;
+                    grow(x2, y2, angle - spread - Math.random() * 8, newLen, depth + 1);
+                    grow(x2, y2, angle + spread + Math.random() * 8, newLen, depth + 1);
+                    if (depth < MAX_DEPTH - 1 && Math.random() < 0.5) {
+                        grow(x2, y2, angle + (Math.random() * 18 - 9), newLen * 0.85, depth + 1);
+                    }
+                }
+            }
+            const baseLen = H * 0.15;
+            grow(baseX, baseY, -20, baseLen, 1);
+            grow(baseX, baseY, 3, baseLen * 1.05, 1);
+            grow(baseX, baseY, 22, baseLen * 0.92, 1);
+            return segs;
+        }
+
+        function computeCanopyBounds(segs, baseX, baseY) {
+            let minX = Infinity,
+                maxX = -Infinity,
+                minY = Infinity;
+            segs.forEach(s => {
+                minX = Math.min(minX, s.x1, s.x2);
+                maxX = Math.max(maxX, s.x1, s.x2);
+                minY = Math.min(minY, s.y1, s.y2);
+            });
+            const rx = (maxX - minX) / 2 * 1.18;
+            const ry = (baseY - minY) / 2 * 1.22;
+            return {
+                cx: (minX + maxX) / 2,
+                cy: minY + ry * 0.72,
+                rx: Math.max(rx, 60),
+                ry: Math.max(ry, 60)
+            };
+        }
+
+        function spawnLeaf() {
+            let attempts = 0;
+            while (attempts < 120) {
+                const rx = (Math.random() * 3 - 1.5);
+                const ry = (Math.random() * 3 - 1.5);
+                const x2 = rx * rx;
+                const y2 = ry * ry;
+                const insideHeart = Math.pow(x2 + y2 - 1, 3) - (x2 * ry * y2) <= 0;
+                if (insideHeart) {
+                    leaves.push({
+                        x: canopy.cx + rx * canopy.rx,
+                        y: canopy.cy - ry * canopy.ry,
+                        targetSize: Math.random() * 16 + 8,
+                        size: 0,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        phase: Math.random() * Math.PI * 2,
+                    });
+                    break;
+                }
+                attempts++;
+            }
+        }
+
+        function repositionFairyLights() {
+            fairyLights = [];
+            const allSegs = branchSegs.filter(s => s.progress >= 1);
+            if (allSegs.length === 0) return;
+            for (let i = 0; i < NUM_FAIRY_LIGHTS; i++) {
+                const seg = allSegs[Math.floor(Math.random() * allSegs.length)];
+                const t = Math.random();
+                const x = seg.x1 + (seg.x2 - seg.x1) * t;
+                const y = seg.y1 + (seg.y2 - seg.y1) * t;
+                const hue = Math.random() * 360;
+                const color = `hsl(${hue}, 100%, 70%)`;
+                fairyLights.push({
+                    x,
+                    y,
+                    baseX: x,
+                    baseY: y,
+                    color,
+                    size: 4 + Math.random() * 6,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 0.02 + Math.random() * 0.03,
+                    blinkSpeed: 0.5 + Math.random() * 1.5,
+                    offsetX: (Math.random() - 0.5) * 30,
+                    offsetY: (Math.random() - 0.5) * 30,
+                });
+            }
+            for (let i = 0; i < 20; i++) {
+                const rx = (Math.random() * 2 - 1) * canopy.rx * 0.8;
+                const ry = (Math.random() * 2 - 1) * canopy.ry * 0.8;
+                const hue = Math.random() * 360;
+                const color = `hsl(${hue}, 100%, 75%)`;
+                fairyLights.push({
+                    x: canopy.cx + rx,
+                    y: canopy.cy + ry,
+                    baseX: canopy.cx + rx,
+                    baseY: canopy.cy + ry,
+                    color,
+                    size: 3 + Math.random() * 5,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 0.015 + Math.random() * 0.025,
+                    blinkSpeed: 0.8 + Math.random() * 1.8,
+                    offsetX: (Math.random() - 0.5) * 20,
+                    offsetY: (Math.random() - 0.5) * 20,
+                });
+            }
+        }
+
+        function spawnSparkle() {
+            for (let i = 0; i < 3; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 80 + 20;
+                sparkles.push({
+                    x: canopy.cx + Math.cos(angle) * dist,
+                    y: canopy.cy + Math.sin(angle) * dist * 0.6,
+                    size: 1 + Math.random() * 3,
+                    life: 1,
+                    decay: 0.008 + Math.random() * 0.015,
+                    color: `hsl(${Math.random() * 60 + 320}, 100%, 80%)`,
+                    dx: (Math.random() - 0.5) * 0.6,
+                    dy: (Math.random() - 0.5) * 0.6 - 0.2,
+                });
+            }
+        }
+
+        function resetTree() {
+            treeState = 0;
+            fallingY = -50;
+            fallingX = W / 2;
+            trunkHeight = 0;
+            branchSegs = [];
+            currentDepthStage = 1;
+            leaves = [];
+            treeOffsetX = 0;
+            typedText = "";
+            charIndex = 0;
+            frameCount = 0;
+            fairyLights = [];
+            sparkles = [];
+            document.getElementById('replayBtn').classList.remove('show');
+            if (treeAnimId) { cancelAnimationFrame(treeAnimId);
+                treeAnimId = null; }
+            treeAnimId = requestAnimationFrame(animateTree);
+        }
+
+        function animateTree() {
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.25)';
+            ctx.fillRect(0, 0, W, H);
+
+            // background glow
+            const grad = ctx.createRadialGradient(W / 2, H * 0.35, 20, W / 2, H * 0.35, H * 0.9);
+            grad.addColorStop(0, 'rgba(40, 10, 30, 0.5)');
+            grad.addColorStop(0.5, 'rgba(20, 5, 15, 0.3)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            // No translation — tree stays centered
+
+            // Trunk
+            if (treeState >= 1) {
+                const trunkGrad = ctx.createLinearGradient(W / 2 - 40, H, W / 2 + 40, H - trunkHeight);
+                trunkGrad.addColorStop(0, '#ff8a9e');
+                trunkGrad.addColorStop(0.5, '#ff6b8a');
+                trunkGrad.addColorStop(1, '#ff2d55');
+                ctx.fillStyle = trunkGrad;
+                ctx.shadowColor = '#ff2d55';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.moveTo(W / 2 - 35, H);
+                ctx.lineTo(W / 2 + 35, H);
+                ctx.lineTo(W / 2 + 12, H - trunkHeight);
+                ctx.lineTo(W / 2 - 12, H - trunkHeight);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // Branches
+            if (treeState >= 2) {
+                ctx.strokeStyle = '#ff8a9e';
+                ctx.lineCap = 'round';
+                branchSegs.forEach(s => {
+                    if (s.progress <= 0) return;
+                    const ex = s.x1 + (s.x2 - s.x1) * s.progress;
+                    const ey = s.y1 + (s.y2 - s.y1) * s.progress;
+                    ctx.lineWidth = s.width;
+                    ctx.shadowColor = 'rgba(255, 107, 138, 0.3)';
+                    ctx.shadowBlur = 6;
+                    ctx.beginPath();
+                    ctx.moveTo(s.x1, s.y1);
+                    ctx.lineTo(ex, ey);
+                    ctx.stroke();
+                });
+                ctx.shadowBlur = 0;
+            }
+
+            // Fairy Lights
+            if (treeState >= 3 && fairyLights.length > 0) {
+                const time = Date.now() / 1000;
+                fairyLights.forEach(fl => {
+                    const blink = Math.sin(time * fl.blinkSpeed + fl.phase) * 0.5 + 0.5;
+                    const intensity = 0.3 + blink * 0.7;
+                    const size = fl.size * (0.8 + blink * 0.4);
+                    const glowSize = 20 + blink * 30;
+
+                    const grad2 = ctx.createRadialGradient(fl.x, fl.y, 0, fl.x, fl.y, glowSize);
+                    grad2.addColorStop(0, fl.color);
+                    grad2.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = grad2;
+                    ctx.globalAlpha = intensity * 0.5;
+                    ctx.beginPath();
+                    ctx.arc(fl.x, fl.y, glowSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.globalAlpha = 0.9;
+                    ctx.shadowColor = fl.color;
+                    ctx.shadowBlur = 15 * intensity;
+                    ctx.fillStyle = fl.color;
+                    ctx.beginPath();
+                    ctx.arc(fl.x, fl.y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.globalAlpha = 1;
+                });
+            }
+
+            // Leaves (hearts)
+            if (treeState >= 4) {
+                const time = Date.now() / 1000;
+                for (let i = 0; i < leaves.length; i++) {
+                    const l = leaves[i];
+                    if (l.size < l.targetSize) l.size += 0.6;
+                    const pulse = Math.sin(time * 0.5 + l.phase) * 0.06 + 0.94;
+                    const sz = l.size * pulse;
+                    const glow = treeState >= 5 ? 18 : 6;
+                    drawHeart(ctx, l.x, l.y, sz, l.color, true, glow);
+                }
+            }
+
+            // Falling seed leaf
+            if (treeState === 0) {
+                const wiggleX = fallingX + Math.sin(fallingY * 0.05) * 20;
+                drawHeart(ctx, wiggleX, fallingY, 28, '#FF1493', true, 20);
+            }
+
+            // Sparkles
+            if (treeState >= 4) {
+                if (frameCount % 4 === 0 && Math.random() < 0.15) spawnSparkle();
+                for (let i = sparkles.length - 1; i >= 0; i--) {
+                    const s = sparkles[i];
+                    s.x += s.dx;
+                    s.y += s.dy;
+                    s.life -= s.decay;
+                    if (s.life <= 0) { sparkles.splice(i, 1); continue; }
+                    ctx.globalAlpha = s.life;
+                    ctx.fillStyle = s.color;
+                    ctx.shadowColor = s.color;
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            // ── TYPING TEXT — MOVED TO TOP ──
+            if (treeState >= 5) {
+                const fontSize = Math.max(22, W * 0.025);
+                ctx.font = `bold ${fontSize}px 'Nunito', sans-serif`;
+                const lines = typedText.split('\n');
+                const lineHeight = fontSize * 1.8;
+                const totalH = lines.length * lineHeight;
+
+                const startY = H * 0.08;
+                const tx = W * 0.05;
+
+                let maxW = 0;
+                lines.forEach(l => {
+                    const m = ctx.measureText(l).width;
+                    if (m > maxW) maxW = m;
+                });
+                const padX = 30,
+                    padY = 18;
+                const rx = tx - padX;
+                const ry = startY - padY;
+                const rw = maxW + padX * 2;
+                const rh = totalH + padY * 2;
+
+                ctx.shadowColor = 'rgba(255,45,85,0.4)';
+                ctx.shadowBlur = 40;
+                ctx.fillStyle = 'rgba(10,10,20,0.8)';
+                ctx.beginPath();
+                ctx.roundRect(rx, ry, rw, rh, 18);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = 'rgba(255,107,138,0.2)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(rx, ry, rw, rh, 18);
+                ctx.stroke();
+
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                for (let i = 0; i < lines.length; i++) {
+                    const yPos = startY + i * lineHeight;
+                    const grad2 = ctx.createLinearGradient(tx, yPos, tx + 200, yPos);
+                    grad2.addColorStop(0, '#fff');
+                    grad2.addColorStop(0.5, '#ffb6c1');
+                    grad2.addColorStop(1, '#ff6b8a');
+                    ctx.fillStyle = grad2;
+                    ctx.shadowColor = 'rgba(255,45,85,0.2)';
+                    ctx.shadowBlur = 12;
+                    ctx.fillText(lines[i], tx, yPos);
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            // ── State transitions ──
+            if (treeState === 0) {
+                fallingY += 5.5;
+                if (fallingY >= H - 10) treeState = 1;
+            } else if (treeState === 1) {
+                trunkHeight += 3.2;
+                if (trunkHeight >= H * maxTrunkHeightPct) {
+                    branchSegs = generateTree(W / 2, H - trunkHeight);
+                    canopy = computeCanopyBounds(branchSegs, W / 2, H - trunkHeight);
+                    repositionFairyLights();
+                    treeState = 2;
+                }
+            } else if (treeState === 2) {
+                const atDepth = branchSegs.filter(s => s.depth === currentDepthStage);
+                atDepth.forEach(s => { s.progress = Math.min(1, s.progress + 0.055); });
+                if (atDepth.every(s => s.progress >= 1)) {
+                    currentDepthStage++;
+                    if (currentDepthStage > MAX_DEPTH) {
+                        treeState = 3;
+                        repositionFairyLights();
+                    }
+                }
+            } else if (treeState === 3) {
+                // No shifting — just move to bloom immediately
+                treeState = 4;
+            } else if (treeState === 4) {
+                for (let i = 0; i < 12; i++) {
+                    if (leaves.length < maxLeaves) spawnLeaf();
+                }
+                if (leaves.length >= maxLeaves && leaves[leaves.length - 1].size >= leaves[leaves.length - 1].targetSize) {
+                    setTimeout(() => { if (treeState === 4) treeState = 5; }, 600);
+                }
+            } else if (treeState === 5) {
+                frameCount++;
+                if (frameCount % 4 === 0 && charIndex < message.length) {
+                    typedText += message[charIndex];
+                    charIndex++;
+                    if (charIndex >= message.length) {
+                        setTimeout(() => document.getElementById('replayBtn').classList.add('show'), 500);
+                    }
+                }
+            }
+
+            frameCount++;
+            treeAnimId = requestAnimationFrame(animateTree);
+        }
+
+        // roundRect polyfill
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (typeof r === 'number') r = [r, r, r, r];
+                const [tl, tr, br, bl] = r.length === 4 ? r : [r[0], r[0], r[0], r[0]];
+                this.moveTo(x + tl, y);
+                this.lineTo(x + w - tr, y);
+                this.quadraticCurveTo(x + w, y, x + w, y + tr);
+                this.lineTo(x + w, y + h - br);
+                this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+                this.lineTo(x + bl, y + h);
+                this.quadraticCurveTo(x, y + h, x, y + h - bl);
+                this.lineTo(x, y + tl);
+                this.quadraticCurveTo(x, y, x + tl, y);
+                this.closePath();
+                return this;
+            };
+        }
+
+        function initTree() {
+            if (!document.getElementById('tree-page').classList.contains('active')) return;
+            resizeCanvas();
+            resetTree();
+        }
+
+        document.getElementById('replayBtn').addEventListener('click', resetTree);
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+
+        window.addEventListener('load', () => {
+            resizeCanvas();
+        });
+
+        if (document.getElementById('tree-page').classList.contains('active')) {
+            setTimeout(initTree, 300);
+        }
+
+        console.log('🎂 Happy Birthday experience ready!');
+    </script>
+</body>
+</html>

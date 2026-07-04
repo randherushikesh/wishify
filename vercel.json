@@ -22,12 +22,16 @@
     "destination": "/templates/birthday-templates/Love-String/view?slug=:slug"
     },
     {
-    "source": "/password-special/:slug",
+    "source": "/Password-special/:slug",
     "destination": "/templates/birthday-templates/Password-special/view?slug=:slug"
     },
     {
     "source": "/cinematic-surprise/:slug",
     "destination": "/templates/birthday-templates/Cinematic-surprice/view?slug=:slug"
+    },
+    {
+  "source": "/neon-light-tree/:slug",
+  "destination": "/templates/birthday-templates/neon-light-tree/view?slug=:slug"
     },
 
     {

@@ -7,210 +7,303 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     /* Reset */
-*, *::before, *::after { 
-  box-sizing: border-box; 
-  margin: 0; 
-  padding: 0; 
-}
+    *, *::before, *::after { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
 
-/* Body */
-body { 
-  font-family: 'Nunito', sans-serif; 
-  background: linear-gradient(135deg, #fdfcfb, #e2d1c3); /* soft cream-peach */
-  color: #222; 
-  min-height: 100vh; 
-}
+    /* Body */
+    body { 
+      font-family: 'Nunito', sans-serif; 
+      background: linear-gradient(135deg, #fdfcfb, #e2d1c3); /* soft cream-peach */
+      color: #222; 
+      min-height: 100vh; 
+      overflow-x: hidden;
+    }
 
-/* Navbar */
-.navbar {
-  display: flex; align-items: center; justify-content: space-between;
-  height: 56px; padding: 0 1.5rem;
-  background: rgba(255,255,255,.8);
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  position: sticky; top: 0; z-index: 100;
-}
-.nav-logo { font-size: 1.1rem; font-weight: 800; color: #ff6b6b; }
-.nav-back { font-size: .85rem; color: #555; text-decoration: none; display: flex; align-items: center; gap: .4rem; }
-.nav-back:hover { color: #ff6b6b; }
+    /* Navbar */
+    .navbar {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px; padding: 0 1.5rem;
+      background: rgba(255,255,255,.8);
+      border-bottom: 1px solid rgba(0,0,0,.08);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; color: #ff6b6b; }
+    .nav-back { font-size: .85rem; color: #555; text-decoration: none; display: flex; align-items: center; gap: .4rem; }
+    .nav-back:hover { color: #ff6b6b; }
 
-/* Hero */
-.hero {
-  text-align: center;
-  padding: 4rem 2rem 2rem;
-}
-.hero-eyebrow {
-  font-size: .75rem; font-weight: 800; letter-spacing: .15em;
-  text-transform: uppercase; color: #ff6b6b;
-  margin-bottom: 1rem;
-}
-.hero h1 {
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 800; margin-bottom: .75rem;
-  color: #333;
-}
-.hero p {
-  color: #666; font-size: 1rem;
-  max-width: 480px; margin: 0 auto;
-}
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+    .hero-eyebrow {
+      font-size: .75rem; font-weight: 800; letter-spacing: .15em;
+      text-transform: uppercase; color: #ff6b6b;
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; margin-bottom: .75rem;
+      color: #333;
+    }
+    .hero p {
+      color: #666; font-size: 1rem;
+      max-width: 480px; margin: 0 auto;
+    }
 
-/* Falling birthday elements */
-.falling {
-  position: fixed;
-  top: -50px;
-  font-size: 2rem;
-  animation: fall linear forwards;
-  pointer-events: none;
-  z-index: 999;
-}
-@keyframes fall {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(360deg); opacity: 0.8; }
-}
+    /* Falling birthday elements */
+    .falling {
+      position: fixed;
+      top: -50px;
+      font-size: 2rem;
+      animation: fall linear forwards;
+      pointer-events: none;
+      z-index: 50;
+    }
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0.8; }
+    }
 
-/* Grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: 3rem 2rem 5rem;
-  max-width: 1100px;
-  margin: 0 auto;
-}
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      padding: 3rem 2rem 5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-/* Card */
-.card {
-  background: #fff;
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform .2s, border-color .2s, box-shadow .2s;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-.card:hover {
-  transform: translateY(-4px);
-  border-color: #ff6b6b;
-  box-shadow: 0 12px 40px rgba(0,0,0,.1);
-}
+    /* Card */
+    .card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #ff6b6b;
+      box-shadow: 0 12px 40px rgba(0,0,0,.1);
+    }
 
-/* Card thumbnail */
-.card-thumb {
-  width: 100%; height: 200px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 3rem; position: relative; overflow: hidden;
-}
+    /* Card thumbnail */
+    .card-thumb {
+      width: 100%; height: 200px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; position: relative; overflow: hidden;
+    }
 
-/* Thumbnail designs */
-.thumb-classic {
-  background: linear-gradient(160deg, #ffecd2, #fcb69f); /* peach gradient */
-}
-.thumb-classic::after {
-  content: ''; position: absolute; top: 0; left: 0; right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #f97316, #ec4899, #a855f7, #3b82f6);
-}
-.thumb-timeline {
-  background: linear-gradient(160deg, #c2e9fb, #a1c4fd); /* fresh sky blue */
-  flex-direction: column; gap: .5rem;
-}
-.thumb-timeline .tl-line {
-  width: 2px; height: 60px; background: #ff6b6b;
-  position: absolute; left: 50%; transform: translateX(-50%);
-}
-.thumb-timeline .tl-dot-demo {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: #ff6b6b; position: absolute;
-  left: 50%; transform: translateX(-50%);
-}
-.thumb-timeline .tl-dot-demo:nth-child(2) { top: 30%; }
-.thumb-timeline .tl-dot-demo:nth-child(3) { top: 55%; }
-.thumb-timeline .tl-dot-demo:nth-child(4) { top: 80%; }
+    /* Thumbnail designs */
+    .thumb-classic {
+      background: linear-gradient(160deg, #ffecd2, #fcb69f); /* peach gradient */
+    }
+    .thumb-classic::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #f97316, #ec4899, #a855f7, #3b82f6);
+    }
+    .thumb-timeline {
+      background: linear-gradient(160deg, #c2e9fb, #a1c4fd); /* fresh sky blue */
+      flex-direction: column; gap: .5rem;
+    }
+    .thumb-timeline .tl-line {
+      width: 2px; height: 60px; background: #ff6b6b;
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+    .thumb-timeline .tl-dot-demo {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #ff6b6b; position: absolute;
+      left: 50%; transform: translateX(-50%);
+    }
+    .thumb-timeline .tl-dot-demo:nth-child(2) { top: 30%; }
+    .thumb-timeline .tl-dot-demo:nth-child(3) { top: 55%; }
+    .thumb-timeline .tl-dot-demo:nth-child(4) { top: 80%; }
 
-.coming-soon .card-thumb {
-  background: rgba(0,0,0,.03);
-  filter: grayscale(1);
-  opacity: .5;
-}
+    /* Badges */
+    .badge-new {
+      position: absolute; top: 12px; right: 12px;
+      background: #ff6b6b; color: #fff;
+      font-size: .65rem; font-weight: 800;
+      padding: .2rem .55rem; border-radius: 50px;
+      letter-spacing: .05em; text-transform: uppercase;
+    }
 
-/* Badges */
-.badge-new {
-  position: absolute; top: 12px; right: 12px;
-  background: #ff6b6b; color: #fff;
-  font-size: .65rem; font-weight: 800;
-  padding: .2rem .55rem; border-radius: 50px;
-  letter-spacing: .05em; text-transform: uppercase;
-}
-.badge-soon {
-  position: absolute; top: 12px; right: 12px;
-  background: rgba(0,0,0,.05); color: #999;
-  font-size: .65rem; font-weight: 800;
-  padding: .2rem .55rem; border-radius: 50px;
-  letter-spacing: .05em; text-transform: uppercase;
-}
+    /* Card body */
+    .card-body { padding: 1.2rem 1.3rem 1.4rem; }
+    .card-title { font-size: 1rem; font-weight: 800; margin-bottom: .4rem; text-transform: capitalize; }
+    .card-desc  { font-size: .82rem; color: #666; line-height: 1.6; margin-bottom: 1rem; }
+    .card-btn {
+      display: inline-block;
+      font-size: .8rem; font-weight: 800;
+      color: #ff6b6b; letter-spacing: .05em;
+    }
 
-/* Card body */
-.card-body { padding: 1.2rem 1.3rem 1.4rem; }
-.card-title { font-size: 1rem; font-weight: 800; margin-bottom: .4rem; }
-.card-desc  { font-size: .82rem; color: #666; line-height: 1.6; margin-bottom: 1rem; }
-.card-btn {
-  display: inline-block;
-  font-size: .8rem; font-weight: 800;
-  color: #ff6b6b; letter-spacing: .05em;
-}
-.coming-soon .card-btn { color: rgba(0,0,0,.3); }
+    /* =========================================
+       Popup Modal Styles with Neon Glow
+       ========================================= */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
 
+    .modal-content {
+      background: #1a1a24;
+      padding: 2.5rem 2rem;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      transform: scale(0.8);
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      position: relative;
+      border: 1px solid #333;
+    }
+
+    .neon-text {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 1rem;
+      /* Neon Glow Effect */
+      text-shadow: 
+        0 0 5px #ff6b6b, 
+        0 0 10px #ff6b6b, 
+        0 0 20px #ff6b6b, 
+        0 0 40px #ff6b6b;
+      letter-spacing: 2px;
+    }
+
+    .modal-content p {
+      color: #ccc;
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+    }
+
+    .btn-go-ahead {
+      background: #ff6b6b;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-go-ahead:hover {
+      background: #ff4757;
+      box-shadow: 0 0 25px rgba(255, 107, 107, 0.8);
+      transform: translateY(-2px);
+    }
+
+    /* Modal Animations */
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .modal-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Navbar -->
+  <div class="modal-overlay" id="welcomeModal">
+    <div class="modal-content">
+      <h2 class="neon-text">Wishify Says</h2>
+      <p>Uploading images and songs may take some time if they are high quality. Please be patient! ✨</p>
+      <button class="btn-go-ahead" id="closeModalBtn">Go ahead</button>
+    </div>
+  </div>
+
+  <script>
+    // Hide instantly (before paint) if this tab's session has already seen it —
+    // prevents any flash of the popup on repeat visits within the same tab.
+    if (sessionStorage.getItem('wishifyPopupSeen') === 'true') {
+      document.getElementById('welcomeModal').style.display = 'none';
+    }
+  </script>
+
   <nav class="navbar">
     <div class="nav-logo">✨ Wishify</div>
     <a href="../index.html" class="nav-back">← Back to Home</a>
   </nav>
 
-  <!-- Hero Section -->
   <div class="hero">
     <p class="hero-eyebrow">🎂 Birthday</p>
     <h1>Choose a Template</h1>
     <p>Pick a style that fits your vibe — then customize it with your own photos and message.</p>
   </div>
 
-  <!-- Grid Section -->
   <div class="grid">
 
-     <!-- Password-special -->
     <a class="card" href="birthday-templates/Password-special/preview.html">
       <div class="card-thumb thumb-classic">
         🔑🔓🔐
         <span class="badge-new">Popular</span>
       </div>
       <div class="card-body">
-        <div class="card-title">password-special</div>
+        <div class="card-title">Password-Special</div>
         <div class="card-desc">
-          Generate The the password to unlock the surprice
+          Generate the password to unlock the surprise.
         </div>
         <span class="card-btn">Go to preview →</span>
       </div>
     </a>
-    <!-- Cinematic-surprise -->
+    
     <a class="card" href="birthday-templates/Cinematic-surprice/preview.html">
       <div class="card-thumb thumb-classic">
         💫🎥
         <span class="badge-new">Popular</span>
       </div>
       <div class="card-body">
-        <div class="card-title">Cinematic-surprice</div>
+        <div class="card-title">Cinematic-Surprise</div>
         <div class="card-desc">
-          Generate a Cinematic-surprice in a click
+          Generate a cinematic surprise in a click.
         </div>
         <span class="card-btn">Go to preview →</span>
       </div>
     </a>
 
-     <!-- love String -->
+    <a class="card" href="birthday-templates/neon-light-tree/preview.html">
+      <div class="card-thumb thumb-classic">
+        🔦🌲
+        <span class="badge-new">Popular</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Neon-Light-Tree</div>
+        <div class="card-desc">
+          🎂🌟 “Birthday Glow in Neon Lights with tree Animation”
+        </div>
+        <span class="card-btn">Go to preview →</span>
+      </div>
+    </a>
 
     <a class="card" href="birthday-templates/Love-String/preview.html">
       <div class="card-thumb" style="background:linear-gradient(135deg,#0d001a,#1a0030)">
@@ -220,13 +313,12 @@ body {
       <div class="card-body">
         <div class="card-title">Love-String</div>
         <div class="card-desc">
-          Play with Sentence with Photo Galllery
+          Play with sentences along with a Photo Gallery.
         </div>
         <span class="card-btn">Go to preview →</span>
       </div>
     </a>
 
-    <!-- Birthday1 — Classic Card -->
     <a class="card" href="birthday-templates/birthday1/birthday1.html">
       <div class="card-thumb thumb-classic">
         🎂
@@ -241,7 +333,6 @@ body {
       </div>
     </a>
 
-    <!-- Birthday2 — Timeline -->
     <a class="card" href="birthday-templates/birthday2/preview.html">
       <div class="card-thumb thumb-timeline">
         <div class="tl-line"></div>
@@ -259,7 +350,6 @@ body {
       </div>
     </a>
 
-    <!-- Coming Soon 1 -->
     <a class="card" href="birthday-templates/birthday-journey/preview.html">
       <div class="card-thumb" style="background:linear-gradient(135deg,#1a0a00,#3d1500)">
         🖼️
@@ -273,7 +363,6 @@ body {
       </div>
     </a>
 
-    <!-- Coming Soon 2 -->
     <a class="card" href="birthday-templates/birthday-quiz/preview.html">
       <div class="card-thumb" style="background:linear-gradient(135deg,#0d001a,#1a0030)">
         🎯
@@ -288,32 +377,49 @@ body {
       </div>
     </a>
 
-    
-
   </div>
 
- <div class="falling" style="left:10%;">🎂</div>
-<div class="falling" style="left:30%; animation-duration: 6s;">🎈</div>
-<div class="falling" style="left:50%; animation-duration: 8s;">✨</div>
-<div class="falling" style="left:70%; animation-duration: 5s;">🎉</div>
-<div class="falling" style="left:85%; animation-duration: 7s;">🍰</div>
- <script>
-  function createFallingElement() {
-  const emojis = ["🎂","🎈","🎉","🍰","✨"];
-  const elem = document.createElement("div");
-  elem.className = "falling";
-  elem.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-  elem.style.left = Math.random() * 100 + "%";
-  elem.style.animationDuration = (4 + Math.random() * 4) + "s";
-  document.body.appendChild(elem);
+  <script>
+    // --- Popup Modal Logic ---
+    const modal = document.getElementById('welcomeModal');
+    const closeBtn = document.getElementById('closeModalBtn');
 
-  // Remove after animation ends
-  setTimeout(() => elem.remove(), 8000);
-}
+    // Close the modal when the 'Go ahead' button is clicked
+    closeBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
 
-// Generate one every 700ms
-setInterval(createFallingElement, 700);
+      // Save to sessionStorage so it doesn't appear again while this tab is open
+      // (navigating to a template and back won't trigger it again),
+      // but it will show again if the tab is closed and the page is reopened.
+      sessionStorage.setItem('wishifyPopupSeen', 'true');
 
- </script>
+      // Completely remove it from view after the fade-out animation (400ms)
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 400);
+    });
+
+    // --- Falling Emoji Logic ---
+    function createFallingElement() {
+      const emojis = ["🎂","🎈","🎉","🍰","✨"];
+      const elem = document.createElement("div");
+      elem.className = "falling";
+      elem.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      elem.style.left = Math.random() * 100 + "%";
+      elem.style.animationDuration = (4 + Math.random() * 4) + "s";
+      document.body.appendChild(elem);
+
+      // Remove after animation ends to keep DOM clean
+      setTimeout(() => elem.remove(), 8000);
+    }
+
+    // Generate emojis consistently
+    setInterval(createFallingElement, 700);
+    
+    // Create initial batch of emojis so the screen isn't empty on load
+    for(let i = 0; i < 5; i++) {
+        setTimeout(createFallingElement, i * 200);
+    }
+  </script>
 </body>
 </html>

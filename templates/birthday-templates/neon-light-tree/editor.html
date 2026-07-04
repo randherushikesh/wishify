@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neon Light Tree — Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 1.5rem;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; }
+    .nav-badge {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #f4c842;
+      background: rgba(244,200,66,.12);
+      border: 1px solid rgba(244,200,66,.25);
+      padding: .25rem .75rem;
+      border-radius: 50px;
+    }
+    .nav-step { font-size: .8rem; color: rgba(255,255,255,.4); }
+
+    .editor-layout {
+      display: flex;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 380px;
+      flex-shrink: 0;
+      background: #111;
+      border-right: 1px solid rgba(255,255,255,.07);
+      padding: 1rem;
+      overflow-y: auto;
+      height: 100%;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
+    }
+    .left-panel::-webkit-scrollbar { width: 4px; }
+    .left-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+    .right-panel {
+      flex: 1;
+      background: #0d0d0d;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .panel-section {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: .85rem;
+    }
+    .section-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .75rem;
+    }
+    .field {
+      margin-bottom: .75rem;
+    }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .3rem;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: .55rem .75rem;
+      outline: none;
+      resize: none;
+      transition: border-color .2s;
+    }
+    .field textarea { height: 64px; line-height: 1.6; }
+    .field input:focus, .field textarea:focus { border-color: rgba(244,200,66,.5); }
+
+    .upload-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .65rem;
+      border: 2px dashed rgba(255,255,255,.15);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .78rem;
+      color: rgba(255,255,255,.4);
+      position: relative;
+      transition: border-color .2s;
+    }
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-zone:hover { border-color: rgba(244,200,66,.4); color: #f4c842; }
+
+    .gallery-item-editor {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: .8rem;
+      margin-bottom: .7rem;
+    }
+    .gallery-item-editor .field { margin-bottom: .5rem; }
+    .gallery-item-editor .field:last-child { margin-bottom: 0; }
+    .gallery-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .5rem;
+    }
+    .gallery-item-header span {
+      font-size: .7rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.3);
+      letter-spacing: .05em;
+    }
+    .gallery-item-header button {
+      background: none;
+      border: none;
+      color: #e8506a;
+      font-size: .8rem;
+      cursor: pointer;
+      font-weight: 700;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      transition: background .2s;
+    }
+    .gallery-item-header button:hover { background: rgba(232,80,106,.15); }
+
+    .add-gallery-btn {
+      width: 100%;
+      padding: .6rem;
+      background: rgba(244,200,66,.08);
+      border: 1.5px dashed rgba(244,200,66,.3);
+      border-radius: 10px;
+      color: #f4c842;
+      font-family: 'Nunito', sans-serif;
+      font-size: .8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background .2s;
+      margin-top: .2rem;
+    }
+    .add-gallery-btn:hover { background: rgba(244,200,66,.14); }
+
+    .color-row {
+      display: flex;
+      gap: .8rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .color-row input[type="color"] {
+      width: 48px;
+      height: 40px;
+      border: 2px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      padding: 2px;
+    }
+    .color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+    .color-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.3);
+      min-width: 60px;
+    }
+
+    .share-section {
+      background: linear-gradient(135deg, rgba(244,200,66,.08), rgba(232,80,106,.06));
+      border: 1.5px solid rgba(244,200,66,.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .share-section .section-label { color: #f4c842; }
+    #generate-btn {
+      width: 100%;
+      padding: .8rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244,200,66,.2);
+      transition: transform .15s, box-shadow .15s;
+    }
+    #generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,200,66,.3); }
+    .result-area {
+      display: none;
+      margin-top: .75rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .result-area.show { display: block; }
+    .result-url {
+      display: block;
+      padding: .6rem .8rem;
+      font-size: .7rem;
+      color: rgba(255,255,255,.5);
+      word-break: break-all;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .result-actions {
+      display: flex;
+    }
+    .result-btn {
+      flex: 1;
+      padding: .55rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.5);
+      cursor: pointer;
+    }
+    .result-btn:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .result-btn + .result-btn { border-left: 1px solid rgba(255,255,255,.07); }
+
+    /* ─── RIGHT PANEL PREVIEW ─── */
+    .preview-topbar {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+    .preview-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .live-dot {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .live-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .phone-wrap {
+      width: 100%;
+      max-width: 360px;
+      flex-shrink: 0;
+    }
+    .phone {
+      width: 100%;
+      background: #1a1a2e;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      min-height: 580px;
+      position: relative;
+    }
+    .phone-bar {
+      height: 28px;
+      background: rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-notch {
+      width: 80px;
+      height: 12px;
+      background: #000;
+      border-radius: 0 0 10px 10px;
+    }
+    .phone-screen {
+      padding: 1.2rem 1.2rem 1rem;
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0a;
+      color: #fff;
+      transition: background 0.3s, color 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Preview screens */
+    .prev-screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.5rem 0;
+      position: absolute;
+      inset: 0;
+      padding: 1.2rem 1.2rem 1rem;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    .prev-screen.active {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Greeting preview */
+    .prev-greeting .greeting-emoji { font-size: clamp(2.4rem, 5vw, 4rem); animation: pulse 2s ease-in-out infinite; }
+    .prev-greeting h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      font-style: italic;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0.5rem 0;
+    }
+    .prev-greeting p {
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+    }
+    .prev-greeting .btn-preview {
+      padding: 12px 32px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border: none;
+      border-radius: 60px;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(255,45,85,0.4);
+      transition: transform 0.25s;
+    }
+
+    /* Gallery preview */
+    .prev-gallery h2 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      color: var(--accent);
+      text-shadow: 0 0 30px rgba(255,45,85,0.3);
+      margin-bottom: 0.2rem;
+    }
+    .prev-gallery .gallery-sub {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 1px;
+      margin-bottom: 0.8rem;
+    }
+    .prev-gallery .gallery-scroll {
+      width: 100%;
+      overflow: hidden;
+      padding: 0.5rem 0;
+      flex-shrink: 0;
+    }
+    .prev-gallery .gallery-track {
+      display: flex;
+      gap: 16px;
+      width: max-content;
+      animation: scrollGallery 16s linear infinite;
+    }
+    .prev-gallery .gallery-track:hover { animation-play-state: paused; }
+    @keyframes scrollGallery {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .prev-gallery .gallery-card-prev {
+      width: 100px;
+      height: 140px;
+      border-radius: 16px;
+      border: 2px solid rgba(255,45,85,0.3);
+      box-shadow: 0 0 20px rgba(255,45,85,0.1);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a2e;
+      font-size: 0.6rem;
+      color: #ffb6c1;
+      position: relative;
+      transition: border-color 0.5s;
+    }
+    .prev-gallery .gallery-card-prev img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .prev-gallery .gallery-card-prev .card-msg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      padding: 4px 6px;
+      font-size: 0.5rem;
+      color: #fff;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .prev-gallery .btn-group-prev {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
+    .prev-gallery .btn-group-prev .btn-preview {
+      padding: 8px 18px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+      border-radius: 50px;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    /* Tree preview */
+    .prev-tree {
+      background: #0a0a0a;
+      padding: 0;
+      justify-content: flex-start;
+    }
+    .prev-tree canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .prev-tree .tree-overlay {
+      position: absolute;
+      bottom: 1rem;
+      left: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .prev-tree .tree-overlay .btn-preview {
+      pointer-events: auto;
+      padding: 8px 24px;
+      font-size: 0.7rem;
+      background: rgba(255,255,255,0.06);
+      color: #ffb6c1;
+      border: 1px solid rgba(255,182,193,0.3);
+      border-radius: 40px;
+      font-family: 'Nunito', sans-serif;
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+    }
+
+    /* screen nav dots */
+    .screen-nav {
+      display: flex;
+      gap: .4rem;
+      justify-content: center;
+      margin-top: .6rem;
+    }
+    .screen-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .screen-dot.active { background: #f4c842; }
+
+    @media (max-width: 768px) {
+      .editor-layout { flex-direction: column; height: auto; overflow: visible; }
+      .left-panel { width: 100%; height: auto; overflow-y: visible; border-right: none; border-bottom: 1px solid rgba(255,255,255,.07); }
+      .right-panel { height: auto; overflow-y: visible; padding: 1rem; }
+      .phone-wrap { max-width: 100%; }
+      .navbar { padding: 0 1rem; }
+      .nav-step { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo">✨ Wishify</div>
+  <div class="nav-badge">Neon Light Tree</div>
+  <div class="nav-step">Template</div>
+</nav>
+
+<div class="editor-layout">
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel">
+
+    <!-- Greeting -->
+    <div class="panel-section">
+      <div class="section-label">🎈 Greeting</div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="greeting-title" value="It's Your Birthday Today!" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Subtitle</label>
+        <input type="text" id="greeting-sub" value="A magical journey awaits you ✨" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Button Text</label>
+        <input type="text" id="greeting-btn" value="Let's Go" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Emoji (optional)</label>
+        <input type="text" id="greeting-emoji" value="🎂" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="panel-section">
+      <div class="section-label">🖼 Gallery</div>
+      <div class="field">
+        <label>Heading</label>
+        <input type="text" id="gallery-heading" value="✨ Moments with You" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Subheading</label>
+        <input type="text" id="gallery-sub" value="hover to reveal the love — auto‑scroll with neon glow" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Back Button Text</label>
+        <input type="text" id="gallery-back" value="← Back" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Next Button Text</label>
+        <input type="text" id="gallery-next" value="View Surprise →" oninput="updatePreview()" />
+      </div>
+      <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.3);margin:.5rem 0 .3rem;">Cards (max 6)</div>
+      <div id="gallery-editor-container"></div>
+      <button class="add-gallery-btn" onclick="addGalleryImage()">+ Add Card</button>
+    </div>
+
+    <!-- Tree -->
+    <div class="panel-section">
+      <div class="section-label">🌳 Tree Message</div>
+      <div class="field">
+        <label>Message (lines separated by Enter)</label>
+        <textarea id="tree-message" rows="4" oninput="updatePreview()">Hey you 💕
+Happy Birthday 🎂
+May God bless you 🍀</textarea>
+      </div>
+      <div class="field">
+        <label>Replay Button Text</label>
+        <input type="text" id="tree-replay" value="Replay ↺" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Colors -->
+    <div class="panel-section">
+      <div class="section-label">🎨 Colors</div>
+      <div class="field">
+        <label>Background</label>
+        <div class="color-row">
+          <span class="color-label">Bg</span>
+          <input type="color" id="color-bg" value="#0a0a0a" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Accent (pink/red)</label>
+        <div class="color-row">
+          <span class="color-label">Accent</span>
+          <input type="color" id="color-accent" value="#ff6b8a" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Text Color (on tree)</label>
+        <div class="color-row">
+          <span class="color-label">Text</span>
+          <input type="color" id="color-text" value="#ffffff" oninput="updatePreview()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio -->
+    <div class="panel-section">
+      <div class="section-label">🎵 Background Music</div>
+      <p style="font-size:.7rem;color:rgba(255,255,255,.4);margin-bottom:.8rem;line-height:1.4;">Upload a song (max 15MB).</p>
+      <div class="field">
+        <label class="upload-zone">
+          <input type="file" accept="audio/*,.opus,.ogg,.m4a,.mp3,.wav,.aac" onchange="handleAudioUpload(this)" />
+          <span id="audio-label-text">🎵 Click to upload audio</span>
+        </label>
+        <div id="audio-filename" style="font-size:.7rem;color:#f4c842;margin-top:.4rem;font-weight:600;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Share -->
+    <div class="share-section">
+      <div class="section-label">🔗 Share</div>
+      <button id="generate-btn">✨ Generate Shareable Link</button>
+      <div class="result-area" id="result-area">
+        <span class="result-url" id="result-link"></span>
+        <div class="result-actions">
+          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL — PHONE PREVIEW -->
+  <main class="right-panel">
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <span class="live-dot">Live</span>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-bar"><div class="phone-notch"></div></div>
+        <div class="phone-screen" id="phone-screen">
+
+          <!-- Screen 1: Greeting -->
+          <div class="prev-screen prev-greeting active" id="prev-screen-1">
+            <div class="greeting-emoji" id="prev-emoji">🎂</div>
+            <h1 id="prev-greeting-title">It's Your Birthday Today!</h1>
+            <p id="prev-greeting-sub">A magical journey awaits you ✨</p>
+            <button class="btn-preview" id="prev-greeting-btn" style="background:linear-gradient(135deg, var(--accent), var(--accent-light));">Let's Go</button>
+          </div>
+
+          <!-- Screen 2: Gallery -->
+          <div class="prev-screen prev-gallery" id="prev-screen-2">
+            <h2 id="prev-gallery-heading">✨ Moments with You</h2>
+            <div class="gallery-sub" id="prev-gallery-sub">hover to reveal the love — auto‑scroll with neon glow</div>
+            <div class="gallery-scroll">
+              <div class="gallery-track" id="prev-gallery-track"></div>
+            </div>
+            <div class="btn-group-prev">
+              <button class="btn-preview" id="prev-gallery-back" style="border-color:var(--accent);color:var(--accent);">← Back</button>
+              <button class="btn-preview" id="prev-gallery-next" style="border-color:var(--accent);color:var(--accent);">View Surprise →</button>
+            </div>
+          </div>
+
+          <!-- Screen 3: Tree (simplified canvas) -->
+          <div class="prev-screen prev-tree" id="prev-screen-3">
+            <canvas id="prev-tree-canvas"></canvas>
+            <div class="tree-overlay">
+              <button class="btn-preview" id="prev-tree-replay" style="color:var(--accent);border-color:var(--accent);">Replay ↺</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Screen navigation dots -->
+      <div class="screen-nav" id="screen-nav">
+        <div class="screen-dot active" onclick="showPreviewScreen(0)"></div>
+        <div class="screen-dot" onclick="showPreviewScreen(1)"></div>
+        <div class="screen-dot" onclick="showPreviewScreen(2)"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ─── STATE ───
+  var galleryImages = [];
+  var audioUrl = '';
+  var audioName = '';
+  var pendingUploads = 0;
+  var currentPreviewScreen = 0;
+
+  // ─── INIT ───
+  window.addEventListener('load', function() {
+    // Add 3 default gallery cards
+    for (var i = 0; i < 3; i++) {
+      galleryImages.push({ src: '', message: '' });
+    }
+    renderGalleryEditor();
+    updatePreview();
+    // Setup preview navigation
+    setupPreviewNavigation();
+  });
+
+  // ─── PREVIEW NAVIGATION ───
+  function setupPreviewNavigation() {
+    // Greeting button
+    document.getElementById('prev-greeting-btn').addEventListener('click', function() {
+      showPreviewScreen(1);
+    });
+    // Gallery back
+    document.getElementById('prev-gallery-back').addEventListener('click', function() {
+      showPreviewScreen(0);
+    });
+    // Gallery next
+    document.getElementById('prev-gallery-next').addEventListener('click', function() {
+      showPreviewScreen(2);
+    });
+    // Tree replay (restart animation)
+    document.getElementById('prev-tree-replay').addEventListener('click', function() {
+      initPreviewTree();
+    });
+  }
+
+  // ─── UPLOAD HELPERS with compression ───
+  function beginUpload() { pendingUploads++; document.getElementById('generate-btn').textContent = '⏳ Uploading...'; }
+  function endUpload() { pendingUploads = Math.max(0, pendingUploads - 1); if(pendingUploads === 0) document.getElementById('generate-btn').textContent = '✨ Generate Shareable Link'; }
+
+  // Compress image: resize to max 800px and return base64
+  function compressImage(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var maxSize = 800;
+          var width = img.width;
+          var height = img.height;
+          if (width > height) {
+            if (width > maxSize) { height = Math.round(height * maxSize / width); width = maxSize; }
+          } else {
+            if (height > maxSize) { width = Math.round(width * maxSize / height); height = maxSize; }
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          var dataUrl = canvas.toDataURL('image/jpeg', 0.85); // quality 85%
+          resolve(dataUrl);
+        };
+        img.onerror = function() { reject('Image load error'); };
+        img.src = e.target.result;
+      };
+      reader.onerror = function() { reject('File read error'); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function uploadToCloudinary(file, type) {
+    return new Promise(function(resolve, reject) {
+      // For images, compress first
+      var processFile = function() {
+        if (type === 'image') {
+          return compressImage(file);
+        } else {
+          return new Promise(function(resolve2, reject2) {
+            var r = new FileReader();
+            r.onload = function(e) { resolve2(e.target.result); };
+            r.onerror = function() { reject2('File read error'); };
+            r.readAsDataURL(file);
+          });
+        }
+      };
+      processFile().then(function(dataUrl) {
+        return fetch('https://wishify.onrender.com/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: dataUrl, type: type || 'image' })
+        });
+      }).then(function(res) { return res.json(); })
+      .then(function(result) {
+        if (result.success) resolve(result.url);
+        else reject('Upload failed');
+      }).catch(function(err) { reject(err); });
+    });
+  }
+
+  // ─── GALLERY EDITOR ───
+  function renderGalleryEditor() {
+    var container = document.getElementById('gallery-editor-container');
+    container.innerHTML = '';
+    galleryImages.forEach(function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'gallery-item-editor';
+      div.innerHTML =
+        '<div class="gallery-item-header">' +
+          '<span>Card ' + (idx+1) + '</span>' +
+          '<button onclick="removeGalleryImage(' + idx + ')">✕</button>' +
+        '</div>' +
+        '<div class="field"><label>Image</label>' +
+          '<label class="upload-zone">' +
+            '<input type="file" accept="image/*" onchange="handleGalleryUpload(this, ' + idx + ')" />' +
+            '<span id="gallery-upload-label-' + idx + '">' + (item.src ? '✅ Uploaded' : '📁 Click to upload') + '</span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="field"><label>Message (shown on back)</label>' +
+          '<input type="text" id="gallery-msg-' + idx + '" value="' + (item.message || '') + '" placeholder="e.g. You light up my world 🌟" oninput="updateGalleryMsg(' + idx + ')" />' +
+        '</div>';
+      container.appendChild(div);
+    });
+  }
+
+  function addGalleryImage() {
+    if (galleryImages.length >= 6) { alert('Maximum 6 cards'); return; }
+    galleryImages.push({ src: '', message: '' });
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function removeGalleryImage(idx) {
+    if (galleryImages.length <= 1) { alert('At least 1 card required'); return; }
+    galleryImages.splice(idx, 1);
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function updateGalleryMsg(idx) {
+    var input = document.getElementById('gallery-msg-' + idx);
+    if (input) galleryImages[idx].message = input.value;
+    updatePreview();
+  }
+
+  async function handleGalleryUpload(input, idx) {
+    if (!input.files || !input.files[0]) return;
+    var label = document.getElementById('gallery-upload-label-' + idx);
+    label.textContent = '⏳ Compressing...';
+    beginUpload();
+    try {
+      var url = await uploadToCloudinary(input.files[0], 'image');
+      galleryImages[idx].src = url;
+      label.textContent = '✅ Uploaded';
+      updatePreview();
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── AUDIO ───
+  async function handleAudioUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (file.size > 15 * 1024 * 1024) { alert('Audio too large (max 15MB)'); input.value = ''; return; }
+    audioName = file.name;
+    var label = document.getElementById('audio-filename');
+    label.textContent = '⏳ Uploading: ' + audioName;
+    label.style.display = 'block';
+    beginUpload();
+    try {
+      audioUrl = await uploadToCloudinary(file, 'audio');
+      label.textContent = '✅ ' + audioName;
+      document.getElementById('audio-label-text').textContent = '🎵 ' + audioName;
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── PREVIEW UPDATE ───
+  function updatePreview() {
+    var bg = document.getElementById('color-bg').value;
+    var accent = document.getElementById('color-accent').value;
+    var textColor = document.getElementById('color-text').value;
+
+    var screen = document.getElementById('phone-screen');
+    screen.style.background = bg;
+    screen.style.color = textColor;
+    screen.style.setProperty('--accent', accent);
+    screen.style.setProperty('--accent-light', accent);
+
+    // Greeting
+    document.getElementById('prev-emoji').textContent = document.getElementById('greeting-emoji').value || '🎂';
+    document.getElementById('prev-greeting-title').textContent = document.getElementById('greeting-title').value || 'It\'s Your Birthday Today!';
+    document.getElementById('prev-greeting-sub').textContent = document.getElementById('greeting-sub').value || 'A magical journey awaits you ✨';
+    document.getElementById('prev-greeting-btn').textContent = document.getElementById('greeting-btn').value || 'Let\'s Go';
+    document.getElementById('prev-greeting-btn').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+
+    // Gallery
+    document.getElementById('prev-gallery-heading').textContent = document.getElementById('gallery-heading').value || '✨ Moments with You';
+    document.getElementById('prev-gallery-sub').textContent = document.getElementById('gallery-sub').value || 'hover to reveal the love — auto‑scroll with neon glow';
+    document.getElementById('prev-gallery-back').textContent = document.getElementById('gallery-back').value || '← Back';
+    document.getElementById('prev-gallery-next').textContent = document.getElementById('gallery-next').value || 'View Surprise →';
+    document.getElementById('prev-gallery-back').style.borderColor = accent;
+    document.getElementById('prev-gallery-back').style.color = accent;
+    document.getElementById('prev-gallery-next').style.borderColor = accent;
+    document.getElementById('prev-gallery-next').style.color = accent;
+    renderGalleryPreview();
+
+    // Tree
+    var msg = document.getElementById('tree-message').value || 'Hey you 💕\nHappy Birthday 🎂\nMay God bless you 🍀';
+    document.getElementById('prev-tree-replay').textContent = document.getElementById('tree-replay').value || 'Replay ↺';
+    document.getElementById('prev-tree-replay').style.color = accent;
+    document.getElementById('prev-tree-replay').style.borderColor = accent;
+    // Re-init tree with new message
+    initPreviewTree();
+  }
+
+  // ─── GALLERY PREVIEW (scrolling cards) ───
+  function renderGalleryPreview() {
+    var track = document.getElementById('prev-gallery-track');
+    track.innerHTML = '';
+    var items = galleryImages || [];
+    // duplicate for seamless loop
+    for (var rep = 0; rep < 2; rep++) {
+      items.forEach(function(item) {
+        var div = document.createElement('div');
+        div.className = 'gallery-card-prev';
+        if (item.src) {
+          div.innerHTML = '<img src="' + item.src + '" alt="memory" />';
+        } else {
+          div.innerHTML = '📷';
+        }
+        if (item.message) {
+          var msgSpan = document.createElement('div');
+          msgSpan.className = 'card-msg';
+          msgSpan.textContent = item.message;
+          div.appendChild(msgSpan);
+        }
+        track.appendChild(div);
+      });
+    }
+  }
+
+  // ─── TREE PREVIEW (simplified) ───
+  var previewTreeRunning = false;
+  var previewTreeAnimId = null;
+  var previewTreeState = 0;
+  var prevTreeFallingY = -50;
+  var prevTreeTrunkHeight = 0;
+  var prevTreeBranchSegs = [];
+  var prevTreeDepthStage = 1;
+  var prevTreeLeaves = [];
+  var prevTreeFairyLights = [];
+  var prevTreeTypedText = '';
+  var prevTreeCharIndex = 0;
+  var prevTreeFrameCount = 0;
+  var prevTreeMessageLines = [];
+  var prevTreeCanvas = null;
+  var prevTreeCtx = null;
+  var prevTreeW = 0, prevTreeH = 0;
+  var prevTreeCanopy = { cx:0, cy:0, rx:80, ry:80 };
+  var prevTreeColors = ['#FF69B4','#FF1493','#FF2D55','#FFD700','#FFA500','#FFFFFF','#FF8C00','#FFB6C1','#F08080','#FF6B8A'];
+
+  function initPreviewTree() {
+    var container = document.getElementById('prev-screen-3');
+    var canvas = document.getElementById('prev-tree-canvas');
+    if (!canvas) return;
+    prevTreeCanvas = canvas;
+    var rect = container.getBoundingClientRect();
+    var w = container.clientWidth || 300;
+    var h = container.clientHeight || 400;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    prevTreeW = w;
+    prevTreeH = h;
+    prevTreeCtx = canvas.getContext('2d');
+    prevTreeCtx.scale(dpr, dpr);
+
+    // reset tree state
+    prevTreeState = 0;
+    prevTreeFallingY = -50;
+    prevTreeTrunkHeight = 0;
+    prevTreeBranchSegs = [];
+    prevTreeDepthStage = 1;
+    prevTreeLeaves = [];
+    prevTreeFairyLights = [];
+    prevTreeTypedText = '';
+    prevTreeCharIndex = 0;
+    prevTreeFrameCount = 0;
+    var msg = document.getElementById('tree-message').value || 'Hey you 💕\nHappy Birthday 🎂\nMay God bless you 🍀';
+    prevTreeMessageLines = msg.split('\n');
+
+    if (previewTreeAnimId) cancelAnimationFrame(previewTreeAnimId);
+    previewTreeAnimId = requestAnimationFrame(animatePreviewTree);
+  }
+
+  function animatePreviewTree() {
+    var ctx = prevTreeCtx;
+    if (!ctx) return;
+    var W = prevTreeW, H = prevTreeH;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    var bg = document.getElementById('color-bg').value || '#0a0a0a';
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    var grad = ctx.createRadialGradient(W/2, H*0.3, 10, W/2, H*0.3, H*0.8);
+    grad.addColorStop(0, 'rgba(40,10,30,0.5)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    var accent = document.getElementById('color-accent').value || '#ff6b8a';
+
+    // Trunk
+    if (prevTreeState >= 1) {
+      var trunkGrad = ctx.createLinearGradient(W/2 - 30, H, W/2 + 30, H - prevTreeTrunkHeight);
+      trunkGrad.addColorStop(0, accent);
+      trunkGrad.addColorStop(0.5, accent);
+      trunkGrad.addColorStop(1, '#ff2d55');
+      ctx.fillStyle = trunkGrad;
+      ctx.shadowColor = '#ff2d55';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(W/2 - 25, H);
+      ctx.lineTo(W/2 + 25, H);
+      ctx.lineTo(W/2 + 10, H - prevTreeTrunkHeight);
+      ctx.lineTo(W/2 - 10, H - prevTreeTrunkHeight);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // Branches
+    if (prevTreeState >= 2) {
+      ctx.strokeStyle = '#ff8a9e';
+      ctx.lineCap = 'round';
+      prevTreeBranchSegs.forEach(function(s) {
+        if (s.progress <= 0) return;
+        var ex = s.x1 + (s.x2 - s.x1) * s.progress;
+        var ey = s.y1 + (s.y2 - s.y1) * s.progress;
+        ctx.lineWidth = s.width;
+        ctx.shadowColor = 'rgba(255,107,138,0.3)';
+        ctx.shadowBlur = 4;
+        ctx.beginPath();
+        ctx.moveTo(s.x1, s.y1);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+      });
+      ctx.shadowBlur = 0;
+    }
+
+    // Fairy lights
+    if (prevTreeState >= 3 && prevTreeFairyLights.length > 0) {
+      var time = Date.now() / 1000;
+      prevTreeFairyLights.forEach(function(fl) {
+        var blink = Math.sin(time * fl.blinkSpeed + fl.phase) * 0.5 + 0.5;
+        var intensity = 0.3 + blink * 0.7;
+        var size = fl.size * (0.8 + blink * 0.4);
+        var glowSize = 12 + blink * 20;
+        var grad2 = ctx.createRadialGradient(fl.x, fl.y, 0, fl.x, fl.y, glowSize);
+        grad2.addColorStop(0, fl.color);
+        grad2.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad2;
+        ctx.globalAlpha = intensity * 0.5;
+        ctx.beginPath();
+        ctx.arc(fl.x, fl.y, glowSize, 0, Math.PI*2);
+        ctx.fill();
+        ctx.globalAlpha = 0.9;
+        ctx.shadowColor = fl.color;
+        ctx.shadowBlur = 8 * intensity;
+        ctx.fillStyle = fl.color;
+        ctx.beginPath();
+        ctx.arc(fl.x, fl.y, size, 0, Math.PI*2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+      });
+    }
+
+    // Leaves (hearts)
+    if (prevTreeState >= 4) {
+      var time2 = Date.now() / 1000;
+      for (var i=0; i<prevTreeLeaves.length; i++) {
+        var l = prevTreeLeaves[i];
+        if (l.size < l.targetSize) l.size += 0.4;
+        var pulse = Math.sin(time2 * 0.5 + l.phase) * 0.06 + 0.94;
+        var sz = l.size * pulse;
+        drawHeart(ctx, l.x, l.y, sz, l.color, true, 10);
+      }
+    }
+
+    // Falling seed
+    if (prevTreeState === 0) {
+      var wiggleX = W/2 + Math.sin(prevTreeFallingY * 0.05) * 20;
+      drawHeart(ctx, wiggleX, prevTreeFallingY, 18, '#FF1493', true, 12);
+    }
+
+    // Typed text
+    if (prevTreeState >= 5) {
+      var textColor = document.getElementById('color-text').value || '#ffffff';
+      var fontSize = Math.max(14, W * 0.025);
+      ctx.font = 'bold ' + fontSize + 'px Nunito, sans-serif';
+      var lines = prevTreeTypedText.split('\n');
+      var lineHeight = fontSize * 1.6;
+      var totalH = lines.length * lineHeight;
+      var startY = H * 0.08;
+      var tx = W * 0.05;
+      var maxW = 0;
+      lines.forEach(function(l) {
+        var m = ctx.measureText(l).width;
+        if (m > maxW) maxW = m;
+      });
+      var padX = 20, padY = 12;
+      var rx = tx - padX;
+      var ry = startY - padY;
+      var rw = maxW + padX * 2;
+      var rh = totalH + padY * 2;
+      ctx.shadowColor = 'rgba(255,45,85,0.4)';
+      ctx.shadowBlur = 30;
+      ctx.fillStyle = 'rgba(10,10,20,0.8)';
+      ctx.beginPath();
+      ctx.roundRect(rx, ry, rw, rh, 12);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255,107,138,0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(rx, ry, rw, rh, 12);
+      ctx.stroke();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      for (var j=0; j<lines.length; j++) {
+        var yPos = startY + j * lineHeight;
+        ctx.fillStyle = textColor;
+        ctx.shadowColor = 'rgba(255,45,85,0.2)';
+        ctx.shadowBlur = 8;
+        ctx.fillText(lines[j], tx, yPos);
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    // State progression (faster for preview)
+    if (prevTreeState === 0) {
+      prevTreeFallingY += 4;
+      if (prevTreeFallingY >= H - 10) prevTreeState = 1;
+    } else if (prevTreeState === 1) {
+      prevTreeTrunkHeight += 2.5;
+      if (prevTreeTrunkHeight >= H * 0.15) {
+        prevTreeBranchSegs = generatePreviewTree(W/2, H - prevTreeTrunkHeight);
+        prevTreeCanopy = computePreviewCanopy(prevTreeBranchSegs, W/2, H - prevTreeTrunkHeight);
+        repositionPreviewFairyLights();
+        prevTreeState = 2;
+      }
+    } else if (prevTreeState === 2) {
+      var atDepth = prevTreeBranchSegs.filter(function(s) { return s.depth === prevTreeDepthStage; });
+      atDepth.forEach(function(s) { s.progress = Math.min(1, s.progress + 0.07); });
+      if (atDepth.every(function(s) { return s.progress >= 1; })) {
+        prevTreeDepthStage++;
+        if (prevTreeDepthStage > 4) {
+          prevTreeState = 3;
+          repositionPreviewFairyLights();
+        }
+      }
+    } else if (prevTreeState === 3) {
+      prevTreeState = 4;
+    } else if (prevTreeState === 4) {
+      for (var k=0; k<6; k++) {
+        if (prevTreeLeaves.length < 150) spawnPreviewLeaf();
+      }
+      if (prevTreeLeaves.length >= 150 && prevTreeLeaves[prevTreeLeaves.length-1].size >= prevTreeLeaves[prevTreeLeaves.length-1].targetSize) {
+        setTimeout(function() { if (prevTreeState === 4) prevTreeState = 5; }, 400);
+      }
+    } else if (prevTreeState === 5) {
+      prevTreeFrameCount++;
+      if (prevTreeFrameCount % 5 === 0 && prevTreeCharIndex < prevTreeMessageLines.join('\n').length) {
+        var full = prevTreeMessageLines.join('\n');
+        prevTreeTypedText = full.substring(0, prevTreeCharIndex+1);
+        prevTreeCharIndex++;
+      }
+    }
+
+    previewTreeAnimId = requestAnimationFrame(animatePreviewTree);
+  }
+
+  // Helper: draw heart
+  function drawHeart(c, x, y, size, color, glow, glowIntensity) {
+    c.save();
+    c.translate(x, y);
+    c.scale(size / 20, size / 20);
+    c.globalAlpha = 0.92;
+    c.fillStyle = color;
+    if (glow) {
+      c.shadowColor = color;
+      c.shadowBlur = glowIntensity || 12;
+    }
+    c.beginPath();
+    c.moveTo(0, 5);
+    c.bezierCurveTo(0, 0, -5, 0, -10, 5);
+    c.bezierCurveTo(-15, 10, -10, 20, 0, 30);
+    c.bezierCurveTo(10, 20, 15, 10, 10, 5);
+    c.bezierCurveTo(5, 0, 0, 0, 0, 5);
+    c.fill();
+    c.restore();
+  }
+
+  function generatePreviewTree(baseX, baseY) {
+    var segs = [];
+    function grow(x, y, angle, length, depth) {
+      var rad = angle * Math.PI / 180;
+      var x2 = x + length * Math.sin(rad);
+      var y2 = y - length * Math.cos(rad);
+      var width = Math.max(1.2, 7 * Math.pow(0.68, depth - 1));
+      segs.push({ x1: x, y1: y, x2: x2, y2: y2, depth: depth, width: width, progress: 0 });
+      if (depth < 4) {
+        var newLen = length * (0.65 + Math.random() * 0.1);
+        var spread = 20 + Math.random() * 16;
+        grow(x2, y2, angle - spread - Math.random() * 8, newLen, depth + 1);
+        grow(x2, y2, angle + spread + Math.random() * 8, newLen, depth + 1);
+        if (depth < 3 && Math.random() < 0.4) {
+          grow(x2, y2, angle + (Math.random() * 18 - 9), newLen * 0.85, depth + 1);
+        }
+      }
+    }
+    var baseLen = H * 0.12;
+    grow(baseX, baseY, -20, baseLen, 1);
+    grow(baseX, baseY, 3, baseLen * 1.05, 1);
+    grow(baseX, baseY, 22, baseLen * 0.92, 1);
+    return segs;
+  }
+
+  function computePreviewCanopy(segs, baseX, baseY) {
+    var minX = Infinity, maxX = -Infinity, minY = Infinity;
+    segs.forEach(function(s) {
+      minX = Math.min(minX, s.x1, s.x2);
+      maxX = Math.max(maxX, s.x1, s.x2);
+      minY = Math.min(minY, s.y1, s.y2);
+    });
+    var rx = (maxX - minX) / 2 * 1.18;
+    var ry = (baseY - minY) / 2 * 1.22;
+    return {
+      cx: (minX + maxX) / 2,
+      cy: minY + ry * 0.72,
+      rx: Math.max(rx, 40),
+      ry: Math.max(ry, 40)
+    };
+  }
+
+  function repositionPreviewFairyLights() {
+    prevTreeFairyLights = [];
+    var allSegs = prevTreeBranchSegs.filter(function(s) { return s.progress >= 1; });
+    if (allSegs.length === 0) return;
+    for (var i=0; i<20; i++) {
+      var seg = allSegs[Math.floor(Math.random() * allSegs.length)];
+      var t = Math.random();
+      var x = seg.x1 + (seg.x2 - seg.x1) * t;
+      var y = seg.y1 + (seg.y2 - seg.y1) * t;
+      var hue = Math.random() * 360;
+      var color = 'hsl(' + hue + ', 100%, 70%)';
+      prevTreeFairyLights.push({
+        x: x, y: y,
+        color: color,
+        size: 3 + Math.random() * 4,
+        phase: Math.random() * Math.PI * 2,
+        blinkSpeed: 0.5 + Math.random() * 1.5,
+      });
+    }
+    for (var j=0; j<8; j++) {
+      var rx = (Math.random() * 2 - 1) * prevTreeCanopy.rx * 0.8;
+      var ry = (Math.random() * 2 - 1) * prevTreeCanopy.ry * 0.8;
+      var hue2 = Math.random() * 360;
+      var color2 = 'hsl(' + hue2 + ', 100%, 75%)';
+      prevTreeFairyLights.push({
+        x: prevTreeCanopy.cx + rx,
+        y: prevTreeCanopy.cy + ry,
+        color: color2,
+        size: 3 + Math.random() * 4,
+        phase: Math.random() * Math.PI * 2,
+        blinkSpeed: 0.8 + Math.random() * 1.8,
+      });
+    }
+  }
+
+  function spawnPreviewLeaf() {
+    var attempts = 0;
+    while (attempts < 60) {
+      var rx = (Math.random() * 3 - 1.5);
+      var ry = (Math.random() * 3 - 1.5);
+      var x2 = rx * rx;
+      var y2 = ry * ry;
+      var insideHeart = Math.pow(x2 + y2 - 1, 3) - (x2 * ry * y2) <= 0;
+      if (insideHeart) {
+        var col = prevTreeColors[Math.floor(Math.random() * prevTreeColors.length)];
+        prevTreeLeaves.push({
+          x: prevTreeCanopy.cx + rx * prevTreeCanopy.rx,
+          y: prevTreeCanopy.cy - ry * prevTreeCanopy.ry,
+          targetSize: Math.random() * 12 + 6,
+          size: 0,
+          color: col,
+          phase: Math.random() * Math.PI * 2,
+        });
+        break;
+      }
+      attempts++;
+    }
+  }
+
+  // ─── PREVIEW SCREEN NAVIGATION ───
+  function showPreviewScreen(idx) {
+    var screens = document.querySelectorAll('.prev-screen');
+    screens.forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+    var dots = document.querySelectorAll('.screen-dot');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+    currentPreviewScreen = idx;
+    if (idx === 2) {
+      setTimeout(initPreviewTree, 100);
+    }
+  }
+
+  // ─── GENERATE LINK ───
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    if (pendingUploads > 0) { alert('⏳ Still uploading files — please wait.'); return; }
+    var btn = this;
+    btn.textContent = 'Generating...';
+
+    var payload = {
+      template: 'neon-light-tree',
+      data: {
+        greetingTitle: document.getElementById('greeting-title').value,
+        greetingSubtitle: document.getElementById('greeting-sub').value,
+        greetingButtonText: document.getElementById('greeting-btn').value,
+        greetingEmoji: document.getElementById('greeting-emoji').value,
+        galleryHeading: document.getElementById('gallery-heading').value,
+        gallerySubheading: document.getElementById('gallery-sub').value,
+        galleryBackButtonText: document.getElementById('gallery-back').value,
+        galleryNextButtonText: document.getElementById('gallery-next').value,
+        galleryImages: galleryImages,
+        treeMessage: document.getElementById('tree-message').value,
+        treeReplayButtonText: document.getElementById('tree-replay').value,
+        colorBg: document.getElementById('color-bg').value,
+        colorAccent: document.getElementById('color-accent').value,
+        colorText: document.getElementById('color-text').value,
+        audioUrl: audioUrl,
+        audioName: audioName,
+      }
+    };
+
+    try {
+      var res = await fetch('https://wishify.onrender.com/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      var result = await res.json();
+      if (result.success) {
+        var link = window.location.origin + '/neon-light-tree/' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
+      } else {
+        btn.textContent = '✨ Generate Shareable Link';
+        alert('❌ Failed to generate link.');
+      }
+    } catch(err) {
+      document.getElementById('result-link').textContent = '⚠️ Server error.';
+      document.getElementById('result-area').classList.add('show');
+      btn.textContent = '✨ Generate Shareable Link';
+    }
+  });
+
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    navigator.clipboard.writeText(link).then(function() {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!';
+      setTimeout(function(){ btn.textContent = '📋 Copy Link'; }, 2000);
+    });
+  }
+
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    window.open('https://wa.me/?text=' + encodeURIComponent('🎂 A birthday surprise for you! ' + link), '_blank');
+  }
+
+  // ─── INIT ───
+  updatePreview();
+  setTimeout(renderGalleryPreview, 100);
+  setTimeout(initPreviewTree, 200);
+</script>
+</body>
+</html>
