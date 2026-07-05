@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>🎂 Birthday Journey · Rockets</title>
+    <style>
+        /* ─────────── RESET & BASE ─────────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0a0612;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+         /* FLOATING BUTTON — sticks to left side as user scrolls */
+    .floating-cta {
+  position: fixed;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+}
+.floating-cta a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  background: linear-gradient(135deg, #f4c842, #e8506a);
+  color: #1a0010;
+  font-family: 'Nunito', sans-serif;
+  font-size: .72rem;
+  font-weight: 800;
+  text-decoration: none;
+  padding: 1rem .6rem;
+  border-radius: 50px;
+  box-shadow: 0 8px 24px rgba(244,200,66,.3);
+  transition: transform .2s, box-shadow .2s;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: .05em;
+  min-width: 44px;
+  text-align: center;
+}
+.floating-cta a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(244,200,66,.45);
+}
+.floating-cta .cta-icon {
+  font-size: 1.1rem;
+  writing-mode: horizontal-tb;
+}
+.floating-cta .back-btn {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.5);
+  font-size: .65rem;
+  padding: .6rem .5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  writing-mode: vertical-rl;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,.1);
+  transition: background .2s, color .2s;
+}
+.floating-cta .back-btn:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .floating-cta {
+    position: fixed;
+    bottom: 0; left: 0; right: 0; top: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: center;
+    padding: 0.5rem 0.8rem;
+    background: rgba(12, 12, 20, 0.9);
+    backdrop-filter: blur(16px) saturate(1.2);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    gap: 0.6rem;
+    box-shadow: 0 -4px 30px rgba(0,0,0,.4);
+  }
+  .floating-cta a {
+    writing-mode: horizontal-tb;
+    flex-direction: row;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    border-radius: 30px;
+    min-width: auto;
+    gap: 0.4rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(244,200,66,.2);
+  }
+  .floating-cta .cta-icon {
+    writing-mode: horizontal-tb;
+    font-size: 0.85rem;
+  }
+  .floating-cta .back-btn {
+    writing-mode: horizontal-tb;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .floating-cta .back-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+  /* Push page content above the bottom bar */
+  .brand { padding-bottom: 5rem; }
+}
+
+        /* ─────────── PAGE SYSTEM ─────────── */
+        .page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .page.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        /* ─── NEON BACKGROUND ─── */
+        .neon-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .neon-bg .bar {
+            position: absolute;
+            width: 200%;
+            height: 6px;
+            background: linear-gradient(90deg, transparent, #ff4081, #7c4dff, #00e5ff, #ffd600, #ff4081, transparent);
+            filter: blur(4px);
+            opacity: 0.3;
+            animation: neonSlide 12s linear infinite;
+            border-radius: 50%;
+        }
+        .neon-bg .bar:nth-child(2) {
+            top: 30%;
+            animation-duration: 18s;
+            animation-delay: -4s;
+            filter: blur(6px);
+            opacity: 0.2;
+            height: 4px;
+        }
+        .neon-bg .bar:nth-child(3) {
+            top: 60%;
+            animation-duration: 14s;
+            animation-delay: -8s;
+            filter: blur(8px);
+            opacity: 0.25;
+            height: 3px;
+        }
+        .neon-bg .bar:nth-child(4) {
+            top: 85%;
+            animation-duration: 20s;
+            animation-delay: -2s;
+            filter: blur(5px);
+            opacity: 0.15;
+            height: 5px;
+        }
+        @keyframes neonSlide {
+            0% {
+                transform: translateX(-50%) rotate(-2deg);
+            }
+            50% {
+                transform: translateX(10%) rotate(2deg);
+            }
+            100% {
+                transform: translateX(-50%) rotate(-2deg);
+            }
+        }
+
+        /* ─────────── PAGE 1: BIRTHDAY QUESTION ─────────── */
+        #page1 {
+            background: radial-gradient(ellipse at center, #1a0a2e 0%, #0a0612 70%);
+        }
+        #page1 .bg-glow {
+            position: absolute;
+            width: 80vmax;
+            height: 80vmax;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 80, 180, 0.12) 0%, transparent 70%);
+            animation: pulseGlow 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes pulseGlow {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        .question-box {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px;
+        }
+        .question-box h1 {
+            font-size: clamp(1.6rem, 6vw, 3.2rem);
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255, 100, 200, 0.3), 0 0 60px rgba(255, 50, 150, 0.15);
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            animation: fadeSlideUp 1.2s ease forwards;
+        }
+        .question-box h1 .highlight {
+            color: #ff7eb3;
+            font-weight: 600;
+            text-shadow: 0 0 40px rgba(255, 80, 180, 0.5);
+        }
+        @keyframes fadeSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeSlideUp 1.2s ease 0.3s forwards;
+            opacity: 0;
+        }
+        .btn-primary {
+            padding: 14px 44px;
+            border: none;
+            border-radius: 50px;
+            font-size: clamp(1rem, 2.2vw, 1.3rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-yes {
+            background: linear-gradient(135deg, #ff4081, #ff6b9d);
+            color: #fff;
+            box-shadow: 0 8px 30px rgba(255, 64, 129, 0.4);
+            animation: neonPulse 2s ease-in-out infinite;
+        }
+        .btn-yes:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px #ff4081, 0 0 80px #ff4081;
+        }
+        .btn-yes:active {
+            transform: scale(0.95);
+        }
+        .btn-no {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+        }
+        .btn-no:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+        .btn-no:active {
+            transform: scale(0.95);
+        }
+
+        #lyingMsg {
+            margin-top: 24px;
+            color: #ff6b6b;
+            font-size: clamp(1rem, 2vw, 1.4rem);
+            font-weight: 500;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-shadow: 0 0 30px rgba(255, 80, 80, 0.3);
+        }
+        #lyingMsg.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .particle-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 200, 230, 0.6), transparent);
+            animation: floatParticle linear infinite;
+        }
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* ─────────── PAGE 2: GALLERY ─────────── */
+        #page2 {
+            background: radial-gradient(ellipse at center, #1a1025 0%, #0a0612 100%);
+        }
+        #page2 .gallery-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .gallery-title {
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 60;
+            color: #fff;
+            font-size: clamp(1.2rem, 3vw, 2.2rem);
+            font-weight: 300;
+            letter-spacing: 6px;
+            text-shadow: 0 0 20px rgba(255, 100, 200, 0.3), 0 0 60px rgba(255, 50, 150, 0.15);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 28px;
+            border-radius: 40px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+        }
+        @media (max-width: 600px) {
+            .gallery-title {
+                top: 10px;
+                font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+                letter-spacing: 3px;
+                padding: 4px 16px;
+            }
+        }
+
+        #page2 .scene {
+            width: 100%;
+            height: 100%;
+            perspective: 1200px;
+            perspective-origin: 50% 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #page2 .carousel {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.9s cubic-bezier(0.34, 1.2, 0.64, 1);
+            will-change: transform;
+        }
+        #page2 .card {
+            position: absolute;
+            width: 280px;
+            height: 400px;
+            left: 50%;
+            top: 50%;
+            margin-left: -140px;
+            margin-top: -200px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(255, 255, 255, 0.06);
+            backface-visibility: hidden;
+            cursor: pointer;
+            transition: box-shadow 0.4s ease;
+        }
+        #page2 .card:hover {
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 3px rgba(255, 180, 220, 0.25), 0 0 40px rgba(255, 80, 180, 0.2);
+        }
+        #page2 .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        #page2 .card-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px 16px 16px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #page2 .card:hover .card-label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #page2 .card-label span {
+            display: block;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+        #page2 .glow-ring {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            top: 50%;
+            left: 50%;
+            margin-top: -400px;
+            margin-left: -400px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(255, 120, 200, 0.08) 0%, rgba(255, 80, 180, 0.03) 40%, transparent 70%);
+            pointer-events: none;
+            animation: ringPulse 4s ease-in-out infinite;
+        }
+        @keyframes ringPulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+        #page2 .controls {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px 28px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+        }
+        #page2 .btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        #page2 .btn:hover {
+            background: rgba(255, 120, 200, 0.2);
+            border-color: rgba(255, 120, 200, 0.3);
+            box-shadow: 0 0 30px rgba(255, 80, 180, 0.15);
+            transform: scale(1.05);
+        }
+        #page2 .btn:active {
+            transform: scale(0.92);
+        }
+        #page2 .btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+        #page2 .dots {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 0 8px;
+        }
+        #page2 .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        #page2 .dot.active {
+            background: #ff7eb3;
+            width: 24px;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(255, 80, 180, 0.4);
+        }
+        #page2 .counter {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            letter-spacing: 1px;
+            font-weight: 300;
+            min-width: 40px;
+            text-align: center;
+        }
+        #page2 .counter strong {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+        }
+        .btn-go {
+            padding: 12px 40px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #ff4081, #ff6b9d);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(255, 64, 129, 0.4);
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            animation: neonPulse 2.5s ease-in-out infinite;
+        }
+        .btn-go:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px #ff4081, 0 0 80px #ff4081;
+        }
+        .btn-go:active {
+            transform: scale(0.95);
+        }
+        @keyframes neonPulse {
+            0%,
+            100% {
+                box-shadow: 0 8px 30px rgba(255, 64, 129, 0.4), 0 0 20px rgba(255, 64, 129, 0.2);
+            }
+            50% {
+                box-shadow: 0 8px 50px rgba(255, 64, 129, 0.7), 0 0 60px rgba(255, 64, 129, 0.3);
+            }
+        }
+        /* ─────────── PAGE 3: BALLOON ─────────── */
+        #page3 {
+            background: #0b0510;
+        }
+        #page3 .lighting {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 150vw;
+            height: 150vh;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(120, 50, 180, 0.4) 0%, rgba(20, 10, 40, 0.8) 40%, #000 80%);
+            animation: pulseLight 4s infinite alternate;
+            z-index: 0;
+            pointer-events: none;
+        }
+        @keyframes pulseLight {
+            0% {
+                opacity: 0.7;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        #page3 .star {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.8);
+            animation: twinkle 2.6s ease-in-out infinite;
+            z-index: 0;
+        }
+        @keyframes twinkle {
+            0%,
+            100% {
+                opacity: 0.15;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        #page3 #message-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 94vw;
+            max-height: 80vh;
+            row-gap: clamp(8px, 3.5vh, 26px);
+            column-gap: clamp(14px, 5vw, 36px);
+        }
+        #page3 .word {
+            display: flex;
+            flex-wrap: nowrap;
+            flex-shrink: 0;
+            justify-content: center;
+            gap: clamp(2px, 0.6vw, 8px);
+        }
+        #page3 .char-wrapper {
+            transition: transform 7s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: transform;
+            flex-shrink: 0;
+        }
+        #page3 .bobble {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0px) rotate(-2deg);
+            }
+            50% {
+                transform: translateY(-10px) rotate(3deg);
+            }
+        }
+        #page3 .balloon {
+            width: clamp(22px, 6vw, 46px);
+            height: clamp(30px, 7.5vw, 60px);
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            background-color: var(--b-color);
+            box-shadow: inset -5px -5px 15px rgba(0, 0, 0, 0.2), inset 3px 3px 10px rgba(255, 255, 255, 0.5), 0 0 15px var(--b-color);
+            position: relative;
+        }
+        #page3 .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25%;
+            height: 15%;
+            background-color: var(--b-color);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        #page3 .string {
+            width: 2px;
+            height: clamp(20px, 5.5vw, 55px);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        #page3 .letter {
+            font-size: clamp(1rem, 4.6vw, 2.1rem);
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            padding: clamp(5px, 1.6vw, 12px) clamp(7px, 2.2vw, 15px);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: clamp(13px, 3.2vw, 25px);
+        }
+        #page3 .balloon-controls {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        /* ─────────── PAGE 4: HEART with ROCKETS ─────────── */
+        #page4 {
+            background: #000;
+            padding: 0;
+        }
+        #page4 canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            cursor: grab;
+            touch-action: none;
+        }
+        #page4 canvas:active {
+            cursor: grabbing;
+        }
+
+        #page4 .heart-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            text-align: center;
+            pointer-events: none;
+            width: 85%;
+            max-width: 600px;
+            padding: 10px;
+        }
+        #page4 .heart-text {
+            color: #fff;
+            font-size: clamp(1.8rem, 5vw, 3.8rem);
+            font-weight: 700;
+            text-shadow: 0 0 30px rgba(255, 80, 180, 0.7), 0 0 60px rgba(255, 50, 150, 0.4), 0 0 100px rgba(255, 20, 100, 0.2);
+            letter-spacing: 2px;
+            font-family: 'Georgia', serif;
+            min-height: 1.2em;
+            background: linear-gradient(135deg, #ff7eb3, #ffb3c6, #ff7eb3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: shimmerText 3s ease-in-out infinite;
+            color: #ff7eb3;
+            word-break: break-word;
+            line-height: 1.3;
+        }
+        @media (max-width: 600px) {
+            #page4 .heart-text {
+                font-size: clamp(1.6rem, 5.5vw, 2.6rem);
+                padding: 0 8px;
+            }
+        }
+        @media (max-width: 400px) {
+            #page4 .heart-text {
+                font-size: clamp(1.2rem, 5vw, 1.8rem);
+            }
+        }
+        @keyframes shimmerText {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+        #page4 .heart-text .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 0.9em;
+            background: #ff7eb3;
+            margin-left: 2px;
+            animation: blinkCursor 0.8s step-end infinite;
+            -webkit-text-fill-color: initial;
+            vertical-align: text-bottom;
+        }
+        @keyframes blinkCursor {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+
+        #page4 .heart-controls {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            pointer-events: auto;
+        }
+        #page4 .hint-text {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 12px;
+            letter-spacing: 2px;
+            z-index: 15;
+            pointer-events: none;
+            font-family: sans-serif;
+        }
+
+        /* ─────────── PAGE 5: ENVELOPE ─────────── */
+        /* Delete your previous styles and use this Neon Light CSS */
+
+/* --- Centering & Dark Neon Environment --- */
+/* .page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #090a0f;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    overflow: hidden;
+} */
+
+/* --- Envelope Container --- */
+.envelope-container {
+    position: relative;
+    width: 300px;
+    height: 200px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Neon Envelope Base --- */
+.envelope {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #0d0d1a;
+    border: 2px solid #00ffff; /* Neon Cyan */
+    border-radius: 10px;
+    box-shadow: 0 0 10px #00ffff, 
+                0 0 20px #00ffff, 
+                inset 0 0 15px rgba(0, 255, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+/* Diagonal glowing lines on the front of the envelope */
+.envelope::before,
+.envelope::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    width: 160px;
+    height: 2px;
+    background: #00ffff;
+    box-shadow: 0 0 10px #00ffff, 0 0 15px #00ffff;
+    z-index: 3;
+}
+
+.envelope::before {
+    left: -15px;
+    transform-origin: bottom left;
+    transform: rotate(35deg);
+}
+
+.envelope::after {
+    right: -15px;
+    transform-origin: bottom right;
+    transform: rotate(-35deg);
+}
+
+/* --- Glowing Flap --- */
+.flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    transform-origin: top;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s 0.3s;
+    overflow: hidden;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Rotated square to create the glowing V-shaped flap */
+.flap::after {
+    content: '';
+    position: absolute;
+    top: -160px;
+    left: 50%;
+    width: 220px;
+    height: 220px;
+    background: #0d0d1a;
+    border: 2px solid #ff00ff; /* Neon Pink */
+    box-shadow: 0 0 15px #ff00ff, inset 0 0 10px rgba(255, 0, 255, 0.2);
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.flap.open {
+    transform: rotateX(180deg);
+    z-index: 1;
+}
+
+/* --- Glowing Heart Seal --- */
+.heart-seal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.2rem;
+    z-index: 5;
+    text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 30px #ff0055;
+    transition: all 0.4s ease-out;
+}
+
+.heart-seal.hidden {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.5);
+    text-shadow: 0 0 50px transparent;
+}
+
+/* --- Neon Letter Content --- */
+.message-content {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    height: 85%;
+    background: #111122;
+    border: 1px solid #ff00ff;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.5), 
+                inset 0 0 15px rgba(255, 0, 255, 0.2);
+    padding: 15px;
+    box-sizing: border-box;
+    text-align: center;
+    z-index: 2;
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.message-content.show {
+    transform: translate(-50%, -140px); /* Pops up out of the envelope */
+    opacity: 1;
+}
+
+/* Typography Glowing Effects */
+.message-content h2 {
+    margin: 0 0 10px 0;
+    color: #fff;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+}
+
+.message-content .big-msg {
+    color: #00ffff;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.message-content p {
+    color: #e0e0ff;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+/* --- Pulsing Click Hint --- */
+.click-hint {
+    position: absolute;
+    bottom: -45px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    text-align: center;
+    color: #00ffff;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
+    animation: neonPulse 1.5s infinite alternate;
+}
+
+@keyframes neonPulse {
+    0% { opacity: 1; text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; }
+    100% { opacity: 0.5; text-shadow: 0 0 2px #00ffff; }
+}
+
+/* Hide the old decorative div lines since the CSS creates the neon borders */
+.envelope-line {
+    display: none;
+}
+
+        /* ─────────── RESPONSIVE ─────────── */
+        @media (max-width: 900px) {
+            #page2 .card {
+                width: 220px;
+                height: 320px;
+                margin-left: -110px;
+                margin-top: -160px;
+            }
+        }
+        @media (max-width: 600px) {
+            #page2 .card {
+                width: 160px;
+                height: 240px;
+                margin-left: -80px;
+                margin-top: -120px;
+                border-radius: 14px;
+            }
+            #page2 .controls {
+                gap: 12px;
+                padding: 12px 18px;
+                bottom: 20px;
+            }
+            #page2 .btn {
+                width: 38px;
+                height: 38px;
+            }
+            #page2 .btn svg {
+                width: 16px;
+                height: 16px;
+            }
+            #page2 .dot.active {
+                width: 18px;
+            }
+            #page3 #message-container {
+                row-gap: 6px;
+                column-gap: 10px;
+            }
+        }
+        @media (max-width: 400px) {
+            #page2 .card {
+                width: 120px;
+                height: 180px;
+                margin-left: -60px;
+                margin-top: -90px;
+                border-radius: 10px;
+            }
+            #page2 .controls {
+                gap: 8px;
+                padding: 10px 14px;
+            }
+            #page2 .btn {
+                width: 32px;
+                height: 32px;
+            }
+            #page2 .btn svg {
+                width: 14px;
+                height: 14px;
+            }
+            #page2 .dot {
+                width: 5px;
+                height: 5px;
+            }
+            #page2 .dot.active {
+                width: 14px;
+            }
+            .btn-go {
+                padding: 10px 28px;
+                font-size: 14px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  NEON BACKGROUND (injected via JS)                     -->
+    <!-- ════════════════════════════════════════════════════════ -->
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  PAGE 1: BIRTHDAY QUESTION                            -->
+    <!-- ════════════════════════════════════════════════════════ -->
+
+    <div class="floating-cta">
+  <a href="editor.html">
+    <span class="cta-icon">✏️</span>
+    Start Editing
+  </a>
+  <a href="../../birthday-gallery.html" class="back-btn">← Gallery</a>
+
+</div>
+
+
+    <div class="page active" id="page1">
+        <div class="bg-glow"></div>
+        <div class="particle-container" id="particles"></div>
+        <div class="question-box">
+            <h1>
+                Hey I heard it's your <br><span class="highlight">🎂 Birthday</span> today?
+            </h1>
+            <div class="btn-group">
+                <button class="btn-primary btn-yes" id="btnYes">✨ Yes!</button>
+                <button class="btn-primary btn-no" id="btnNo">😅 No</button>
+            </div>
+            <div id="lyingMsg">🙈 You are lying! It's definitely your birthday!</div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  PAGE 2: GALLERY                                      -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="page" id="page2">
+    <div class="gallery-wrapper">
+        <div class="gallery-title" id="gallery-title">✦ PHOTO GALLERY ✦</div>
+        <div class="glow-ring"></div>
+        <div class="scene">
+            <div class="carousel" id="carousel"></div>
+        </div>
+        <div class="controls">
+            <button class="btn" id="prevBtn" aria-label="Previous">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                </svg>
+            </button>
+            <div class="dots" id="dots"></div>
+            <button class="btn" id="nextBtn" aria-label="Next">
+                <svg viewBox="0 0 24 24">
+                    <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+                </svg>
+            </button>
+            <div class="counter" id="counter">
+                <strong id="currentIdx">1</strong> / <span id="totalCount">8</span>
+            </div>
+        </div>
+        <button class="btn-go" id="goToBalloon" style="position:absolute;bottom:110px;left:50%;transform:translateX(-50%);z-index:50;">🚀 Go Ahead</button>
+    </div>
+</div>
+
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  PAGE 3: BALLOON MESSAGE                              -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="page" id="page3">
+        <div class="lighting"></div>
+        <div id="message-container"></div>
+        <div class="balloon-controls">
+            <button class="btn-go" id="goToHeart">💖 Go to Heart</button>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  PAGE 4: 3D HEART + ROCKETS                           -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="page" id="page4">
+        <canvas id="heartCanvas"></canvas>
+        <div class="hint-text">✦ Drag to Rotate 3D ✦</div>
+        <div class="heart-overlay">
+            <div class="heart-text" id="heartText">
+                <span id="typedText"></span><span class="cursor"></span>
+            </div>
+        </div>
+        <div class="heart-controls">
+            <button class="btn-go" id="goToEnvelope">💌 Last Message</button>
+            <button class="btn-go" id="replayHeart">⟳ Replay</button>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  PAGE 5: ENVELOPE                                     -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="page" id="page5">
+        <div class="envelope-container" id="envelopeContainer">
+            <div class="envelope" id="envelope">
+                <div class="flap" id="flap"></div>
+                <div class="heart-seal" id="heartSeal">💖</div>
+                <div class="envelope-line"></div>
+                <div class="envelope-line"></div>
+                <div class="envelope-line"></div>
+                <div class="message-content" id="messageContent">
+                    <h2>🎉 Happy Birthday! 🎉</h2>
+                    <div class="big-msg">My Dear Friend</div>
+                    <p>Wishing you a day filled with love, laughter, and all the happiness in the world!</p>
+                    <p style="margin-top:6px; font-size: clamp(1.2rem, 3vw, 2rem);">🎂✨🎈</p>
+                </div>
+            </div>
+            <div class="click-hint" id="clickHint">👆 Tap the envelope to open</div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  SCRIPT                                               -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  NEON BACKGROUND INJECTION
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        (function injectNeonBg() {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                const div = document.createElement('div');
+                div.className = 'neon-bg';
+                for (let i = 0; i < 4; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    div.appendChild(bar);
+                }
+                page.appendChild(div);
+            });
+        })();
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE NAVIGATION
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function goToPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if (pageId === 'page4') {
+                initHeart();
+            }
+            if (pageId === 'page5') {
+                // Reset envelope when entering
+                resetEnvelope();
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 1: BIRTHDAY QUESTION
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        (function initPage1() {
+            const container = document.getElementById('particles');
+            const count = 30;
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = 2 + Math.random() * 6;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = 6 + Math.random() * 10 + 's';
+                p.style.animationDelay = Math.random() * 8 + 's';
+                p.style.opacity = 0.3 + Math.random() * 0.5;
+                container.appendChild(p);
+            }
+
+            document.getElementById('btnYes').addEventListener('click', () => {
+                goToPage('page2');
+                initGallery();
+            });
+
+            const lyingMsg = document.getElementById('lyingMsg');
+            document.getElementById('btnNo').addEventListener('click', () => {
+                lyingMsg.classList.add('show');
+                setTimeout(() => lyingMsg.classList.remove('show'), 3000);
+            });
+        })();
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 2: GALLERY
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let galleryInitialized = false;
+
+        function initGallery() {
+            if (galleryInitialized) return;
+            galleryInitialized = true;
+
+            const photos = [{
+                src: 'https://picsum.photos/id/1015/600/800',
+                title: 'Mountain Lake',
+                sub: 'Nature'
+            }, {
+                src: 'https://picsum.photos/id/1016/600/800',
+                title: 'City Lights',
+                sub: 'Urban'
+            }, {
+                src: 'https://picsum.photos/id/1018/600/800',
+                title: 'Forest Path',
+                sub: 'Adventure'
+            }, {
+                src: 'https://picsum.photos/id/1020/600/800',
+                title: 'Ocean View',
+                sub: 'Travel'
+            }, {
+                src: 'https://picsum.photos/id/1024/600/800',
+                title: 'Sunset Glow',
+                sub: 'Golden Hour'
+            }, {
+                src: 'https://picsum.photos/id/1027/600/800',
+                title: 'Urban Jungle',
+                sub: 'City Life'
+            }, {
+                src: 'https://picsum.photos/id/1035/600/800',
+                title: 'Misty Morning',
+                sub: 'Calm'
+            }, {
+                src: 'https://picsum.photos/id/1039/600/800',
+                title: 'Starry Night',
+                sub: 'Dreams'
+            }];
+
+            const TOTAL = photos.length;
+            const ANGLE_STEP = (2 * Math.PI) / TOTAL;
+            let currentIndex = 0;
+            let isTransitioning = false;
+            let autoRotateTimer = null;
+            let currentRadius = 450;
+
+            const carousel = document.getElementById('carousel');
+            const dotsContainer = document.getElementById('dots');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const currentIdxEl = document.getElementById('currentIdx');
+            const totalCountEl = document.getElementById('totalCount');
+
+            function getDynamicRadius() {
+                const w = window.innerWidth;
+                if (w <= 600) return 220;
+                if (w <= 900) return 320;
+                return 450;
+            }
+
+            function buildCards() {
+                carousel.innerHTML = '';
+                photos.forEach((photo, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.index = i;
+                    const angle = i * ANGLE_STEP;
+                    card.style.transform = `rotateY(${angle}rad) translateZ(${currentRadius}px)`;
+                    const img = document.createElement('img');
+                    img.src = photo.src;
+                    img.alt = photo.title;
+                    img.loading = 'lazy';
+                    card.appendChild(img);
+                    const label = document.createElement('div');
+                    label.className = 'card-label';
+                    label.innerHTML = `${photo.title} <span>${photo.sub}</span>`;
+                    card.appendChild(label);
+                    card.addEventListener('click', () => goTo(i));
+                    carousel.appendChild(card);
+                });
+                totalCountEl.textContent = TOTAL;
+                updateDots();
+                updateCounter();
+            }
+
+            function goTo(index, instant = false) {
+                if (isTransitioning && !instant) return;
+                if (index < 0) index = TOTAL - 1;
+                if (index >= TOTAL) index = 0;
+                if (index === currentIndex && !instant) return;
+                isTransitioning = true;
+                const targetAngle = -index * ANGLE_STEP;
+                const currentAngle = parseFloat(carousel.dataset.angle || 0);
+                let delta = targetAngle - currentAngle;
+                while (delta > Math.PI) delta -= 2 * Math.PI;
+                while (delta < -Math.PI) delta += 2 * Math.PI;
+                const newAngle = currentAngle + delta;
+                if (instant) {
+                    carousel.style.transition = 'none';
+                    carousel.style.transform = `translateZ(-${currentRadius}px) rotateY(${newAngle}rad)`;
+                    void carousel.offsetHeight;
+                    carousel.style.transition = '';
+                } else {
+                    carousel.style.transform = `translateZ(-${currentRadius}px) rotateY(${newAngle}rad)`;
+                }
+                carousel.dataset.angle = newAngle;
+                currentIndex = index;
+                updateDots();
+                updateCounter();
+                resetAutoRotate();
+                if (!instant) {
+                    setTimeout(() => { isTransitioning = false; }, 950);
+                } else {
+                    isTransitioning = false;
+                }
+            }
+
+            function next() { if (!isTransitioning) goTo(currentIndex + 1); }
+
+            function prev() { if (!isTransitioning) goTo(currentIndex - 1); }
+
+            function updateDots() {
+                const dots = dotsContainer.querySelectorAll('.dot');
+                dots.forEach((dot, i) => dot.classList.toggle('active', i === currentIndex));
+            }
+
+            function updateCounter() { currentIdxEl.textContent = currentIndex + 1; }
+
+            function buildDots() {
+                dotsContainer.innerHTML = '';
+                for (let i = 0; i < TOTAL; i++) {
+                    const dot = document.createElement('button');
+                    dot.className = 'dot' + (i === 0 ? ' active' : '');
+                    dot.dataset.index = i;
+                    dot.addEventListener('click', () => { if (!isTransitioning) goTo(i); });
+                    dotsContainer.appendChild(dot);
+                }
+            }
+
+            function resetAutoRotate() {
+                if (autoRotateTimer) clearInterval(autoRotateTimer);
+                autoRotateTimer = setInterval(() => { if (!isTransitioning) next(); }, 4000);
+            }
+
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const newRadius = getDynamicRadius();
+                    if (newRadius !== currentRadius) {
+                        currentRadius = newRadius;
+                        buildCards();
+                        goTo(currentIndex, true);
+                    }
+                }, 200);
+            });
+
+            let touchStartX = 0;
+            document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+            document.addEventListener('touchend', (e) => {
+                const diff = touchStartX - e.changedTouches[0].screenX;
+                if (Math.abs(diff) > 40) diff > 0 ? next() : prev();
+            }, { passive: true });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') next();
+                if (e.key === 'ArrowLeft') prev();
+            });
+
+            currentRadius = getDynamicRadius();
+            buildDots();
+            buildCards();
+            goTo(0, true);
+            prevBtn.addEventListener('click', prev);
+            nextBtn.addEventListener('click', next);
+
+            const wrapper = document.querySelector('#page2 .gallery-wrapper');
+            wrapper.addEventListener('mouseenter', () => clearInterval(autoRotateTimer));
+            wrapper.addEventListener('mouseleave', resetAutoRotate);
+
+            document.getElementById('goToBalloon').addEventListener('click', () => {
+                goToPage('page3');
+                initBalloon();
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 3: BALLOON MESSAGE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let balloonInitialized = false;
+
+        function initBalloon() {
+            if (balloonInitialized) return;
+            balloonInitialized = true;
+
+            const container = document.getElementById('message-container');
+            const colors = ['#ff4081', '#7c4dff', '#00e5ff', '#64dd17', '#ffd600', '#ff6d00'];
+
+            (function buildStars() {
+                const existing = document.querySelectorAll('#page3 .star');
+                existing.forEach(s => s.remove());
+                const count = Math.round((window.innerWidth * window.innerHeight) / 16000);
+                for (let i = 0; i < count; i++) {
+                    const s = document.createElement('div');
+                    s.className = 'star';
+                    s.style.left = Math.random() * 100 + 'vw';
+                    s.style.top = Math.random() * 70 + 'vh';
+                    s.style.animationDelay = (Math.random() * 3).toFixed(2) + 's';
+                    document.getElementById('page3').appendChild(s);
+                }
+            })();
+
+            let activeTimers = [];
+
+            function clearTimers() {
+                activeTimers.forEach(t => clearTimeout(t));
+                activeTimers = [];
+            }
+
+            function buildMessage() {
+                clearTimers();
+                container.innerHTML = '';
+                const message = 'HAPPY BIRTHDAY TO MY FRIEND';
+                const words = message.split(' ').filter(Boolean);
+                const travelDuration = 7000;
+                const waitTime = 5000;
+
+                words.forEach(word => {
+                    const wordDiv = document.createElement('div');
+                    wordDiv.className = 'word';
+                    word.split('').forEach(char => {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'char-wrapper';
+                        const randomXOffset = (Math.random() - 0.5) * window.innerWidth;
+                        wrapper.style.transform = `translateY(150vh) translateX(${randomXOffset}px)`;
+                        const bobble = document.createElement('div');
+                        bobble.className = 'bobble';
+                        bobble.style.animationDelay = `-${Math.random() * 4}s`;
+                        const balloon = document.createElement('div');
+                        balloon.className = 'balloon';
+                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                        balloon.style.setProperty('--b-color', randomColor);
+                        const string = document.createElement('div');
+                        string.className = 'string';
+                        const letter = document.createElement('div');
+                        letter.className = 'letter';
+                        letter.innerText = char;
+                        bobble.appendChild(balloon);
+                        bobble.appendChild(string);
+                        bobble.appendChild(letter);
+                        wrapper.appendChild(bobble);
+                        wordDiv.appendChild(wrapper);
+                        const staggerDelay = Math.random() * 4000;
+                        const t1 = setTimeout(() => {
+                            wrapper.style.transform = `translateY(0) translateX(0)`;
+                        }, 100 + staggerDelay);
+                        activeTimers.push(t1);
+                        const t2 = setTimeout(() => {
+                            const randomXExit = (Math.random() - 0.5) * window.innerWidth;
+                            wrapper.style.transform = `translateY(-150vh) translateX(${randomXExit}px)`;
+                        }, 100 + staggerDelay + travelDuration + waitTime);
+                        activeTimers.push(t2);
+                    });
+                    container.appendChild(wordDiv);
+                });
+            }
+
+            buildMessage();
+
+            document.getElementById('goToHeart').addEventListener('click', () => {
+                goToPage('page4');
+            });
+
+            let balloonResizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(balloonResizeTimeout);
+                balloonResizeTimeout = setTimeout(() => {
+                    const existing = document.querySelectorAll('#page3 .star');
+                    existing.forEach(s => s.remove());
+                    const count = Math.round((window.innerWidth * window.innerHeight) / 16000);
+                    for (let i = 0; i < count; i++) {
+                        const s = document.createElement('div');
+                        s.className = 'star';
+                        s.style.left = Math.random() * 100 + 'vw';
+                        s.style.top = Math.random() * 70 + 'vh';
+                        s.style.animationDelay = (Math.random() * 3).toFixed(2) + 's';
+                        document.getElementById('page3').appendChild(s);
+                    }
+                }, 250);
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 4: 3D HEART + ROCKET SYSTEM (simplified)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let heartInitialized = false;
+        let heartCanvas, ctx, W, H, cx, cy, scale;
+        let rockets = [];
+        let rocketSpawnTimer = 0;
+        const ROCKET_INTERVAL = 2800;
+        let rotX = 0,
+            rotY = 0;
+        let targetRotX = 0,
+            targetRotY = 0;
+        let isDragging = false;
+        let startX, startY;
+        const FOV = 800;
+        let petals3D = [];
+        let lightDots = [];
+        let globalStart = null;
+        let heartAnimFrame = null;
+        let typedText = '';
+        let textIndex = 0;
+        let typingInterval = null;
+        const fullText = 'Happy Birthday';
+
+        // Rocket class (simplified)
+        class Rocket {
+            constructor() {
+                const margin = W * 0.15;
+                this.x = margin + Math.random() * (W - margin * 2);
+                this.y = H + 40;
+                this.peakY = 30 + Math.random() * (H * 0.15);
+                this.speed = 5 + Math.random() * 3;
+                this.active = true;
+                this.exploded = false;
+                this.trail = [];
+                this.hue = 310 + Math.random() * 60;
+                this.size = 4 + Math.random() * 3;
+                this.trailTimer = 0;
+                this.sparkles = [];
+                this.petals = [];
+                this.flamePhase = 0;
+                this.glowColor = `hsl(${this.hue}, 100%, 70%)`;
+            }
+            update() {
+                if (!this.active) return;
+                this.flamePhase += 0.15;
+                this.y -= this.speed;
+                this.trailTimer++;
+                if (this.trailTimer % 2 === 0) {
+                    const trailSize = 2 + Math.random() * 4;
+                    const hueOffset = (Math.random() - 0.5) * 20;
+                    this.trail.push({
+                        x: this.x + (Math.random() - 0.5) * 6,
+                        y: this.y + (Math.random() - 0.5) * 4 + 10,
+                        size: trailSize,
+                        life: 1,
+                        decay: 0.02 + Math.random() * 0.025,
+                        hue: this.hue + hueOffset,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: 0.3 + Math.random() * 0.5
+                    });
+                }
+                for (let i = this.trail.length - 1; i >= 0; i--) {
+                    const t = this.trail[i];
+                    t.life -= t.decay;
+                    t.x += t.vx;
+                    t.y += t.vy;
+                    t.vy += 0.05;
+                    if (t.life <= 0) this.trail.splice(i, 1);
+                }
+                if (this.y <= this.peakY && !this.exploded) {
+                    this.exploded = true;
+                    this.createExplosion();
+                }
+                if (this.exploded) {
+                    for (let i = this.sparkles.length - 1; i >= 0; i--) {
+                        const s = this.sparkles[i];
+                        s.x += s.vx;
+                        s.y += s.vy;
+                        s.vy += 0.04;
+                        s.vx *= 0.99;
+                        s.life -= s.decay;
+                        if (s.life <= 0) this.sparkles.splice(i, 1);
+                    }
+                    for (let i = this.petals.length - 1; i >= 0; i--) {
+                        const p = this.petals[i];
+                        p.x += p.vx + Math.sin(p.y * 0.02 + p.phase) * 0.3;
+                        p.y += p.vy;
+                        p.vy += 0.015;
+                        p.rotation += p.rotationSpeed;
+                        p.life -= p.decay;
+                        if (p.life <= 0 || p.y > H + 50) this.petals.splice(i, 1);
+                    }
+                    if (this.sparkles.length === 0 && this.petals.length === 0) {
+                        this.active = false;
+                    }
+                }
+            }
+            createExplosion() {
+                const colors = ['#ff4081', '#ff6b9d', '#ff8fab', '#ffb3c6', '#ffd6e0', '#ff7eb3'];
+                const numSparkles = 40 + Math.floor(Math.random() * 30);
+                for (let i = 0; i < numSparkles; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 1.5 + Math.random() * 7;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    this.sparkles.push({
+                        x: this.x,
+                        y: this.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - 1,
+                        size: 1.5 + Math.random() * 4,
+                        color: color,
+                        life: 1,
+                        decay: 0.005 + Math.random() * 0.015
+                    });
+                }
+                const petalColors = ['#ff4081', '#ff6b9d', '#ff8fab', '#ffb3c6', '#ffd6e0', '#ff7eb3'];
+                const numPetals = 20 + Math.floor(Math.random() * 15);
+                for (let i = 0; i < numPetals; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 0.5 + Math.random() * 2.5;
+                    this.petals.push({
+                        x: this.x + (Math.random() - 0.5) * 30,
+                        y: this.y + (Math.random() - 0.5) * 30,
+                        vx: Math.cos(angle) * speed,
+                        vy: 0.5 + Math.random() * 1.5,
+                        size: 4 + Math.random() * 8,
+                        rotation: Math.random() * Math.PI * 2,
+                        rotationSpeed: (Math.random() - 0.5) * 0.06,
+                        color: petalColors[Math.floor(Math.random() * petalColors.length)],
+                        life: 1,
+                        decay: 0.002 + Math.random() * 0.003,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            draw(ctx) {
+                if (!this.active && this.trail.length === 0 && this.sparkles.length === 0 && this.petals.length === 0)
+                    return;
+                for (const t of this.trail) {
+                    const alpha = t.life * 0.8;
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    const grad = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, t.size * 1.5);
+                    grad.addColorStop(0, `hsl(${t.hue}, 100%, 80%)`);
+                    grad.addColorStop(0.5, `hsl(${t.hue}, 100%, 60%)`);
+                    grad.addColorStop(1, `hsl(${t.hue}, 100%, 40%)`);
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, t.size * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+                if (!this.exploded && this.active) {
+                    ctx.save();
+                    ctx.shadowColor = this.glowColor;
+                    ctx.shadowBlur = 30;
+                    const x = this.x,
+                        y = this.y,
+                        s = this.size;
+                    const grad = ctx.createLinearGradient(x - s, y, x + s, y);
+                    grad.addColorStop(0, `hsl(${this.hue}, 80%, 40%)`);
+                    grad.addColorStop(0.3, `hsl(${this.hue}, 100%, 65%)`);
+                    grad.addColorStop(0.7, `hsl(${this.hue}, 100%, 70%)`);
+                    grad.addColorStop(1, `hsl(${this.hue}, 80%, 40%)`);
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - s * 2.5);
+                    ctx.quadraticCurveTo(x + s * 1.8, y - s * 0.5, x + s * 1.2, y + s * 1.5);
+                    ctx.lineTo(x - s * 1.2, y + s * 1.5);
+                    ctx.quadraticCurveTo(x - s * 1.8, y - s * 0.5, x, y - s * 2.5);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = `hsla(0, 0%, 100%, 0.3)`;
+                    ctx.beginPath();
+                    ctx.moveTo(x - s * 0.4, y - s * 2);
+                    ctx.quadraticCurveTo(x, y - s * 2.6, x + s * 0.4, y - s * 2);
+                    ctx.quadraticCurveTo(x, y - s * 1.8, x - s * 0.4, y - s * 2);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.shadowColor = `hsl(30, 100%, 60%)`;
+                    ctx.shadowBlur = 40;
+                    const flameLen = s * (1.2 + 0.4 * Math.sin(this.flamePhase));
+                    const gradFlame = ctx.createRadialGradient(x, y + s * 1.8, 0, x, y + s * 1.8 + flameLen, flameLen);
+                    gradFlame.addColorStop(0, 'hsla(40, 100%, 80%, 0.9)');
+                    gradFlame.addColorStop(0.3, 'hsla(30, 100%, 60%, 0.8)');
+                    gradFlame.addColorStop(0.7, 'hsla(20, 100%, 40%, 0.4)');
+                    gradFlame.addColorStop(1, 'hsla(10, 100%, 30%, 0)');
+                    ctx.fillStyle = gradFlame;
+                    ctx.beginPath();
+                    ctx.moveTo(x - s * 0.6, y + s * 1.5);
+                    ctx.quadraticCurveTo(x - s * 0.4, y + s * 1.5 + flameLen * 0.8, x, y + s * 1.5 + flameLen);
+                    ctx.quadraticCurveTo(x + s * 0.4, y + s * 1.5 + flameLen * 0.8, x + s * 0.6, y + s * 1.5);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.shadowBlur = 20;
+                    ctx.fillStyle = 'hsla(50, 100%, 90%, 0.6)';
+                    const innerLen = flameLen * 0.4;
+                    ctx.beginPath();
+                    ctx.moveTo(x - s * 0.2, y + s * 1.5);
+                    ctx.quadraticCurveTo(x - s * 0.1, y + s * 1.5 + innerLen * 0.7, x, y + s * 1.5 + innerLen);
+                    ctx.quadraticCurveTo(x + s * 0.1, y + s * 1.5 + innerLen * 0.7, x + s * 0.2, y + s * 1.5);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+                for (const s of this.sparkles) {
+                    const alpha = s.life;
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    ctx.shadowColor = s.color;
+                    ctx.shadowBlur = s.size * 4;
+                    ctx.fillStyle = s.color;
+                    const r = s.size * (0.3 + 0.7 * s.life);
+                    const spikes = 4;
+                    ctx.beginPath();
+                    for (let i = 0; i < spikes * 2; i++) {
+                        const radius = i % 2 === 0 ? r : r * 0.4;
+                        const angle = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2;
+                        const px = s.x + Math.cos(angle) * radius;
+                        const py = s.y + Math.sin(angle) * radius;
+                        if (i === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+                for (const p of this.petals) {
+                    const alpha = p.life * 0.9;
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation);
+                    const size = p.size * (0.5 + 0.5 * p.life);
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 10;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.moveTo(0, size);
+                    ctx.bezierCurveTo(size * 0.6, size * 0.3, size * 0.4, -size * 0.5, 0, -size * 0.8);
+                    ctx.bezierCurveTo(-size * 0.4, -size * 0.5, -size * 0.6, size * 0.3, 0, size);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+        }
+
+        function initHeart() {
+            if (heartInitialized) return;
+            heartInitialized = true;
+
+            heartCanvas = document.getElementById('heartCanvas');
+            ctx = heartCanvas.getContext('2d');
+
+            function onPointerDown(e) {
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                if (clientX === undefined) return;
+                const target = e.target || e.srcElement;
+                if (target && (target.id === 'replayHeart' || target.id === 'goToEnvelope')) return;
+                isDragging = true;
+                startX = clientX;
+                startY = clientY;
+                e.preventDefault();
+            }
+
+            function onPointerMove(e) {
+                if (!isDragging) return;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                if (clientX === undefined) return;
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+                targetRotY += dx * 0.005;
+                targetRotX -= dy * 0.005;
+                targetRotX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotX));
+                startX = clientX;
+                startY = clientY;
+                e.preventDefault();
+            }
+
+            function onPointerUp(e) { if (isDragging) { isDragging = false;
+                    e.preventDefault(); } }
+
+            heartCanvas.addEventListener('mousedown', onPointerDown);
+            window.addEventListener('mousemove', onPointerMove);
+            window.addEventListener('mouseup', onPointerUp);
+            heartCanvas.addEventListener('touchstart', onPointerDown, { passive: false });
+            window.addEventListener('touchmove', onPointerMove, { passive: false });
+            window.addEventListener('touchend', onPointerUp, { passive: false });
+            window.addEventListener('touchcancel', onPointerUp, { passive: false });
+
+            function heartPointRaw(t) {
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                const dist = Math.sqrt(x * x + y * y);
+                const maxDist = 17;
+                const thickness = Math.max(0, 1 - (dist / maxDist));
+                const z = (Math.random() - 0.5) * 12 * thickness;
+                return { x, y, z };
+            }
+
+            let bounds = null;
+
+            function computeBounds() {
+                let minX = Infinity,
+                    maxX = -Infinity,
+                    minY = Infinity,
+                    maxY = -Infinity;
+                for (let i = 0; i <= 720; i++) {
+                    const t = (i / 720) * Math.PI * 2;
+                    const { x, y } = heartPointRaw(t);
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+                bounds = { minX, maxX, minY, maxY };
+            }
+            computeBounds();
+
+            function resizeHeart() {
+                W = heartCanvas.width = window.innerWidth;
+                H = heartCanvas.height = window.innerHeight;
+                const marginRatio = 0.16;
+                const availW = W * (1 - marginRatio * 2);
+                const availH = H * (1 - marginRatio * 2);
+                const rangeX = bounds.maxX - bounds.minX;
+                const rangeY = bounds.maxY - bounds.minY;
+                scale = Math.min(availW / rangeX, availH / rangeY);
+                cx = W / 2 - ((bounds.minX + bounds.maxX) / 2) * scale;
+                cy = H / 2 - ((bounds.minY + bounds.maxY) / 2) * scale;
+            }
+            window.addEventListener('resize', resizeHeart);
+            resizeHeart();
+
+            function heartPoint(t) {
+                const { x, y, z } = heartPointRaw(t);
+                return { x: x * scale, y: y * scale, z: z * scale };
+            }
+
+            function project3D(x, y, z) {
+                const cosY = Math.cos(rotY),
+                    sinY = Math.sin(rotY);
+                const x1 = x * cosY - z * sinY;
+                const z1 = x * sinY + z * cosY;
+                const cosX = Math.cos(rotX),
+                    sinX = Math.sin(rotX);
+                const y2 = y * cosX - z1 * sinX;
+                const z2 = y * sinX + z1 * cosX;
+                const pScale = FOV / (FOV + z2);
+                return { x: x1 * pScale, y: y2 * pScale, z: z2, scale: pScale };
+            }
+
+            const PETAL_PALETTES = [
+                ['#7a0620', '#d81159', '#ff8fab'],
+                ['#8c0e2b', '#e8385f', '#ffb3c6'],
+                ['#5e0a1e', '#c21e56', '#ff9eb5'],
+                ['#9b1043', '#ef476f', '#ffd6e0'],
+            ];
+
+            function drawPetalShape(ctx, size) {
+                ctx.beginPath();
+                ctx.moveTo(0, size);
+                ctx.bezierCurveTo(size * 0.75, size * 0.4, size * 0.55, -size * 0.55, 0, -size);
+                ctx.bezierCurveTo(-size * 0.55, -size * 0.55, -size * 0.75, size * 0.4, 0, size);
+                ctx.closePath();
+            }
+
+            class LightDot {
+                constructor() {
+                    this.x = (Math.random() - 0.5) * W * 3;
+                    this.y = (Math.random() - 0.5) * H * 3;
+                    this.z = (Math.random() - 0.5) * FOV * 2;
+                    this.size = 0.6 + Math.random() * 2.2;
+                    this.speed = 0.1 + Math.random() * 0.3;
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.vx = Math.cos(this.angle) * this.speed;
+                    this.vy = Math.sin(this.angle) * this.speed;
+                    this.twinkleSpeed = 0.5 + Math.random() * 1.5;
+                    this.phase = Math.random() * Math.PI * 2;
+                    this.hue = 280 + Math.random() * 60;
+                    this.sat = 60 + Math.random() * 40;
+                    this.lit = 70 + Math.random() * 30;
+                    this.proj = { x: 0, y: 0, z: 0, scale: 1 };
+                    this.alpha = 0;
+                }
+                update(now) {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    const limit = W * 1.5;
+                    if (this.x < -limit) this.x = limit;
+                    if (this.x > limit) this.x = -limit;
+                    if (this.y < -limit) this.y = limit;
+                    if (this.y > limit) this.y = -limit;
+                    this.alpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(now / 1000 * this.twinkleSpeed + this.phase));
+                    this.proj = project3D(this.x, this.y, this.z);
+                }
+                draw(ctx) {
+                    if (this.proj.z < -FOV + 10) return;
+                    const drawX = cx + this.proj.x;
+                    const drawY = cy + this.proj.y;
+                    const size = this.size * this.proj.scale * (0.4 + 0.6 * this.alpha);
+                    ctx.save();
+                    ctx.globalAlpha = this.alpha * Math.min(1, this.proj.scale);
+                    ctx.shadowColor = `hsla(${this.hue}, 100%, 80%, 0.6)`;
+                    ctx.shadowBlur = size * 5;
+                    ctx.beginPath();
+                    ctx.arc(drawX, drawY, Math.max(0.1, size), 0, Math.PI * 2);
+                    ctx.fillStyle = `hsla(${this.hue}, ${this.sat}%, ${this.lit}%, 1)`;
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            class Petal3D {
+                constructor(targetX, targetY, targetZ, delay) {
+                    this.targetX = targetX;
+                    this.targetY = targetY;
+                    this.targetZ = targetZ;
+                    this.spawnAngle = Math.random() * Math.PI * 2;
+                    this.spawnRadius = Math.random() * 4;
+                    this.spawnX = Math.cos(this.spawnAngle) * this.spawnRadius;
+                    this.spawnY = Math.sin(this.spawnAngle) * this.spawnRadius;
+                    this.spawnZ = (Math.random() - 0.5) * 4;
+                    this.delay = delay;
+                    this.duration = 950 + Math.random() * 550;
+                    this.born = false;
+                    this.startTime = null;
+                    const bend = 35 + Math.random() * 70;
+                    const bendAngle = Math.random() * Math.PI * 2;
+                    this.ctrlX = targetX * 0.4 + Math.cos(bendAngle) * bend;
+                    this.ctrlY = targetY * 0.4 + Math.sin(bendAngle) * bend;
+                    this.ctrlZ = targetZ * 0.4 + (Math.random() - 0.5) * bend;
+                    const pal = PETAL_PALETTES[Math.floor(Math.random() * PETAL_PALETTES.length)];
+                    this.deep = pal[0];
+                    this.mid = pal[1];
+                    this.hi = pal[2];
+                    this.baseSize = (3.2 + Math.random() * 4.2) * (scale / 34) + 2.2;
+                    this.rotStart = Math.random() * Math.PI * 2;
+                    this.rotSpins = 1.5 + Math.random() * 2.5;
+                    this.settleWobbleSpeed = 1 + Math.random() * 1.5;
+                    this.settleWobbleOffset = Math.random() * Math.PI * 2;
+                    this.settleRotJitter = (Math.random() - 0.5) * 0.6;
+                    this.currX = 0;
+                    this.currY = 0;
+                    this.currZ = 0;
+                    this.alpha = 0;
+                    this.proj = { x: 0, y: 0, z: 0, scale: 1 };
+                    this.scaleFactor = 1;
+                    this.rotation = 0;
+                }
+                update(now, elapsedGlobal) {
+                    if (elapsedGlobal < this.delay) return;
+                    if (!this.born) { this.born = true;
+                        this.startTime = now; }
+                    let t = Math.min(1, (now - this.startTime) / this.duration);
+                    let e = 1 - Math.pow(1 - t, 3);
+                    const mt = 1 - e;
+                    this.currX = mt * mt * this.spawnX + 2 * mt * e * this.ctrlX + e * e * this.targetX;
+                    this.currY = mt * mt * this.spawnY + 2 * mt * e * this.ctrlY + e * e * this.targetY;
+                    this.currZ = mt * mt * this.spawnZ + 2 * mt * e * this.ctrlZ + e * e * this.targetZ;
+                    this.scaleFactor = 0.2 + 0.8 * e;
+                    this.rotation = this.rotStart + e * Math.PI * 2 * this.rotSpins;
+                    this.alpha = Math.min(1, t * 2.4);
+                    if (t >= 1) {
+                        const wob = Math.sin(now / 500 * this.settleWobbleSpeed + this.settleWobbleOffset);
+                        this.currX = this.targetX + wob * 1.2;
+                        this.currY = this.targetY + Math.cos(now / 600 * this.settleWobbleSpeed + this.settleWobbleOffset) *
+                            1.0;
+                        this.currZ = this.targetZ;
+                        this.rotation = this.rotStart + Math.PI * 2 * this.rotSpins + wob * this.settleRotJitter;
+                        this.scaleFactor = 1 + wob * 0.03;
+                    }
+                    this.proj = project3D(this.currX, this.currY, this.currZ);
+                }
+                draw(ctx, now) {
+                    if (!this.born || this.proj.z < -FOV + 10) return;
+                    const px = cx + this.proj.x;
+                    const py = cy + this.proj.y;
+                    const size = this.baseSize * this.scaleFactor * this.proj.scale;
+                    ctx.save();
+                    ctx.translate(px, py);
+                    ctx.rotate(this.rotation + rotX * 0.5 + rotY * 0.5);
+                    ctx.globalAlpha = this.alpha * Math.min(1, this.proj.scale * 1.5);
+                    ctx.shadowColor = this.mid;
+                    ctx.shadowBlur = size * 2.2;
+                    const grad = ctx.createLinearGradient(0, -size, 0, size);
+                    grad.addColorStop(0, this.hi);
+                    grad.addColorStop(0.5, this.mid);
+                    grad.addColorStop(1, this.deep);
+                    ctx.fillStyle = grad;
+                    drawPetalShape(ctx, size);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.globalAlpha = this.alpha * 0.55 * Math.min(1, this.proj.scale * 1.5);
+                    ctx.strokeStyle = this.hi;
+                    ctx.lineWidth = Math.max(0.4, size * 0.06);
+                    ctx.beginPath();
+                    ctx.moveTo(0, size * 0.75);
+                    ctx.lineTo(0, -size * 0.75);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+
+            function buildPetals3D() {
+                petals3D = [];
+                const count = 450;
+                const samples = [];
+                for (let i = 0; i < count; i++) {
+                    const t = Math.random() * Math.PI * 2;
+                    const { x, y, z } = heartPoint(t);
+                    const normalAngle = t + Math.PI / 2;
+                    const thickness2D = (Math.random() - 0.5) * 2 * Math.pow(Math.random(), 0.6);
+                    const nx = x + Math.cos(normalAngle) * thickness2D * scale * 0.55;
+                    const ny = y + Math.sin(normalAngle) * thickness2D * scale * 0.55;
+                    samples.push({ x: nx, y: ny, z: z, t });
+                }
+                samples.sort((a, b) => a.t - b.t);
+                const totalDuration = 2500;
+                samples.forEach((s, i) => {
+                    const delay = (i / samples.length) * totalDuration;
+                    petals3D.push(new Petal3D(s.x, s.y, s.z, delay));
+                });
+            }
+
+            function buildLightDots() {
+                lightDots = [];
+                const count = Math.max(150, Math.min(400, Math.round((W * H) / 3500)));
+                for (let i = 0; i < count; i++) { lightDots.push(new LightDot()); }
+            }
+
+            function startTyping() {
+                if (typingInterval) clearInterval(typingInterval);
+                typedText = '';
+                textIndex = 0;
+                document.getElementById('typedText').textContent = '';
+                typingInterval = setInterval(() => {
+                    if (textIndex < fullText.length) {
+                        typedText += fullText[textIndex];
+                        document.getElementById('typedText').textContent = typedText;
+                        textIndex++;
+                    } else {
+                        clearInterval(typingInterval);
+                        typingInterval = null;
+                    }
+                }, 120);
+            }
+
+            function startHeart() {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, W, H);
+                globalStart = null;
+                targetRotX = 0;
+                targetRotY = 0;
+                buildPetals3D();
+                buildLightDots();
+                rockets = [];
+                rocketSpawnTimer = 0;
+                document.getElementById('typedText').textContent = '';
+                startTyping();
+            }
+
+            function animateHeart() {
+                const now = performance.now();
+                if (globalStart === null) globalStart = now;
+                const elapsedGlobal = now - globalStart;
+
+                rotX += (targetRotX - rotX) * 0.1;
+                rotY += (targetRotY - rotY) * 0.1;
+
+                if (rocketSpawnTimer === 0) {
+                    rockets.push(new Rocket());
+                }
+                rocketSpawnTimer += 16;
+                if (rocketSpawnTimer > ROCKET_INTERVAL) {
+                    rocketSpawnTimer = 0;
+                }
+
+                for (let i = rockets.length - 1; i >= 0; i--) {
+                    rockets[i].update();
+                    if (!rockets[i].active && rockets[i].sparkles.length === 0 && rockets[i].petals.length === 0) {
+                        rockets.splice(i, 1);
+                    }
+                }
+
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, W, H);
+
+                lightDots.forEach(dot => dot.update(now));
+                petals3D.forEach(p => p.update(now, elapsedGlobal));
+
+                const renderQueue = [...lightDots, ...petals3D.filter(p => p.born)];
+                renderQueue.sort((a, b) => b.proj.z - a.proj.z);
+
+                const centerProj = project3D(0, 0, 0);
+                const bloomPulse = 0.6 + 0.4 * Math.sin(now / 2000);
+                if (centerProj.z > -FOV + 50) {
+                    const bGrad = ctx.createRadialGradient(
+                        cx + centerProj.x, cy + centerProj.y, 0,
+                        cx + centerProj.x, cy + centerProj.y, (120 + 40 * bloomPulse) * centerProj.scale
+                    );
+                    bGrad.addColorStop(0, `rgba(255, 120, 180, ${0.1 * bloomPulse})`);
+                    bGrad.addColorStop(0.5, `rgba(200, 60, 150, ${0.05 * bloomPulse})`);
+                    bGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = bGrad;
+                    ctx.fillRect(0, 0, W, H);
+                }
+
+                renderQueue.forEach(item => { item.draw(ctx, now); });
+
+                for (const rocket of rockets) {
+                    rocket.draw(ctx);
+                }
+
+                const vigGrad = ctx.createRadialGradient(
+                    W / 2, H / 2, Math.min(W, H) * 0.15,
+                    W / 2, H / 2, Math.max(W, H) * 0.75
+                );
+                vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
+                vigGrad.addColorStop(0.5, 'rgba(0,0,0,0.05)');
+                vigGrad.addColorStop(1, 'rgba(0,0,0,0.45)');
+                ctx.fillStyle = vigGrad;
+                ctx.fillRect(0, 0, W, H);
+
+                heartAnimFrame = requestAnimationFrame(animateHeart);
+            }
+
+            buildPetals3D();
+            buildLightDots();
+            animateHeart();
+            startTyping();
+
+            document.getElementById('replayHeart').addEventListener('click', () => { startHeart(); });
+            document.getElementById('goToEnvelope').addEventListener('click', () => {
+                if (typingInterval) { clearInterval(typingInterval);
+                    typingInterval = null; }
+                goToPage('page5');
+            });
+
+            const observer = new MutationObserver(() => {
+                if (!document.getElementById('page4').classList.contains('active')) {
+                    if (typingInterval) { clearInterval(typingInterval);
+                        typingInterval = null; }
+                }
+            });
+            observer.observe(document.getElementById('page4'), { attributes: true, attributeFilter: ['class'] });
+
+            let heartResizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(heartResizeTimeout);
+                heartResizeTimeout = setTimeout(() => {
+                    resizeHeart();
+                    buildPetals3D();
+                    buildLightDots();
+                }, 200);
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 5: ENVELOPE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let envelopeOpened = false;
+
+        function resetEnvelope() {
+            const flap = document.getElementById('flap');
+            const heartSeal = document.getElementById('heartSeal');
+            const messageContent = document.getElementById('messageContent');
+            const clickHint = document.getElementById('clickHint');
+            flap.classList.remove('open');
+            heartSeal.classList.remove('hidden');
+            messageContent.classList.remove('show');
+            clickHint.style.display = 'block';
+            envelopeOpened = false;
+        }
+
+        function openEnvelope() {
+            if (envelopeOpened) return;
+            envelopeOpened = true;
+            const flap = document.getElementById('flap');
+            const heartSeal = document.getElementById('heartSeal');
+            const messageContent = document.getElementById('messageContent');
+            const clickHint = document.getElementById('clickHint');
+
+            flap.classList.add('open');
+            heartSeal.classList.add('hidden');
+            clickHint.style.display = 'none';
+
+            setTimeout(() => {
+                messageContent.classList.add('show');
+            }, 400);
+        }
+
+        document.getElementById('envelopeContainer').addEventListener('click', openEnvelope);
+        document.getElementById('envelopeContainer').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            openEnvelope();
+        }, { passive: false });
+
+        console.log('🎂 Birthday Journey with Envelope!');
+    </script>
+</body>
+</html>

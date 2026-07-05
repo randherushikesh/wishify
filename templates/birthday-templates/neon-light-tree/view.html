@@ -296,27 +296,8 @@
       border-color: #ffb6c1;
     }
 
-    /* ── Floating edit button ── */
 
-    .floating-cta a {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      background: linear-gradient(135deg, #f4c842, #e8506a);
-      color: #1a0010;
-      font-family: 'Nunito', sans-serif;
-      font-size: .8rem;
-      font-weight: 800;
-      text-decoration: none;
-      padding: .6rem 1.2rem;
-      border-radius: 50px;
-      box-shadow: 0 8px 24px rgba(244,200,66,.3);
-      transition: transform .2s, box-shadow .2s;
-    }
-    .floating-cta a:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(244,200,66,.45);
-    }
+  
 
     @media (max-width: 640px) {
       .gallery-card {
@@ -365,6 +346,7 @@
   <audio id="bg-music" loop preload="auto" style="display:none;"></audio>
   <button id="audio-toggle" onclick="toggleMute()">🔇</button>
 
+  
 
   <!-- GREETING -->
   <section id="greeting-page" class="page active">
@@ -404,6 +386,9 @@
     var pageData = null;
     var audioEl = document.getElementById('bg-music');
     var audioToggleBtn = document.getElementById('audio-toggle');
+
+    // ─── TREE MESSAGE (will be updated from data) ───
+    var treeMessage = 'Hey you 💕\nHappy Birthday 🎂\nMay God bless you 🍀';
 
     async function loadData() {
       var params = new URLSearchParams(window.location.search);
@@ -459,10 +444,10 @@
       document.getElementById('galleryBack').textContent = d.galleryBackButtonText || '← Back';
       document.getElementById('galleryNext').textContent = d.galleryNextButtonText || 'View Surprise →';
 
-      // Tree
-      var msg = d.treeMessage || 'Hey you 💕\nHappy Birthday 🎂\nMay God bless you 🍀';
-      // will be used in tree init
-      window._treeMessage = msg;
+      // Tree message — UPDATE the variable
+      treeMessage = d.treeMessage || 'Hey you 💕\nHappy Birthday 🎂\nMay God bless you 🍀';
+      // Also store for any other usage
+      window._treeMessage = treeMessage;
       document.getElementById('replayBtn').textContent = d.treeReplayButtonText || 'Replay ↺';
 
       // Audio
@@ -570,7 +555,7 @@
       }
     }
 
-    // ─── TREE (full version) ───
+    // ─── TREE ANIMATION ───
     var treeState = 0;
     var fallingY = -50;
     var trunkHeight = 0;
@@ -588,7 +573,6 @@
     var charIndex = 0;
     var frameCount = 0;
     var treeAnimId = null;
-    var treeMessage = window._treeMessage || 'Hey you 💕\nHappy Birthday 🎂\nMay God bless you 🍀';
     var canvas = document.getElementById('treeCanvas');
     var ctx = canvas.getContext('2d');
     var W = 0, H = 0;
@@ -872,7 +856,7 @@
         ctx.globalAlpha = 1;
       }
 
-      // Typed text
+      // Typed text – uses the UPDATED treeMessage variable
       if (treeState >= 5) {
         var textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#ffffff';
         var fontSize = Math.max(22, W * 0.025);
@@ -949,6 +933,7 @@
         }
       } else if (treeState === 5) {
         frameCount++;
+        // Use the updated treeMessage variable
         if (frameCount % 4 === 0 && charIndex < treeMessage.length) {
           typedText += treeMessage[charIndex];
           charIndex++;

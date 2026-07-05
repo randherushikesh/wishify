@@ -20,15 +20,16 @@
       --bulb-glow: rgba(255, 222, 107, 0.8);
     }
 
-    /* --- Strict Layout Fixes --- */
+    /* --- Strict Layout: no body scroll, pages fixed --- */
     html,
     body {
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
       width: 100%;
       height: 100%;
+      overflow: hidden;          /* prevent global scroll */
       background-color: var(--bg-dark);
+      position: relative;        /* anchor for fixed balloons */
     }
 
     * {
@@ -44,13 +45,13 @@
       perspective: 1000px;
     }
 
-    /* --- Main Container / Page Layout --- */
+    /* --- Pages: all fill viewport, no scroll by default --- */
     .page {
       position: absolute;
       top: 0;
       left: 0;
       width: 100vw;
-      min-height: 100vh;
+      height: 100vh;            /* each page takes full viewport */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -62,7 +63,7 @@
       transform: scale(1.1) translateZ(0);
       transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1;
-      overflow: hidden;
+      overflow: hidden;         /* no scroll on pages */
     }
 
     .page.active {
@@ -70,6 +71,15 @@
       opacity: 1;
       transform: scale(1) translateZ(0);
       z-index: 10;
+    }
+
+    /* --- Gallery is the only scrollable page --- */
+    #gallery-page {
+      display: block;            /* override flex for scroll */
+      justify-content: flex-start; /* content starts at top */
+      overflow-y: auto;          /* enable scroll */
+      padding: 60px 20px 40px 20px;
+      height: 100vh;
     }
 
     /* --- Animations --- */
@@ -85,12 +95,9 @@
       100% { box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent); }
     }
 
-    @keyframes sparkle {
-      0%,100% { opacity: 0; transform: scale(0); }
-      50% { opacity: 1; transform: scale(1.2); }
-    }
+    @keyframes shine { to { background-position: 200% center; } }
 
-    /* --- Hero Page --- */
+    /* --- Hero --- */
     #hero-page {
       background: radial-gradient(circle at center, #1a0a0c 0%, #050505 100%);
     }
@@ -106,7 +113,6 @@
       animation: shine 4s linear infinite;
       margin-bottom: 0.5rem;
     }
-    @keyframes shine { to { background-position: 200% center; } }
     .hero-sub {
       font-size: 1.1rem;
       letter-spacing: 4px;
@@ -132,7 +138,7 @@
     }
     .btn-neon:hover { background: var(--accent); color: #fff; box-shadow: 0 0 50px var(--accent); }
 
-    /* --- SLIDER MESSAGE CARD --- */
+    /* --- SLIDER --- */
     .slider-card {
       background: var(--glass);
       backdrop-filter: blur(20px);
@@ -180,7 +186,7 @@
     }
     .dot.active { background: var(--accent); transform: scale(1.5); box-shadow: 0 0 10px var(--accent-glow); }
 
-    /* --- Celebration Page --- */
+    /* --- Celebration --- */
     #celebration-page {
       background: #000;
       transition: background 2s ease;
@@ -189,7 +195,6 @@
       background: radial-gradient(circle at center, #2a0a0e 0%, #0a0a0b 100%);
     }
 
-    /* --- FAIRY LIGHTS --- */
     .fairy-lights-container {
       position: absolute;
       top: 0;
@@ -227,10 +232,10 @@
       animation: flicker var(--d) infinite alternate;
     }
 
-    /* --- REALISTIC BALLOONS --- */
+    /* --- BALLOONS (fixed to viewport) --- */
     .balloon {
-      position: absolute;
-      bottom: -200px;
+      position: fixed;              /* anchored to viewport */
+      bottom: -200px;              /* start below visible area */
       width: 60px;
       height: 80px;
       border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
@@ -238,6 +243,7 @@
       animation: balloonFloat 8s ease-in forwards;
       display: flex;
       justify-content: center;
+      pointer-events: none;        /* avoid blocking clicks */
     }
     .balloon::before {
       content: '';
@@ -275,7 +281,7 @@
     }
     @keyframes stringWobble { 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} }
 
-    /* --- Curtain Page --- */
+    /* --- Curtain --- */
     .stage {
       position: relative;
       width: 100vw;
@@ -317,7 +323,7 @@
       position: relative;
     }
 
-    /* --- TYPING EFFECT STYLES --- */
+    /* --- Typing --- */
     .typing-message {
       font-size: clamp(1rem, 2vw, 1.2rem);
       line-height: 1.8;
@@ -347,20 +353,13 @@
     }
     @keyframes blinkCursor { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    /* --- MEMORY GALLERY FIXES --- */
-    #gallery-page {
-      background: #050505;
-      overflow-y: auto;
-      display: block;
-      padding: 100px 20px;
-      position: relative;
-    }
+    /* --- Gallery styles --- */
     .gallery-title {
       font-family: 'Dancing Script', cursive;
       font-size: clamp(2.5rem, 6vw, 4rem);
       color: var(--accent);
       text-align: center;
-      margin-bottom: 60px;
+      margin: 20px 0 50px;
       text-shadow: 0 0 20px var(--accent-glow);
     }
     .gallery-grid {
@@ -427,12 +426,29 @@
     }
     @keyframes sparkleAnim { 0%,100%{opacity:0;transform:scale(0)} 50%{opacity:0.8;transform:scale(1)} }
 
+    /* Replay button - reduced padding */
+    .gallery-replay-wrap {
+      text-align: center;
+      padding: 40px 0 20px;
+      width: 100%;
+    }
+
     @media (max-width: 600px) {
       .gallery-grid { grid-template-columns: 1fr; }
       .memory-card { height: 350px; }
+      #gallery-page { padding: 40px 16px 60px 16px; }
     }
 
-    /* ─── AUDIO TOGGLE ──────────────────────────────────────── */
+    /* --- Curtain override --- */
+    #curtain-page {
+      padding: 0 !important;
+    }
+    #curtain-page .stage {
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* --- Audio toggle (unchanged) --- */
     #audio-toggle {
       position: fixed;
       bottom: 1.2rem;
@@ -528,7 +544,7 @@
     <div id="gallery-bg-elements" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
     <h2 class="gallery-title" id="gallery-title">Moments in Time</h2>
     <div class="gallery-grid" id="gallery-grid"></div>
-    <div style="text-align: center; padding: 100px 0;">
+    <div class="gallery-replay-wrap">
       <button class="btn-neon" onclick="location.reload()">Replay The Magic</button>
     </div>
   </section>
@@ -550,7 +566,6 @@
     function loadData() {
       var params = new URLSearchParams(window.location.search);
       var slug = params.get('slug');
-      // clean URL: /cinematic/xyz
       if (!slug) {
         var pathParts = window.location.pathname.split('/').filter(Boolean);
         if (pathParts.length >= 2) {
@@ -579,10 +594,8 @@
           initAudio();
           initGallery();
           initFairyLights();
-          // Start heart particles
           setInterval(function() { createHeart('particle-container'); }, 300);
           setInterval(function() { createHeart('slider-particles'); }, 400);
-          // Gallery sparkles
           setInterval(function() {
             if (document.getElementById('gallery-page').classList.contains('active')) {
               spawnGallerySparkle();
@@ -598,19 +611,16 @@
     // ─── APPLY DATA ─────────────────────────────────────────────
     function applyData() {
       var d = pageData;
-      // Colors
       var accent = d.colorAccent || '#ff2d55';
       var gold = d.colorGold || '#d4af37';
       document.documentElement.style.setProperty('--accent', accent);
       document.documentElement.style.setProperty('--gold', gold);
       document.documentElement.style.setProperty('--accent-glow', accent + '80');
 
-      // Hero
       document.getElementById('hero-title').textContent = d.heroTitle || 'Happy Birthday, friend';
       document.getElementById('hero-sub').textContent = d.heroSub || 'A Cinematic Journey Created Just For You';
       document.getElementById('hero-btn').textContent = d.heroBtn || 'Open Your Gift';
 
-      // Slider
       document.getElementById('slider-text-1').textContent = d.sliderStep1 || "It's Your Special Day";
       document.getElementById('slider-text-2').textContent = d.sliderStep2 || 'Have a look';
       document.getElementById('slider-text-3').textContent = d.sliderStep3 || 'Ready for your surprise?';
@@ -618,15 +628,12 @@
       document.getElementById('slider-btn-2').textContent = d.sliderBtn || 'Next';
       document.getElementById('slider-btn-3').textContent = d.sliderFinalBtn || "Let's Go";
 
-      // Celebration
       document.getElementById('celeb-hint').textContent = d.celebHint || 'The Stage is Set...';
       document.getElementById('celeb-master-btn').textContent = d.celebBtn1 || '💡 Turn On Lights';
 
-      // Curtain
       window._curtainMsg = d.curtainMsg || "Today isn't just a date on the calendar; it's a celebration of the light you bring into my life. Every moment with you is like a frame from a beautiful movie, and I'm so lucky to be your co-star. May this year be filled with as much magic as you give to everyone around you.";
       document.getElementById('galleryBtn').textContent = d.curtainGalleryBtn || 'Our Memories';
 
-      // Gallery
       document.getElementById('gallery-title').textContent = d.galleryTitle || 'Moments in Time';
       window._galleryItems = d.galleryItems || [];
     }
@@ -724,7 +731,7 @@
       }
     }
 
-    // ─── BALLOONS ──────────────────────────────────────────────
+    // ─── BALLOONS (fixed to viewport) ──────────────────────────
     function spawnBalloons(target) {
       var colors = [
         ['#ff2d55','#800020'],
@@ -783,7 +790,6 @@
           '<div class="memory-hover-overlay"><p class="hover-message">' + (item.caption || 'Memory') + '</p></div>';
         grid.appendChild(card);
       });
-      // if less than 6, fill with placeholders
       var fillCount = 6 - items.length;
       for (var i = 0; i < fillCount; i++) {
         var card = document.createElement('div');

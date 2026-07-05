@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rocket Surprise — Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 1.5rem;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; }
+    .nav-badge {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #f4c842;
+      background: rgba(244,200,66,.12);
+      border: 1px solid rgba(244,200,66,.25);
+      padding: .25rem .75rem;
+      border-radius: 50px;
+    }
+    .nav-step { font-size: .8rem; color: rgba(255,255,255,.4); }
+
+    .editor-layout {
+      display: flex;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 380px;
+      flex-shrink: 0;
+      background: #111;
+      border-right: 1px solid rgba(255,255,255,.07);
+      padding: 1rem;
+      overflow-y: auto;
+      height: 100%;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
+    }
+    .left-panel::-webkit-scrollbar { width: 4px; }
+    .left-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+    .right-panel {
+      flex: 1;
+      background: #0d0d0d;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .panel-section {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: .85rem;
+    }
+    .section-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .75rem;
+    }
+    .field {
+      margin-bottom: .75rem;
+    }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .3rem;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: .55rem .75rem;
+      outline: none;
+      resize: none;
+      transition: border-color .2s;
+    }
+    .field textarea { height: 64px; line-height: 1.6; }
+    .field input:focus, .field textarea:focus { border-color: rgba(244,200,66,.5); }
+
+    .upload-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .65rem;
+      border: 2px dashed rgba(255,255,255,.15);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .78rem;
+      color: rgba(255,255,255,.4);
+      position: relative;
+      transition: border-color .2s;
+    }
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-zone:hover { border-color: rgba(244,200,66,.4); color: #f4c842; }
+
+    .gallery-item-editor {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: .8rem;
+      margin-bottom: .7rem;
+    }
+    .gallery-item-editor .field { margin-bottom: .5rem; }
+    .gallery-item-editor .field:last-child { margin-bottom: 0; }
+    .gallery-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .5rem;
+    }
+    .gallery-item-header span {
+      font-size: .7rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.3);
+      letter-spacing: .05em;
+    }
+    .gallery-item-header button {
+      background: none;
+      border: none;
+      color: #e8506a;
+      font-size: .8rem;
+      cursor: pointer;
+      font-weight: 700;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      transition: background .2s;
+    }
+    .gallery-item-header button:hover { background: rgba(232,80,106,.15); }
+
+    .add-gallery-btn {
+      width: 100%;
+      padding: .6rem;
+      background: rgba(244,200,66,.08);
+      border: 1.5px dashed rgba(244,200,66,.3);
+      border-radius: 10px;
+      color: #f4c842;
+      font-family: 'Nunito', sans-serif;
+      font-size: .8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background .2s;
+      margin-top: .2rem;
+    }
+    .add-gallery-btn:hover { background: rgba(244,200,66,.14); }
+
+    .color-row {
+      display: flex;
+      gap: .8rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .color-row input[type="color"] {
+      width: 48px;
+      height: 40px;
+      border: 2px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      padding: 2px;
+    }
+    .color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+    .color-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.3);
+      min-width: 60px;
+    }
+
+    .share-section {
+      background: linear-gradient(135deg, rgba(244,200,66,.08), rgba(232,80,106,.06));
+      border: 1.5px solid rgba(244,200,66,.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .share-section .section-label { color: #f4c842; }
+    #generate-btn {
+      width: 100%;
+      padding: .8rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f4c842, #e8506a);
+      color: #1a0010;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244,200,66,.2);
+      transition: transform .15s, box-shadow .15s;
+    }
+    #generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,200,66,.3); }
+    .result-area {
+      display: none;
+      margin-top: .75rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .result-area.show { display: block; }
+    .result-url {
+      display: block;
+      padding: .6rem .8rem;
+      font-size: .7rem;
+      color: rgba(255,255,255,.5);
+      word-break: break-all;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .result-actions {
+      display: flex;
+    }
+    .result-btn {
+      flex: 1;
+      padding: .55rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.5);
+      cursor: pointer;
+    }
+    .result-btn:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .result-btn + .result-btn { border-left: 1px solid rgba(255,255,255,.07); }
+
+    /* ─── PREVIEW ─── */
+    .preview-topbar {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+    .preview-label {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .live-dot {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .live-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .phone-wrap {
+      width: 100%;
+      max-width: 360px;
+      flex-shrink: 0;
+    }
+    .phone {
+      width: 100%;
+      background: #1a1a2e;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      min-height: 580px;
+      position: relative;
+    }
+    .phone-bar {
+      height: 28px;
+      background: rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-notch {
+      width: 80px;
+      height: 12px;
+      background: #000;
+      border-radius: 0 0 10px 10px;
+    }
+    .phone-screen {
+      padding: 1.2rem 1.2rem 1rem;
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      background: #0a0612;
+      color: #fff;
+      transition: background 0.3s, color 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Preview pages */
+    .prev-page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: absolute;
+      inset: 0;
+      padding: 1.2rem 1.2rem 1rem;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    .prev-page.active {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Preview: Page 1 Question */
+    .prev-question h1 {
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,100,200,0.3);
+      font-weight: 300;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+    }
+    .prev-question .highlight { color: var(--accent); font-weight: 600; }
+    .prev-question .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .prev-question .btn-preview {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+    .prev-question .btn-yes {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: #fff;
+      box-shadow: 0 8px 30px rgba(255,64,129,0.4);
+    }
+    .prev-question .btn-no {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .prev-question .lying-msg {
+      margin-top: 12px;
+      color: #ff6b6b;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .prev-question .lying-msg.show { opacity: 1; }
+
+    /* Preview: Page 2 Gallery */
+    .prev-gallery .gallery-title {
+      font-size: clamp(1rem, 3vw, 1.6rem);
+      letter-spacing: 4px;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .prev-gallery .glow-ring {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,120,200,0.08) 0%, transparent 70%);
+      margin: 0 auto;
+    }
+    .prev-gallery .carousel-preview {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 10px 0;
+      width: 100%;
+      justify-content: center;
+      scrollbar-width: none;
+    }
+    .prev-gallery .carousel-preview::-webkit-scrollbar { display: none; }
+    .prev-gallery .card-preview {
+      width: 100px;
+      height: 140px;
+      border-radius: 12px;
+      background: #1a1a2e;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      color: #aaa;
+      position: relative;
+    }
+    .prev-gallery .card-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .prev-gallery .card-preview .card-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 6px;
+      font-size: 0.5rem;
+      color: #fff;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+    .prev-gallery .controls-preview {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+      justify-content: center;
+    }
+    .prev-gallery .controls-preview button {
+      background: rgba(255,255,255,0.06);
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .prev-gallery .controls-preview .counter {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.7rem;
+    }
+    .prev-gallery .btn-go-preview {
+      padding: 8px 24px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
+    /* Preview: Page 3 Balloon */
+    .prev-balloon .balloon-msg {
+      font-size: clamp(0.8rem, 2vw, 1.2rem);
+      color: #fff;
+      word-break: break-word;
+      padding: 0.5rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    /* Preview: Page 4 Heart */
+    .prev-heart .heart-text {
+      font-size: clamp(1.2rem, 4vw, 2.5rem);
+      color: var(--accent);
+      text-shadow: 0 0 30px rgba(255,80,180,0.5);
+      font-weight: 700;
+      font-family: 'Georgia', serif;
+      margin-bottom: 0.5rem;
+    }
+    .prev-heart .heart-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .prev-heart .heart-actions button {
+      padding: 6px 18px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.7rem;
+    }
+
+    /* Preview: Page 5 Envelope */
+    .prev-envelope .envelope-box {
+      width: 80%;
+      max-width: 200px;
+      height: 130px;
+      background: #0d0d1a;
+      border: 2px solid var(--accent);
+      border-radius: 10px;
+      box-shadow: 0 0 20px var(--accent);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 10px;
+    }
+    .prev-envelope .envelope-box .heart-seal {
+      font-size: 2rem;
+      color: var(--accent);
+      text-shadow: 0 0 20px var(--accent);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .prev-envelope .envelope-box .msg-preview {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.5rem;
+      color: #fff;
+      width: 80%;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .prev-envelope .click-hint {
+      font-size: 0.6rem;
+      color: var(--accent);
+      animation: pulse 1.5s infinite;
+    }
+
+    .screen-nav {
+      display: flex;
+      gap: .4rem;
+      justify-content: center;
+      margin-top: .6rem;
+    }
+    .screen-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .screen-dot.active { background: #f4c842; }
+
+    @media (max-width: 768px) {
+      .editor-layout { flex-direction: column; height: auto; overflow: visible; }
+      .left-panel { width: 100%; height: auto; overflow-y: visible; border-right: none; border-bottom: 1px solid rgba(255,255,255,.07); }
+      .right-panel { height: auto; overflow-y: visible; padding: 1rem; }
+      .phone-wrap { max-width: 100%; }
+      .navbar { padding: 0 1rem; }
+      .nav-step { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo">✨ Wishify</div>
+  <div class="nav-badge">Rocket Surprise</div>
+  <div class="nav-step">Template</div>
+</nav>
+
+<div class="editor-layout">
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel">
+
+    <!-- Question Page -->
+    <div class="panel-section">
+      <div class="section-label">❓ Question Page</div>
+      <div class="field">
+        <label>Question Title</label>
+        <input type="text" id="q-title" value="Hey I heard it's your <br><span class='highlight'>🎂 Birthday</span> today?" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Yes Button Text</label>
+        <input type="text" id="q-yes" value="✨ Yes!" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>No Button Text</label>
+        <input type="text" id="q-no" value="😅 No" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Lying Error Text</label>
+        <input type="text" id="q-error" value="🙈 You are lying! It's definitely your birthday!" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Gallery Page -->
+    <div class="panel-section">
+      <div class="section-label">🖼 Gallery Page</div>
+      <div class="field">
+        <label>Gallery Title</label>
+        <input type="text" id="gallery-title" value="✦ PHOTO GALLERY ✦" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Go Ahead Button Text</label>
+        <input type="text" id="gallery-go" value="🚀 Go Ahead" oninput="updatePreview()" />
+      </div>
+      <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.3);margin:.5rem 0 .3rem;">Cards (max 8)</div>
+      <div id="gallery-editor-container"></div>
+      <button class="add-gallery-btn" onclick="addGalleryImage()">+ Add Card</button>
+    </div>
+
+    <!-- Balloon Page -->
+    <div class="panel-section">
+      <div class="section-label">🎈 Balloon Message</div>
+      <div class="field">
+        <label>Message (space-separated words)</label>
+        <input type="text" id="balloon-msg" value="HAPPY BIRTHDAY TO MY FRIEND" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Go to Heart Button Text</label>
+        <input type="text" id="balloon-go" value="💖 Go to Heart" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Heart Page -->
+    <div class="panel-section">
+      <div class="section-label">❤️ Heart Text <h3 style="color: red;">(Dont write big message Max=20 letter for good UI)</h3></div>
+      <div class="field">
+        <label>Typed Message</label>
+        <input type="text" id="heart-msg" value="Happy Birthday" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Last Message Button Text</label>
+        <input type="text" id="heart-envelope" value="💌 Last Message" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Replay Button Text</label>
+        <input type="text" id="heart-replay" value="⟳ Replay" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Envelope Page -->
+    <div class="panel-section">
+      <div class="section-label">💌 Envelope Content</div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="env-title" value="🎉 Happy Birthday! 🎉" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Big Message</label>
+        <input type="text" id="env-big" value="My Dear Friend" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Paragraph</label>
+        <input type="text" id="env-para" value="Wishing you a day filled with love, laughter, and all the happiness in the world!" oninput="updatePreview()" />
+      </div>
+      <div class="field">
+        <label>Heart Emoji (seal)</label>
+        <input type="text" id="env-heart" value="💖" oninput="updatePreview()" />
+      </div>
+    </div>
+
+    <!-- Colors -->
+    <div class="panel-section">
+      <div class="section-label">🎨 Colors</div>
+      <div class="field">
+        <label>Background</label>
+        <div class="color-row">
+          <span class="color-label">Bg</span>
+          <input type="color" id="color-bg" value="#0a0612" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Accent (pink)</label>
+        <div class="color-row">
+          <span class="color-label">Accent</span>
+          <input type="color" id="color-accent" value="#ff4081" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Text Color</label>
+        <div class="color-row">
+          <span class="color-label">Text</span>
+          <input type="color" id="color-text" value="#ffffff" oninput="updatePreview()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio -->
+    <div class="panel-section">
+      <div class="section-label">🎵 Background Music</div>
+      <p style="font-size:.7rem;color:rgba(255,255,255,.4);margin-bottom:.8rem;line-height:1.4;">Upload a song (max 15MB).</p>
+      <div class="field">
+        <label class="upload-zone">
+          <input type="file" accept="audio/*,.opus,.ogg,.m4a,.mp3,.wav,.aac" onchange="handleAudioUpload(this)" />
+          <span id="audio-label-text">🎵 Click to upload audio</span>
+        </label>
+        <div id="audio-filename" style="font-size:.7rem;color:#f4c842;margin-top:.4rem;font-weight:600;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Share -->
+    <div class="share-section">
+      <div class="section-label">🔗 Share</div>
+      <button id="generate-btn">✨ Generate Shareable Link</button>
+      <div class="result-area" id="result-area">
+        <span class="result-url" id="result-link"></span>
+        <div class="result-actions">
+          <button class="result-btn" id="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+          <button class="result-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL — PHONE PREVIEW -->
+  <main class="right-panel">
+    <div class="preview-topbar">
+      <span class="preview-label">Live Preview</span>
+      <span><h4 style="color: red;">Live preview shows text edits only. The final website will look as originally designed once the link is generated.</h4></span>
+      <span class="live-dot">Live</span>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-bar"><div class="phone-notch"></div></div>
+        <div class="phone-screen" id="phone-screen">
+
+          <!-- Page 1: Question -->
+          <div class="prev-page prev-question active" id="prev-page-1">
+            <h1 id="prev-q-title">Hey I heard it's your <br><span class="highlight">🎂 Birthday</span> today?</h1>
+            <div class="btn-group">
+              <button class="btn-preview btn-yes" id="prev-q-yes" style="background:linear-gradient(135deg, var(--accent), var(--accent-light));">✨ Yes!</button>
+              <button class="btn-preview btn-no" id="prev-q-no">😅 No</button>
+            </div>
+            <div class="lying-msg" id="prev-q-error">🙈 You are lying! It's definitely your birthday!</div>
+          </div>
+
+          <!-- Page 2: Gallery -->
+          <div class="prev-page prev-gallery" id="prev-page-2">
+            <div class="gallery-title" id="prev-gallery-title">✦ PHOTO GALLERY ✦</div>
+            <div class="glow-ring"></div>
+            <div class="carousel-preview" id="prev-gallery-track"></div>
+            <div class="controls-preview">
+              <button id="prev-gallery-prev">◀</button>
+              <span class="counter" id="prev-gallery-counter">1/8</span>
+              <button id="prev-gallery-next">▶</button>
+            </div>
+            <button class="btn-go-preview" id="prev-gallery-go" style="background:linear-gradient(135deg, var(--accent), var(--accent-light));">🚀 Go Ahead</button>
+          </div>
+
+          <!-- Page 3: Balloon -->
+          <div class="prev-page prev-balloon" id="prev-page-3">
+            <div class="balloon-msg" id="prev-balloon-msg">HAPPY BIRTHDAY TO MY FRIEND</div>
+            <button class="btn-go-preview" id="prev-balloon-go" style="background:linear-gradient(135deg, var(--accent), var(--accent-light));margin-top:1rem;">💖 Go to Heart</button>
+          </div>
+
+          <!-- Page 4: Heart -->
+          <div class="prev-page prev-heart" id="prev-page-4">
+            <div class="heart-text" id="prev-heart-msg">Happy Birthday</div>
+            <div class="heart-actions">
+              <button id="prev-heart-envelope" style="background:linear-gradient(135deg, var(--accent), var(--accent-light));">💌 Last Message</button>
+              <button id="prev-heart-replay" style="background:linear-gradient(135deg, var(--accent), var(--accent-light));">⟳ Replay</button>
+            </div>
+          </div>
+
+          <!-- Page 5: Envelope -->
+          <div class="prev-page prev-envelope" id="prev-page-5">
+            <div class="envelope-box">
+              <div class="heart-seal" id="prev-env-heart">💖</div>
+              <div class="msg-preview" id="prev-env-preview">🎉 Happy Birthday! 🎉</div>
+            </div>
+            <div class="click-hint">👆 Tap the envelope to open</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Screen navigation dots -->
+      <div class="screen-nav" id="screen-nav">
+        <div class="screen-dot active" onclick="showPreviewPage(0)"></div>
+        <div class="screen-dot" onclick="showPreviewPage(1)"></div>
+        <div class="screen-dot" onclick="showPreviewPage(2)"></div>
+        <div class="screen-dot" onclick="showPreviewPage(3)"></div>
+        <div class="screen-dot" onclick="showPreviewPage(4)"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ─── STATE ───
+  var galleryImages = [];
+  var audioUrl = '';
+  var audioName = '';
+  var pendingUploads = 0;
+  var currentPreviewPage = 0;
+
+  // ─── INIT ───
+  window.addEventListener('load', function() {
+    // Add 4 default gallery items
+    for (var i = 0; i < 4; i++) {
+      galleryImages.push({ src: '', title: '', subtitle: '' });
+    }
+    renderGalleryEditor();
+    updatePreview();
+    setupPreviewNavigation();
+  });
+
+  // ─── PREVIEW NAVIGATION ───
+  function setupPreviewNavigation() {
+    // Question -> Gallery
+    document.getElementById('prev-q-yes').addEventListener('click', function() { showPreviewPage(1); });
+    document.getElementById('prev-q-no').addEventListener('click', function() {
+      var err = document.getElementById('prev-q-error');
+      err.classList.add('show');
+      setTimeout(function() { err.classList.remove('show'); }, 3000);
+    });
+
+    // Gallery -> Balloon (Go Ahead)
+    document.getElementById('prev-gallery-go').addEventListener('click', function() { showPreviewPage(2); });
+
+    // Balloon -> Heart
+    document.getElementById('prev-balloon-go').addEventListener('click', function() { showPreviewPage(3); });
+
+    // Heart -> Envelope
+    document.getElementById('prev-heart-envelope').addEventListener('click', function() { showPreviewPage(4); });
+
+    // Heart Replay (just restart animation in preview)
+    document.getElementById('prev-heart-replay').addEventListener('click', function() {
+      var el = document.getElementById('prev-heart-msg');
+      el.style.animation = 'none';
+      setTimeout(function() { el.style.animation = ''; }, 10);
+    });
+
+    // Gallery prev/next (just cycle counter)
+    var counter = 0;
+    var total = galleryImages.length || 4;
+    document.getElementById('prev-gallery-prev').addEventListener('click', function() {
+      counter = (counter - 1 + total) % total;
+      updateGalleryCounter(counter);
+    });
+    document.getElementById('prev-gallery-next').addEventListener('click', function() {
+      counter = (counter + 1) % total;
+      updateGalleryCounter(counter);
+    });
+
+    function updateGalleryCounter(idx) {
+      document.getElementById('prev-gallery-counter').textContent = (idx+1) + '/' + total;
+    }
+  }
+
+  // ─── UPLOAD HELPERS with compression ───
+  function beginUpload() { pendingUploads++; document.getElementById('generate-btn').textContent = '⏳ Uploading...'; }
+  function endUpload() { pendingUploads = Math.max(0, pendingUploads - 1); if(pendingUploads === 0) document.getElementById('generate-btn').textContent = '✨ Generate Shareable Link'; }
+
+  function compressImage(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var maxSize = 800;
+          var width = img.width;
+          var height = img.height;
+          if (width > height) {
+            if (width > maxSize) { height = Math.round(height * maxSize / width); width = maxSize; }
+          } else {
+            if (height > maxSize) { width = Math.round(width * maxSize / height); height = maxSize; }
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          resolve(dataUrl);
+        };
+        img.onerror = function() { reject('Image load error'); };
+        img.src = e.target.result;
+      };
+      reader.onerror = function() { reject('File read error'); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function uploadToCloudinary(file, type) {
+    return new Promise(function(resolve, reject) {
+      var processFile = function() {
+        if (type === 'image') {
+          return compressImage(file);
+        } else {
+          return new Promise(function(resolve2, reject2) {
+            var r = new FileReader();
+            r.onload = function(e) { resolve2(e.target.result); };
+            r.onerror = function() { reject2('File read error'); };
+            r.readAsDataURL(file);
+          });
+        }
+      };
+      processFile().then(function(dataUrl) {
+        return fetch('https://wishify.onrender.com/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: dataUrl, type: type || 'image' })
+        });
+      }).then(function(res) { return res.json(); })
+      .then(function(result) {
+        if (result.success) resolve(result.url);
+        else reject('Upload failed');
+      }).catch(function(err) { reject(err); });
+    });
+  }
+
+  // ─── GALLERY EDITOR ───
+  function renderGalleryEditor() {
+    var container = document.getElementById('gallery-editor-container');
+    container.innerHTML = '';
+    galleryImages.forEach(function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'gallery-item-editor';
+      div.innerHTML =
+        '<div class="gallery-item-header">' +
+          '<span>Card ' + (idx+1) + '</span>' +
+          '<button onclick="removeGalleryImage(' + idx + ')">✕</button>' +
+        '</div>' +
+        '<div class="field"><label>Image</label>' +
+          '<label class="upload-zone">' +
+            '<input type="file" accept="image/*" onchange="handleGalleryUpload(this, ' + idx + ')" />' +
+            '<span id="gallery-upload-label-' + idx + '">' + (item.src ? '✅ Uploaded' : '📁 Click to upload') + '</span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="field"><label>Title</label>' +
+          '<input type="text" id="gallery-title-' + idx + '" value="' + (item.title || '') + '" placeholder="e.g. Mountain Lake" oninput="updateGalleryField(' + idx + ')" />' +
+        '</div>' +
+        '<div class="field"><label>Subtitle</label>' +
+          '<input type="text" id="gallery-subtitle-' + idx + '" value="' + (item.subtitle || '') + '" placeholder="e.g. Nature" oninput="updateGalleryField(' + idx + ')" />' +
+        '</div>';
+      container.appendChild(div);
+    });
+  }
+
+  function addGalleryImage() {
+    if (galleryImages.length >= 8) { alert('Maximum 8 cards'); return; }
+    galleryImages.push({ src: '', title: '', subtitle: '' });
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function removeGalleryImage(idx) {
+    if (galleryImages.length <= 1) { alert('At least 1 card required'); return; }
+    galleryImages.splice(idx, 1);
+    renderGalleryEditor();
+    updatePreview();
+  }
+
+  function updateGalleryField(idx) {
+    var titleInput = document.getElementById('gallery-title-' + idx);
+    var subtitleInput = document.getElementById('gallery-subtitle-' + idx);
+    if (titleInput) galleryImages[idx].title = titleInput.value;
+    if (subtitleInput) galleryImages[idx].subtitle = subtitleInput.value;
+    updatePreview();
+  }
+
+  async function handleGalleryUpload(input, idx) {
+    if (!input.files || !input.files[0]) return;
+    var label = document.getElementById('gallery-upload-label-' + idx);
+    label.textContent = '⏳ Compressing...';
+    beginUpload();
+    try {
+      var url = await uploadToCloudinary(input.files[0], 'image');
+      galleryImages[idx].src = url;
+      label.textContent = '✅ Uploaded';
+      updatePreview();
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── AUDIO ───
+  async function handleAudioUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (file.size > 15 * 1024 * 1024) { alert('Audio too large (max 15MB)'); input.value = ''; return; }
+    audioName = file.name;
+    var label = document.getElementById('audio-filename');
+    label.textContent = '⏳ Uploading: ' + audioName;
+    label.style.display = 'block';
+    beginUpload();
+    try {
+      audioUrl = await uploadToCloudinary(file, 'audio');
+      label.textContent = '✅ ' + audioName;
+      document.getElementById('audio-label-text').textContent = '🎵 ' + audioName;
+    } catch(err) {
+      label.textContent = '❌ Upload failed';
+      console.error(err);
+    } finally { endUpload(); }
+  }
+
+  // ─── PREVIEW UPDATE ───
+  function updatePreview() {
+    var bg = document.getElementById('color-bg').value;
+    var accent = document.getElementById('color-accent').value;
+    var textColor = document.getElementById('color-text').value;
+
+    var screen = document.getElementById('phone-screen');
+    screen.style.background = bg;
+    screen.style.color = textColor;
+    screen.style.setProperty('--accent', accent);
+    screen.style.setProperty('--accent-light', accent);
+
+    // Page 1: Question
+    var qTitle = document.getElementById('q-title').value || 'Hey I heard it\'s your <br><span class="highlight">🎂 Birthday</span> today?';
+    document.getElementById('prev-q-title').innerHTML = qTitle;
+    document.getElementById('prev-q-yes').textContent = document.getElementById('q-yes').value || '✨ Yes!';
+    document.getElementById('prev-q-yes').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+    document.getElementById('prev-q-no').textContent = document.getElementById('q-no').value || '😅 No';
+    document.getElementById('prev-q-error').textContent = document.getElementById('q-error').value || '🙈 You are lying! It\'s definitely your birthday!';
+
+    // Page 2: Gallery
+    document.getElementById('prev-gallery-title').textContent = document.getElementById('gallery-title').value || '✦ PHOTO GALLERY ✦';
+    document.getElementById('prev-gallery-go').textContent = document.getElementById('gallery-go').value || '🚀 Go Ahead';
+    document.getElementById('prev-gallery-go').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+    renderGalleryPreview();
+
+    // Page 3: Balloon
+    document.getElementById('prev-balloon-msg').textContent = document.getElementById('balloon-msg').value || 'HAPPY BIRTHDAY TO MY FRIEND';
+    document.getElementById('prev-balloon-go').textContent = document.getElementById('balloon-go').value || '💖 Go to Heart';
+    document.getElementById('prev-balloon-go').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+
+    // Page 4: Heart
+    document.getElementById('prev-heart-msg').textContent = document.getElementById('heart-msg').value || 'Happy Birthday';
+    document.getElementById('prev-heart-envelope').textContent = document.getElementById('heart-envelope').value || '💌 Last Message';
+    document.getElementById('prev-heart-replay').textContent = document.getElementById('heart-replay').value || '⟳ Replay';
+    document.getElementById('prev-heart-envelope').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+    document.getElementById('prev-heart-replay').style.background = 'linear-gradient(135deg, ' + accent + ', ' + accent + ')';
+
+    // Page 5: Envelope
+    document.getElementById('prev-env-heart').textContent = document.getElementById('env-heart').value || '💖';
+    var envTitle = document.getElementById('env-title').value || '🎉 Happy Birthday! 🎉';
+    var envBig = document.getElementById('env-big').value || 'My Dear Friend';
+    var envPara = document.getElementById('env-para').value || 'Wishing you a day filled with love, laughter, and all the happiness in the world!';
+    document.getElementById('prev-env-preview').textContent = envTitle + ' · ' + envBig;
+  }
+
+  // ─── GALLERY PREVIEW ───
+  function renderGalleryPreview() {
+    var track = document.getElementById('prev-gallery-track');
+    track.innerHTML = '';
+    var items = galleryImages || [];
+    items.forEach(function(item) {
+      var div = document.createElement('div');
+      div.className = 'card-preview';
+      if (item.src) {
+        div.innerHTML = '<img src="' + item.src + '" alt="memory" />';
+      } else {
+        div.textContent = '📷';
+      }
+      var label = document.createElement('div');
+      label.className = 'card-label';
+      label.textContent = (item.title || '') + (item.subtitle ? ' · ' + item.subtitle : '');
+      div.appendChild(label);
+      track.appendChild(div);
+    });
+    // Update counter total
+    var total = items.length;
+    document.getElementById('prev-gallery-counter').textContent = '1/' + total;
+  }
+
+  // ─── PREVIEW PAGE NAVIGATION ───
+  function showPreviewPage(idx) {
+    var pages = document.querySelectorAll('.prev-page');
+    pages.forEach(function(p, i) { p.classList.toggle('active', i === idx); });
+    var dots = document.querySelectorAll('.screen-dot');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+    currentPreviewPage = idx;
+  }
+
+  // ─── GENERATE LINK ───
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    if (pendingUploads > 0) { alert('⏳ Still uploading files — please wait.'); return; }
+    var btn = this;
+    btn.textContent = 'Generating...';
+
+    var payload = {
+      template: 'Love-Heart',
+      data: {
+        questionTitle: document.getElementById('q-title').value,
+        yesButtonText: document.getElementById('q-yes').value,
+        noButtonText: document.getElementById('q-no').value,
+        lyingErrorText: document.getElementById('q-error').value,
+        galleryTitle: document.getElementById('gallery-title').value,
+        galleryGoButtonText: document.getElementById('gallery-go').value,
+        galleryImages: galleryImages,
+        balloonMessage: document.getElementById('balloon-msg').value,
+        balloonGoButtonText: document.getElementById('balloon-go').value,
+        heartMessage: document.getElementById('heart-msg').value,
+        heartEnvelopeButtonText: document.getElementById('heart-envelope').value,
+        heartReplayButtonText: document.getElementById('heart-replay').value,
+        envelopeTitle: document.getElementById('env-title').value,
+        envelopeBigMessage: document.getElementById('env-big').value,
+        envelopeParagraph: document.getElementById('env-para').value,
+        envelopeHeart: document.getElementById('env-heart').value,
+        colorBg: document.getElementById('color-bg').value,
+        colorAccent: document.getElementById('color-accent').value,
+        colorText: document.getElementById('color-text').value,
+        audioUrl: audioUrl,
+        audioName: audioName,
+      }
+    };
+
+    try {
+      var res = await fetch('https://wishify.onrender.com/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      var result = await res.json();
+      if (result.success) {
+        var link = window.location.origin + '/Love-Heart/' + result.slug;
+        document.getElementById('result-link').textContent = link;
+        document.getElementById('result-area').classList.add('show');
+        btn.textContent = '✅ Link Generated!';
+        btn.style.background = 'linear-gradient(135deg,#34d399,#059669)';
+        setTimeout(function(){ btn.textContent = '✨ Generate Shareable Link'; btn.style.background = ''; }, 3000);
+      } else {
+        btn.textContent = '✨ Generate Shareable Link';
+        alert('❌ Failed to generate link.');
+      }
+    } catch(err) {
+      document.getElementById('result-link').textContent = '⚠️ Server error.';
+      document.getElementById('result-area').classList.add('show');
+      btn.textContent = '✨ Generate Shareable Link';
+    }
+  });
+
+  function copyLink() {
+    var link = document.getElementById('result-link').textContent;
+    navigator.clipboard.writeText(link).then(function() {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copied!';
+      setTimeout(function(){ btn.textContent = '📋 Copy Link'; }, 2000);
+    });
+  }
+
+  function shareWhatsApp() {
+    var link = document.getElementById('result-link').textContent;
+    window.open('https://wa.me/?text=' + encodeURIComponent('🎂 A birthday surprise for you! ' + link), '_blank');
+  }
+
+  // ─── INIT ───
+  updatePreview();
+</script>
+</body>
+</html>

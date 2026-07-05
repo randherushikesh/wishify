@@ -33,6 +33,10 @@
   "source": "/neon-light-tree/:slug",
   "destination": "/templates/birthday-templates/neon-light-tree/view?slug=:slug"
     },
+    {
+  "source": "/Love-Heart/:slug",
+  "destination": "/templates/birthday-templates/Love-Heart/view?slug=:slug"
+    },
 
     {
       "source": "/wedding/:slug",
