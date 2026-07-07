@@ -37,6 +37,10 @@
   "source": "/Love-Heart/:slug",
   "destination": "/templates/birthday-templates/Love-Heart/view?slug=:slug"
     },
+    {
+  "source": "/pigeon-msg-heart/:slug",
+  "destination": "/templates/birthday-templates/pigeon-msg-heart/view?slug=:slug"
+},
 
     {
       "source": "/wedding/:slug",
