@@ -41,6 +41,10 @@
   "source": "/pigeon-msg-heart/:slug",
   "destination": "/templates/birthday-templates/pigeon-msg-heart/view?slug=:slug"
 },
+{
+  "source": "/Flower-Garden/:slug",
+  "destination": "/templates/birthday-templates/Flower-Garden/view?slug=:slug"
+},
 
     {
       "source": "/wedding/:slug",
