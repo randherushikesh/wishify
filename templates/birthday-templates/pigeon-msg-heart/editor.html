@@ -875,7 +875,7 @@
       });
       var result = await res.json();
       if (result.success) {
-        var link = window.location.origin + '/surprise/' + result.slug;
+        var link = window.location.origin + '/pigeon-msg-heart/' + result.slug;
         document.getElementById('result-link').textContent = link;
         document.getElementById('result-area').classList.add('show');
         btn.textContent = '✅ Link Generated!';
